@@ -1,0 +1,11 @@
+python-decouple # For handling environment variables
+
+django # Django framework
+
+psycopg2  # For PostgreSQL
+
+django-money # For handling money values
+django-payments # For handling payments
+
+pylatex # For generating ticket PDFs
+qrcode[pil] # For generating QR codes
