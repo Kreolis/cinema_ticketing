@@ -26,13 +26,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Generate Django Secret Key
-      id: secret-key
+      id: django-secret-key
       run: |
         cd code
         python -c "from django.core.management.utils import get_random_secret_key; print(f'DJANGO_SECRET_KEY={get_random_secret_key()}')" >> $GITHUB_ENV
     
-    - name: Generate Django Secret Key
-      id: secret-key
+    - name: Generate STRIPE Keys
+      id: stripe-keys
       run: |
         cd code
         python -c "from django.core.management.utils import get_random_secret_key; print(f'STRIPE_SECRET_KEY={get_random_secret_key()}')" >> $GITHUB_ENV
@@ -40,6 +40,8 @@ jobs:
     - name: Run Tests
       env:
         DJANGO_SECRET_KEY: ${{ env.DJANGO_SECRET_KEY }}
+        STRIPE_SECRET_KEY: ${{ env.STRIPE_SECRET_KEY }}
+        STRIPE_PUBLIC_KEY: ${{ env.STRIPE_PUBLIC_KEY }}
       run: |
         cd code
         python manage.py test
