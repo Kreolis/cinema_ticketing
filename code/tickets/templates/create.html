@@ -1,16 +1,26 @@
-<h1>Payment for {{ payment.id }}</h1>
+{% extends "master.html" %}
 
-<h2>List of Tickets:</h2>
-<ul>
-    {% for ticket in payment.selected_tickets.all %}
-        <li>{{ ticket.price_class.name }}: ${{ ticket.price_class.price }}</li>
-    {% endfor %}
-</ul>
+{% block title %}
+    Payment for {{ payment.id }}
+{% endblock %}
 
-<h2>Total: ${{ payment.amount }}</h2>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Pay</button>
-</form>
+{% block content %}
+    <h1>Payment for {{ payment.id }}</h1>
+    <h2>List of Tickets:</h2>
+
+    <ul>
+        {% for ticket in payment.selected_tickets.all %}
+            <li>{{ ticket.price_class.name }}: ${{ ticket.price_class.price }}</li>
+        {% endfor %}
+    </ul>
+    
+    <h2>Total: ${{ payment.amount }}</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Pay</button>
+    </form>
+{% endblock %}
+        
