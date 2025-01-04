@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'djmoney',      # currency handling
     'payments',     # payment handling
+    'bootstrap5',   # bootstrap5 support
+
+    # custom apps
     'events',       # events management
     'tickets',      # ticket management and ticket pdf generation
 ]
@@ -146,7 +149,7 @@ PAYMENT_MODEL = 'tickets.Payment'
 
 # Stripe credentials
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
-STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY')
+STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
 
 # Named configuration for your payment provider(s).
 PAYMENT_VARIANTS = {

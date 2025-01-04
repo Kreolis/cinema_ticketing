@@ -9,3 +9,5 @@ django-payments # For handling payments
 
 pylatex # For generating ticket PDFs
 qrcode[pil] # For generating QR codes
+
+django-bootstrap-v5 # For using Bootstrap 5 in Django templates

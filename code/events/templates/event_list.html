@@ -1,11 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event List</title>
-</head>
-<body>
+{% extends "master.html" %}
+
+{% block title %}
+    Upcoming Events
+{% endblock %}
+
+
+{% block content %}
     <h1>Upcoming Events</h1>
 
     <div class="event-list">
@@ -26,5 +26,5 @@
             </div>
         {% endfor %}
     </div>
-</body>
-</html>
+{% endblock %}
+        

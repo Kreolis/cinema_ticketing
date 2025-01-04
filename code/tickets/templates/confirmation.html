@@ -1,2 +1,13 @@
-<h1>Payment Successful</h1>
-<p>Payment for ticket {{ payment.order.seat }} has been successfully processed!</p>
+{% extends "master.html" %}
+
+{% block title %}
+    Payment
+{% endblock %}
+
+
+{% block content %}
+    <h1>Payment Successful</h1>
+
+    <p>Payment for ticket {{ payment.order.seat }} has been successfully processed!</p>
+{% endblock %}
+        
