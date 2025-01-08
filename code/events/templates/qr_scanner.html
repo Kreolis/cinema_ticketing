@@ -1,0 +1,60 @@
+{% extends "master.html" %}
+
+{% block title %}QR Code Scanner{% endblock %}
+
+{% block content %}
+    <h1 class="mt-4">QR Code Scanner</h1>
+
+    <!-- Include the html5-qrcode library via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
+
+
+    <!-- Video feed container -->
+    <div id="qr-reader" class="mt-4" style="width: 100%; height: 400px;"></div>
+
+    <!-- Display the scanned QR code -->
+    <div id="result" class="mt-3"></div>
+
+
+
+    <script>
+        function onScanSuccess(decodedText, decodedResult) {
+            // Handle the result
+            document.getElementById('result').textContent = "QR Code Detected: " + decodedText;
+            
+            // You can send this data to Django backend if needed using AJAX
+            fetch("/qr-result/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ qr_code: decodedText }),
+            });
+        }
+
+        function onScanError(errorMessage) {
+            // Handle scan errors
+            console.error("Scan error:", errorMessage);
+        }
+
+        // Initialize the QR code scanner
+        let html5QrCode = new Html5Qrcode("qr-reader");
+
+        // Start scanning with the camera
+        html5QrCode.start(
+            { facingMode: "environment" }, // Use the back camera
+            {
+                fps: 10, // Frames per second
+                qrbox: { width: 250, height: 250 }, // QR code detection area
+            },
+            onScanSuccess,
+            onScanError
+        ).catch(err => {
+            // This block will catch errors such as permission issues or if no camera is available
+            console.error("Error starting QR scanner:", err);
+            if (err.name === 'NotAllowedError' || err.name === 'NotFoundError') {
+                alert("Please grant camera permissions to scan QR codes.");
+            }
+        });
+    </script>
+{% endblock %}

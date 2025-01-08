@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
+from django.http import JsonResponse
 
 from .models import Event
 
@@ -21,3 +22,18 @@ class EventLandingPageView(TemplateView):
             "prices": prices
         })
         return context
+    
+
+# ticket scanning
+def qr_scanner(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    return render(request, 'qr_scanner.html', {
+        'event': event,
+    })
+
+def handle_qr_result(request):
+    if request.method == "POST":
+        qr_code_data = request.POST.get('qr_code')
+        # Process the QR code data
+        return JsonResponse({"status": "success", "data": qr_code_data})
+    return JsonResponse({"status": "error", "message": "Invalid request"})
