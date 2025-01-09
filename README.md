@@ -3,15 +3,20 @@
 This is a **Django-based event ticketing system** that allows users to view events, select tickets, and make payments using several different payment gateways. 
 The project tracks available seats for each event, handles ticket purchases, and integrates with `django-payments` for seamless payment processing.
 
----
-
-## 🚀 Features
+### 🚀 Features
 
 - **Event Management**: Create, update, and display events with customizable seat limits and price classes.
 - **Ticketing**: Dynamically assign unique seat numbers to tickets and track their availability.
 - **Payments**: Secure Stripe integration for handling payments via `django-payments`.
 - **UUIDs for Tickets**: Non-obvious unique ticket identifiers for security.
 - **Admin Dashboard**: Group tickets by event and manage them in the Django Admin panel.
+
+### 🧰 Tech Stack
+
+- **Backend**: Django 4.x
+- **Frontend**: HTML, CSS (basic templates)
+- **Payment Integration**: Stripe via `django-payments`
+- **Database**: SQLite (default, configurable for other DBs)
 
 ---
 
@@ -78,48 +83,82 @@ python manage.py runserver
 2. Enter payment details on the checkout page.
 3. On successful payment, you will be redirected to a confirmation page.
 
+
+### 🏢 Deployment with Nginx
+
+To deploy this project with Nginx, follow these steps:
+
+#### 1. Set Up Gunicorn
+Install Gunicorn:
+```bash
+pip install gunicorn
+```
+
+Run Gunicorn to serve the application:
+```bash
+gunicorn cinema_ticketing.wsgi:application --bind 0.0.0.0:8000
+```
+
+Gunicorn (short for "Green Unicorn") is a Python WSGI HTTP server designed to serve Python web applications, such as those built with Django or Flask. It acts as a middle layer between the web application and the web server (e.g., Nginx).
+
+#### 2. Install and Configure Nginx
+Install Nginx:
+```bash
+sudo apt update
+sudo apt install nginx
+```
+
+Edit the Nginx configuration file for your site:
+```bash
+sudo nano /etc/nginx/sites-available/cinema_ticketing
+```
+Add the following configuration:
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root /path/to/your/project;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+```
+Replace `/path/to/your/project` with the actual path to your Django project and `yourdomain.com` with your domain name.
+
+#### 3. Obtain an SSL Certificate
+Install Certbot for Nginx:
+```bash
+sudo apt install certbot python3-certbot-nginx
+```
+
+Obtain and configure the SSL certificate:
+```bash
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+```
+
+Certbot will automatically configure your Nginx to redirect HTTP traffic to HTTPS.
+
+#### 4. Enable the Site and Restart Nginx
+Link the configuration file and restart Nginx:
+```bash
+sudo ln -s /etc/nginx/sites-available/cinema_ticketing /etc/nginx/sites-enabled
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+#### 5. Test the Deployment
+Visit your server's IP address or domain in your browser to ensure the application is running correctly.
+
 ---
 
-## 🧰 Tech Stack
-
-- **Backend**: Django 4.x
-- **Frontend**: HTML, CSS (basic templates)
-- **Payment Integration**: Stripe via `django-payments`
-- **Database**: SQLite (default, configurable for other DBs)
-
----
-
-## 📝 To-Do List
-
-- [ ] Add user authentication for ticket buyers.
-- [ ] QR code generation for tickets
-- [ ] PDF generation of tickets and invoice
-- [ ] Implement email notifications for ticket purchases.
-- [ ] Implement QR code scanner for ticket checking
-- [ ] Add support for refunds or cancellations.
-
----
-
-## 💡 Contributing
-
-We welcome contributions to this project! To contribute:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bugfix.
-3. Submit a pull request with a detailed description.
-
----
-
-## ⚠️ License
-
-This project is licensed under the [GNU General Public License v3.0](LICENSE). Feel free to use and modify it as needed.
-
-**GNU GPLv3**
-
-Permissions of this strong copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights. 
-Closed code distributions are not allowed with this license.
-
----
 
 ## 🛠️ Troubleshooting
 
@@ -131,5 +170,48 @@ Closed code distributions are not allowed with this license.
   python manage.py migrate
   ```
 
-### Contact
+---
+
+## 💡 Contributing
+
+We welcome contributions to this project! To contribute:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bugfix.
+3. Submit a pull request with a detailed description.
+
+### 📝 To-Do List
+
+- [ ] Add user authentication for ticket buyers.
+- [ ] QR code generation for tickets
+- [ ] PDF generation of tickets and invoice
+- [ ] Implement email notifications for ticket purchases.
+- [ ] Implement QR code scanner for ticket checking
+- [ ] Add support for refunds or cancellations.
+
+
+### 👨‍💼 Main Contributors
+
+- **Kreolis** - Lead Developer ([GitHub](https://github.com/kreolis))
+
+### 🙇 Buy Me a Coffee
+If you found this project helpful, consider supporting us:
+[Buy Me a Coffee](https://www.buymeacoffee.com/kreolis)
+
+---
+
+## Contact
 For any questions or issues, please email: `info@kreolis.net`.
+🙇 Buy Me a Coffee
+
+
+---
+
+## ⚠️ License
+
+This project is licensed under the [GNU General Public License v3.0](LICENSE). Feel free to use and modify it as needed.
+
+**GNU GPLv3**
+
+Permissions of this strong copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights. 
+Closed code distributions are not allowed with this license.
