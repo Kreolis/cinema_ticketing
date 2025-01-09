@@ -1,9 +1,9 @@
 {% extends "master.html" %}
 
-{% block title %}QR Code Scanner{% endblock %}
+{% block title %}{% trans "QR Code Scanner" %}{% endblock %}
 
 {% block content %}
-    <h1 class="mt-4">QR Code Scanner</h1>
+    <h1 class="mt-4">{% trans "QR Code Scanner" %}</h1>
 
     <!-- Video feed container -->
     <div id="qr-reader" class="mt-4" style="width: 100%; height: 400px;"></div>
@@ -17,7 +17,7 @@
     <script>
         function onScanSuccess(decodedText, decodedResult) {
             // Handle the result
-            document.getElementById('result').textContent = "QR Code Detected: " + decodedText;
+            document.getElementById('result').textContent = "{% trans 'QR Code Detected' %}: " + decodedText;
             
             // You can send this data to Django backend if needed using AJAX
             fetch("/qr-result/", {
@@ -31,7 +31,7 @@
 
         function onScanError(errorMessage) {
             // Handle scan errors
-            console.error("Scan error:", errorMessage);
+            console.error("{% trans 'Scan error' %}:", errorMessage);
         }
 
         // Initialize the QR code scanner
@@ -48,9 +48,9 @@
             onScanError
         ).catch(err => {
             // This block will catch errors such as permission issues or if no camera is available
-            console.error("Error starting QR scanner:", err);
+            console.error("{% trans 'Error starting QR scanner' %}:", err);
             if (err.name === 'NotAllowedError' || err.name === 'NotFoundError') {
-                alert("Please grant camera permissions to scan QR codes.");
+                alert("{% trans 'Please grant camera permissions to scan QR codes.' %}");
             }
         });
     </script>

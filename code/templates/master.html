@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>{% block title %}{% endblock %}</title>
+  {% load i18n %}
   {% load bootstrap5 %}
   {% bootstrap_css %}
   {% bootstrap_javascript %}
@@ -11,7 +12,7 @@
 <div class="container">
   <ul class="nav bg-info">
     <li class="nav-item">
-      <a class="nav-link link-light" href="/">HOME</a>
+      <a class="nav-link link-light" href="/">{% trans "HOME" %}</a>
     </li>
   </ul>
 
@@ -23,7 +24,7 @@
 <footer>
   <div class="container d-flex justify-content-center">
     <p class="mx-2">Cinema Ticketing System © 2025</p>
-    <p class="mx-2"><a href="/contact">Contact Us</a></p>
+    <p class="mx-2"><a href="/contact">{% trans "Contact Us" %}</a></p>
   </div>
 </footer>
 

@@ -1,27 +1,27 @@
 {% extends "master.html" %}
 
 {% block title %}
-    Upcoming Events
+    {% trans "Upcoming Events" %}
 {% endblock %}
 
 
 {% block content %}
-    <h1>Upcoming Events</h1>
+    <h1>{% trans "Upcoming Events" %}</h1>
 
     <div class="event-list">
         {% for event in events %}
             <div class="event-item">
                 <h2><a href="{% url 'ticket_selection' event.id %}">{{ event.name }}</a></h2>
-                <p><strong>Start Time:</strong> {{ event.start_time }}</p>
-                <p><strong>Location:</strong> {{ event.location.name }}</p>
-                <p><strong>Duration:</strong> {{ event.duration }}</p>
-                <p><strong>Price Classes:</strong>
+                <p><strong>{% trans "Start Time" %}:</strong> {{ event.start_time }}</p>
+                <p><strong>{% trans "Location" %}:</strong> {{ event.location.name }}</p>
+                <p><strong>{% trans "Duration" %}:</strong> {{ event.duration }}</p>
+                <p><strong>{% trans "Price Classes" %}:</strong>
                     {% for price_class in event.price_classes.all %}
                         {{ price_class.name }} ({{ price_class.price }})
                     {% endfor %}
                 </p>
                 {% if event.program_link %}
-                    <p><a href="{{ event.program_link }}">View Program</a></p>
+                    <p><a href="{{ event.program_link }}">{% trans "View Program" %}</a></p>
                 {% endif %}
             </div>
         {% endfor %}

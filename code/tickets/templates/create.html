@@ -1,13 +1,13 @@
 {% extends "master.html" %}
 
 {% block title %}
-    Payment for {{ payment.id }}
+    {% trans "Payment for" %} {{ payment.id }}
 {% endblock %}
 
 
 {% block content %}
-    <h1>Payment for {{ payment.id }}</h1>
-    <h2>List of Tickets:</h2>
+    <h1>{% trans "Payment for" %} {{ payment.id }}</h1>
+    <h2>{% trans "List of Tickets" %}:</h2>
 
     <ul>
         {% for ticket in payment.selected_tickets.all %}
@@ -15,12 +15,11 @@
         {% endfor %}
     </ul>
     
-    <h2>Total: ${{ payment.amount }}</h2>
+    <h2>{% trans "Total" %}: ${{ payment.amount }}</h2>
     
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Pay</button>
+        <button type="submit">{% trans "Pay" %}</button>
     </form>
 {% endblock %}
-        
