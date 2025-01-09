@@ -1,12 +1,13 @@
 {% extends "master.html" %}
+{% load i18n %}
 
 {% block title %}
-    {% trans "Payment" %}
+    {% translate "Payment" %}
 {% endblock %}
 
 
 {% block content %}
-    <h1>{% trans "Payment Successful" %}</h1>
+    <h1>{% translate "Payment Successful" %}</h1>
 
-    <p>{% trans "Payment for ticket" %} {{ payment.order.seat }} {% trans "has been successfully processed!" %}</p>
+    <p>{% translate "Payment for ticket" %} {{ payment.order.seat }} {% translate "has been successfully processed!" %}</p>
 {% endblock %}

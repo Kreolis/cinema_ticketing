@@ -1,13 +1,14 @@
 {% extends "master.html" %}
+{% load i18n %}
 
 {% block title %}
-    {% trans "Payment for" %} {{ payment.id }}
+    {% translate "Payment for" %} {{ payment.id }}
 {% endblock %}
 
 
 {% block content %}
-    <h1>{% trans "Payment for" %} {{ payment.id }}</h1>
-    <h2>{% trans "List of Tickets" %}:</h2>
+    <h1>{% translate "Payment for" %} {{ payment.id }}</h1>
+    <h2>{% translate "List of Tickets" %}:</h2>
 
     <ul>
         {% for ticket in payment.selected_tickets.all %}
@@ -15,11 +16,11 @@
         {% endfor %}
     </ul>
     
-    <h2>{% trans "Total" %}: ${{ payment.amount }}</h2>
+    <h2>{% translate "Total" %}: ${{ payment.amount }}</h2>
     
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">{% trans "Pay" %}</button>
+        <button type="submit">{% translate "Pay" %}</button>
     </form>
 {% endblock %}

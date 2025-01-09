@@ -1,29 +1,31 @@
 {% extends "master.html" %}
+{% load i18n %}
 
 {% block title %}
-    {% trans "Contact Us" %}
+    {% translate "Contact Us" %}
 {% endblock %}
 
 
 {% block content %}
-    <h1>{% trans "Contact Us" %}</h1>
+    <h1>{% translate "Contact Us" %}</h1>
 
-    <p>{% trans "For any questions or concerns, please contact us at:" %}</p>
+    <p>{% translate "For any questions or concerns, please contact us at:" %}</p>
     
     <form method="post">
         {% csrf_token %}
         <div class="mb-3">
-            <label for="name" class="form-label">{% trans "Name" %}</label>
+            <label for="name" class="form-label">{% translate "Name" %}</label>
             <input type="text" class="form-control" id="name" name="name" required>
         </div>
         <div class="mb-3">
-            <label for="email" class="form-label">{% trans "Email" %}</label>
+            <label for="email" class="form-label">{% translate "Email" %}</label>
             <input type="email" class="form-control" id="email" name="email" required>
         </div>
         <div class="mb-3">
-            <label for="message" class="form-label">{% trans "Message" %}</label>
+            <label for="message" class="form-label">{% translate "Message" %}</label>
             <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
+        <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
     </form>
+    
 {% endblock %}
