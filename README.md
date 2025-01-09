@@ -40,6 +40,10 @@ pip install -r requirements.txt
 ```
 
 ### 4. Set Up the `.env` File
+```bash
+cd code
+```
+
 Create a `.env` file in the project root and add the following environment variables:
 
 ```plaintext
@@ -168,6 +172,11 @@ Visit your server's IP address or domain in your browser to ensure the applicati
   ```bash
   python manage.py makemigrations
   python manage.py migrate
+  ```
+- **Database Tables are missing**: Create migrations explicitly for the app:
+  ```bash
+  python manage.py makemigrations events
+  python manage.py migrate events
   ```
 
 ---
