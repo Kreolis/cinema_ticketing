@@ -1,0 +1,168 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-09 22:22+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: branding/templates/contact.html:5 branding/templates/contact.html:10
+#: templates/master.html:28
+msgid "Contact Us"
+msgstr ""
+
+#: branding/templates/contact.html:12
+msgid "For any questions or concerns, please contact us at:"
+msgstr ""
+
+#: branding/templates/contact.html:17
+msgid "Name"
+msgstr ""
+
+#: branding/templates/contact.html:21
+msgid "Email"
+msgstr ""
+
+#: branding/templates/contact.html:25
+msgid "Message"
+msgstr ""
+
+#: branding/templates/contact.html:28
+msgid "Submit"
+msgstr ""
+
+#: config/settings.py:127
+msgid "English"
+msgstr ""
+
+#: config/settings.py:128
+msgid "German"
+msgstr ""
+
+#: events/templates/event_list.html:5 events/templates/event_list.html:10
+msgid "Upcoming Events"
+msgstr ""
+
+#: events/templates/event_list.html:16
+#: tickets/templates/ticket_selection.html:12
+msgid "Start Time"
+msgstr ""
+
+#: events/templates/event_list.html:17
+#: tickets/templates/ticket_selection.html:13
+msgid "Location"
+msgstr ""
+
+#: events/templates/event_list.html:18
+#: tickets/templates/ticket_selection.html:14
+msgid "Duration"
+msgstr ""
+
+#: events/templates/event_list.html:19
+msgid "Price Classes"
+msgstr ""
+
+#: events/templates/event_list.html:25
+#: tickets/templates/ticket_selection.html:16
+msgid "View Program"
+msgstr ""
+
+#: events/templates/qr_scanner.html:4 events/templates/qr_scanner.html:7
+msgid "QR Code Scanner"
+msgstr ""
+
+#: events/templates/qr_scanner.html:21
+msgid "QR Code Detected"
+msgstr ""
+
+#: events/templates/qr_scanner.html:35
+msgid "Scan error"
+msgstr ""
+
+#: events/templates/qr_scanner.html:52
+msgid "Error starting QR scanner"
+msgstr ""
+
+#: events/templates/qr_scanner.html:54
+msgid "Please grant camera permissions to scan QR codes."
+msgstr ""
+
+#: templates/master.html:16
+msgid "HOME"
+msgstr ""
+
+#: tickets/templates/confirmation.html:5 tickets/templates/failure.html:5
+#: tickets/templates/payment.html:5 tickets/templates/payment.html:10
+msgid "Payment"
+msgstr ""
+
+#: tickets/templates/confirmation.html:10
+msgid "Payment Successful"
+msgstr ""
+
+#: tickets/templates/confirmation.html:12
+msgid "Payment for ticket"
+msgstr ""
+
+#: tickets/templates/confirmation.html:12
+msgid "has been successfully processed!"
+msgstr ""
+
+#: tickets/templates/create.html:5 tickets/templates/create.html:10
+msgid "Payment for"
+msgstr ""
+
+#: tickets/templates/create.html:11
+msgid "List of Tickets"
+msgstr ""
+
+#: tickets/templates/create.html:19
+msgid "Total"
+msgstr ""
+
+#: tickets/templates/create.html:24
+msgid "Pay"
+msgstr ""
+
+#: tickets/templates/failure.html:10
+msgid "Payment Failed"
+msgstr ""
+
+#: tickets/templates/failure.html:11
+msgid "Something went wrong with your payment. Please try again later."
+msgstr ""
+
+#: tickets/templates/payment.html:14
+msgid "Proceed"
+msgstr ""
+
+#: tickets/templates/ticket_selection.html:19
+msgid "Select Tickets"
+msgstr ""
+
+#: tickets/templates/ticket_selection.html:26
+msgid "Price Class"
+msgstr ""
+
+#: tickets/templates/ticket_selection.html:27
+msgid "Price"
+msgstr ""
+
+#: tickets/templates/ticket_selection.html:28
+msgid "Quantity"
+msgstr ""
+
+#: tickets/templates/ticket_selection.html:48
+msgid "Proceed to Payment"
+msgstr ""

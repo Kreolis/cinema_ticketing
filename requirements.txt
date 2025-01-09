@@ -6,6 +6,7 @@ psycopg2  # For PostgreSQL
 
 django-money # For handling money values
 django-payments # For handling payments
+django-rosetta # translation managment
 
 fpdf2 # For generating PDF files
 qrcode[pil] # For generating QR codes

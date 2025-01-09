@@ -12,7 +12,7 @@
 
     <ul>
         {% for ticket in payment.selected_tickets.all %}
-            <li>{{ ticket.price_class.name }}: ${{ ticket.price_class.price }}</li>
+            <li>{{ ticket.price_class.name }}: {{ ticket.price_class.price }}</li>
         {% endfor %}
     </ul>
     

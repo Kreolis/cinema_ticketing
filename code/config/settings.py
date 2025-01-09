@@ -38,10 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'djmoney',      # currency handling
     'payments',     # payment handling
     'bootstrap5',   # bootstrap5 support
-
+    'rosetta',      # translation management
+    
     # custom apps
     'events',       # events management
     'tickets',      # ticket management and ticket pdf generation
@@ -121,6 +123,16 @@ USE_I18N = True
 
 USE_TZ = True
 
+from django.utils.translation import gettext_lazy as _
+
+LANGUAGES = (
+    ('en', _('English')),
+    ('de', _('German')),
+)
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale/',
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
