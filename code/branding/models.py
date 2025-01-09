@@ -4,18 +4,20 @@ import os
 
 # model for contact form emails
 class Contact(models.Model):
-    name = models.CharField(max_length=100)
+    firstname = models.CharField(max_length=100)
+    lastname = models.CharField(max_length=100)
     email = models.EmailField()
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name
+        return f"{self.firstname} {self.lastname}"
     
 
 # model for logos and other branding images
 class Branding(models.Model):
     name = models.CharField(max_length=100)
     logo = models.ImageField(upload_to=os.path.join('branding', 'images'))
+    favicon = models.ImageField(upload_to=os.path.join('branding', 'images'))
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
@@ -26,3 +28,9 @@ class Branding(models.Model):
         if self.is_active:
             Branding.objects.all().update(is_active=False)
         super(Branding, self).save(*args, **kwargs)
+
+    # delete image files when object is deleted
+    def delete(self, *args, **kwargs):
+        self.logo.delete()
+        self.favicon.delete()
+        super(Branding, self).delete(*args, **kwargs)

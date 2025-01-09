@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # custom apps
     'events',       # events management
     'tickets',      # ticket management and ticket pdf generation
+    'branding',     # branding management
 ]
 
 MIDDLEWARE = [
