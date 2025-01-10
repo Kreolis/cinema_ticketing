@@ -192,10 +192,10 @@ We welcome contributions to this project! To contribute:
 ### 📝 To-Do List
 
 - [ ] Add user authentication for ticket buyers.
-- [ ] QR code generation for tickets
-- [ ] PDF generation of tickets and invoice
+- [ ] PDF generation for invoice
 - [ ] Implement email notifications for ticket purchases.
-- [ ] Implement QR code scanner for ticket checking
+- [ ] Implement QR code scanner for ticket checking (for ticket managers users)
+- [ ] Add support for payments via PayPal or other gateways.
 - [ ] Add support for refunds or cancellations.
 
 
