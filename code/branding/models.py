@@ -42,8 +42,9 @@ class Contact(models.Model):
 # model for logos and other branding images
 class Branding(models.Model):
     name = models.CharField(max_length=100)
-    logo = models.ImageField(upload_to=os.path.join('branding', 'images'))
-    favicon = models.ImageField(upload_to=os.path.join('branding', 'images'))
+    logo = models.ImageField(upload_to='branding/images', null=True, blank=True)
+    favicon = models.ImageField(upload_to='branding/images', null=True, blank=True)
+    success_sound = models.FileField(upload_to='branding/sounds', null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
@@ -59,4 +60,5 @@ class Branding(models.Model):
     def delete(self, *args, **kwargs):
         self.logo.delete()
         self.favicon.delete()
+        self.success_sound.delete()
         super(Branding, self).delete(*args, **kwargs)
