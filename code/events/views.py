@@ -3,8 +3,8 @@ from django.views.generic import TemplateView
 from django.http import JsonResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-from .models import Event
-from .models import Ticket
+from .models import Event, Ticket
+from branding.models import Branding
 
 def event_list(request):
     # Retrieve all events, you can filter by start_time if needed
@@ -35,16 +35,33 @@ def user_in_ticket_managers_group_or_admin(user):
 def event_check_in(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     tickets = Ticket.objects.filter(event=event)
+    branding = Branding.objects.filter(is_active=True).first()
     return render(request, 'check_in.html', {
         'event': event,
         'tickets': tickets,
+        'branding': branding,
     })
 
 @login_required
 @user_passes_test(user_in_ticket_managers_group_or_admin)
-def handle_qr_result(request):
+def handle_qr_result(request, event_id):
     if request.method == "POST":
         qr_code_data = request.POST.get('qr_code')
-        # Process the QR code data
-        return JsonResponse({"status": "success", "data": qr_code_data})
+        try:
+            ticket = Ticket.objects.get(id=qr_code_data, event_id=event_id)
+            if ticket.activated:
+                return JsonResponse({"status": "error", "message": "Ticket already activated"})
+            ticket.activated = True
+            ticket.save()
+            return JsonResponse({"status": "success", "activated": ticket.activated, "ticket_id": str(ticket.id)})
+        except Ticket.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Ticket not found"})
     return JsonResponse({"status": "error", "message": "Invalid request"})
+
+@login_required
+@user_passes_test(user_in_ticket_managers_group_or_admin)
+def toggle_ticket_activation(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    ticket.activated = not ticket.activated
+    ticket.save()
+    return JsonResponse({"status": "success", "activated": ticket.activated})

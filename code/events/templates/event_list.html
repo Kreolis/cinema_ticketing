@@ -12,7 +12,7 @@
     <div class="event-list">
         {% for event in events %}
             <div class="event-item">
-                <h2><a href="{% url 'ticket_selection' event.id %}">{{ event.name }}</a></h2>
+                <h2><a href="{% url 'event_details' event.id %}">{{ event.name }}</a></h2>
                 <p><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
                 <p><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
                 <p><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
