@@ -1,6 +1,32 @@
 from django.db import models
+from django.contrib.auth.models import Group, Permission
 
 import os
+
+# create ticket managers group
+ticket_managers_group, created = Group.objects.get_or_create(name='Ticket Managers')
+if created:
+    # Assign permissions ticket and events management
+    permissions = [
+        'add_event', 'add_location', 'add_priceclass', 'add_ticket',
+        'change_event', 'change_location', 'change_priceclass', 'change_ticket',
+        'delete_event', 'delete_location', 'delete_priceclass', 'delete_ticket',
+        'view_event', 'view_location', 'view_priceclass', 'view_ticket',
+        'add_payment', 'change_payment', 'delete_payment', 'view_payment'
+    ]
+
+    for perm in permissions:
+        permission = Permission.objects.get(codename=perm)
+        ticket_managers_group.permissions.add(permission)
+
+
+# create admin group
+admins_group, created = Group.objects.get_or_create(name='Admins')
+if created:
+    # Assign all permissions to admins
+    all_permissions = Permission.objects.all()
+    admins_group.permissions.set(all_permissions)
+    
 
 # model for contact form emails
 class Contact(models.Model):
