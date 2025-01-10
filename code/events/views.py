@@ -1,8 +1,10 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 from .models import Event
+from .models import Ticket
 
 def event_list(request):
     # Retrieve all events, you can filter by start_time if needed
@@ -25,12 +27,21 @@ class EventLandingPageView(TemplateView):
     
 
 # ticket scanning
-def qr_scanner(request, event_id):
+def user_in_ticket_managers_group_or_admin(user):
+    return user.groups.filter(name='admin_user_group').exists() or user.groups.filter(name='ticket_managers_group').exists() or user.is_superuser
+
+@login_required
+@user_passes_test(user_in_ticket_managers_group_or_admin)
+def event_check_in(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-    return render(request, 'qr_scanner.html', {
+    tickets = Ticket.objects.filter(event=event)
+    return render(request, 'check_in.html', {
         'event': event,
+        'tickets': tickets,
     })
 
+@login_required
+@user_passes_test(user_in_ticket_managers_group_or_admin)
 def handle_qr_result(request):
     if request.method == "POST":
         qr_code_data = request.POST.get('qr_code')

@@ -55,4 +55,23 @@
             }
         });
     </script>
+
+    <!-- Tickets table -->
+    <h2 class="mt-4">{% translate "Event Tickets" %}</h2>
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>{% translate "Ticket ID" %}</th>
+                <th>{% translate "Sold" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.sold }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
