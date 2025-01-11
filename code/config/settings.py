@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'payments',     # payment handling
     'bootstrap5',   # bootstrap5 support
     'rosetta',      # translation management
+    'django_recaptcha', # recaptcha support
     
     # custom apps
     'events',       # events management
@@ -135,6 +136,13 @@ LANGUAGES = (
 LOCALE_PATHS = [
     BASE_DIR / 'locale/',
 ]
+
+# Recaptcha settings if available, if not defined package will use test keys
+if not DEBUG:
+    RECAPTCHA_PUBLIC_KEY = config('RECAPTCHA_PUBLIC_KEY')
+    RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY')
+else:
+    SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 
 # Media files settings
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -17,6 +17,7 @@ The project tracks available seats for each event, handles ticket purchases, and
 - **Frontend**: HTML, CSS (basic templates)
 - **Payment Integration**: Stripe via `django-payments`
 - **Database**: SQLite (default, configurable for other DBs)
+- **Human Identification**: ReCAPTCHA via `django-reCAPTCHA`
 
 ---
 
@@ -47,13 +48,17 @@ cd code
 Create a `.env` file in the project root and add the following environment variables:
 
 ```plaintext
-DJANGO_SECRET_KEY=your_django_secret_key
+DJANGO_SECRET_KEY = YourDjangoSecretKey
 
-STRIPE_SECRET_KEY=sk_test_your_secret_key
-STRIPE_PUBLIC_KEY=pk_test_your_publishable_key
+STRIPE_PUBLIC_KEY = YourStripePublicKey
+STRIPE_SECRET_KEY = YourStripeSecretKey
+
+RECAPTCHA_PUBLIC_KEY = 'YourMyRecaptchaKey'
+RECAPTCHA_PRIVATE_KEY = 'YourRecaptchaPrivateKey'
 ```
 
-> Replace `your_django_secret_key` with a secret key for Django and `your_secret_key` / `your_publishable_key` with your Stripe API keys.
+> Replace `YourDjangoSecretKey` with a secret key for Django and `YourStripePublicKey` / `YourStripeSecretKey` with your Stripe API keys.
+> For ReCAPTCHA support add `YourMyRecaptchaKey` / `YourRecaptchaPrivateKey`. 
 
 ### 5. Apply Migrations
 ```bash
