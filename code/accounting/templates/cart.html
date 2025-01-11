@@ -1,0 +1,61 @@
+{% extends "master.html" %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% load i18n %}
+
+{% block title %}
+    {% translate "Cart" %}
+{% endblock %}
+{% block content %}
+    <h1>{% translate "Your Cart" %}</h1>
+
+    <!-- Include jQuery library via CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Include DataTables.net library via CDN -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" />
+    <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
+    
+    <!-- Tickets table -->
+    <table id="tickets-table" class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>{% translate "Event Name" %}</th>
+                <th>{% translate "Seat Number" %}</th>
+                <th>{% translate "Price" %}</th>
+                <th>{% translate "Price Class" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in order.tickets.all %}
+                <tr>
+                    <td>{{ ticket.event.name }}</td>
+                    <td>{{ ticket.seat }}</td>
+                    <td>{{ ticket.price_class.price }}</td>
+                    <td>{{ ticket.price_class.name }}</td>
+                </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+    <table id="total-table" class="table table-striped mt-3">
+        <tr>
+            <td colspan="2"><strong>{% translate "Total" %}</strong></td>
+            <td><strong>{{ order.total }}</strong></td>
+        </tr>
+    </table>
+
+    <script>
+        $(document).ready(function() {
+            $('#tickets-table').DataTable();
+        });
+    </script>
+
+    <!-- Proceed to payment button -->
+    <div class="mt-3">
+        <a href="{% url 'event_list' %}" class="btn btn-primary">{% translate "Continue ticket selection" %}</a>
+        <a href="{% url 'payment_form' %}" class="btn btn-primary">{% translate "Proceed to Payment" %}</a>
+    </div>
+{% endblock %}
