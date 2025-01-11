@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Location, PriceClass, Event, generate_pdf_ticket, Ticket
+from .models import Location, PriceClass, Event, Ticket
+
+from .utils import generate_pdf_ticket
 
 import io
 

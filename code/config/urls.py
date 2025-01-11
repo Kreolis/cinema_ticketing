@@ -25,8 +25,7 @@ urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
     path('rosetta/', include('rosetta.urls')),
     path('', include('events.urls')),
-    path('payments/', include('payments.urls')),
-    path('tickets/', include('tickets.urls')),
+    path('pay/', include('accounting.urls')),
     path('', include('branding.urls')),
 )
 

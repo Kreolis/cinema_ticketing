@@ -6,14 +6,21 @@
 {% load i18n %}
 
 {% block title %}
-    {% translate "Contact Us" %}
+    {{ event.name }}
 {% endblock %}
 
 {% block content %}
-    <h1>{% translate "Contact Us" %}</h1>
-
-    <p>{% translate "For any questions or concerns, please contact us at:" %}</p>
+    <h1>{{ event.name }}</h1>
     
+    <p><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
+    <p><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
+    <p><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
+    {% if event.program_link %}
+        <p><a href="{{ event.program_link }}">{% translate "View Program" %}</a></p>
+    {% endif %}
+
+    <h2>{% translate "Select Tickets" %}</h2>
+
     {# Check for form errors and display them #}
     {% if form.non_field_errors %}
         <div class="alert alert-danger">
@@ -29,8 +36,8 @@
 
         {# Add a submit button styled with Bootstrap #}
         <div class="mt-3">
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">{% translate "Add to Cart" %}</button>
         </div>
     </form>
-    
+
 {% endblock %}

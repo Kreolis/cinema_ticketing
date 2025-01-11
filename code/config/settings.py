@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     
     # custom apps
     'events',       # events management
-    'tickets',      # ticket management and ticket pdf generation
+    'accounting',   # payment and order management
     'branding',     # branding management
 ]
 
@@ -120,6 +120,7 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
+USE_L10N = True # needed for localization support of django-money
 USE_I18N = True
 
 USE_TZ = True
@@ -150,6 +151,19 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ## DJANGO-PAYMENTS SETTINGS
+
+# define default CURRENCY
+# see a list of available currencies here: https://django-money.readthedocs.io/en/latest/
+CURRENCIES = ('EUR')
+CURRENCY_CHOICES = [('EUR', 'EUR €')]
+DEFAULT_CURRENCY = 'EUR'
+
+# Set this to True to be able to delete paid orders.
+# in DEBUG mode this is always True.
+if DEBUG:
+    CONFIRM_DELETE_PAID_ORDER = True
+else:
+    CONFIRM_DELETE_PAID_ORDER = False
 
 # This can be a string or callable, and should return a base host that
 # will be used when receiving callbacks and notifications from payment

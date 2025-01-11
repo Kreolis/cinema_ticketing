@@ -1,19 +1,24 @@
-{% load i18n %}
 
 <!DOCTYPE html>
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% load i18n %}
+
 <html>
 <head>
   <title>{% block title %}{% endblock %}</title>
-  {% load bootstrap5 %}
-  {% bootstrap_css %}
-  {% bootstrap_javascript %}
 </head>
 <body>
 
 <div class="container">
   <ul class="nav bg-info justify-content-between">
     <li class="nav-item">
-      <a class="nav-link link-light" href="/">{% translate "HOME" %}</a>
+      <a class="nav-link link-light" href="{% url 'event_list' %}">{% translate "Events List" %}</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link link-light" href="{% url 'cart_view' %}">{% translate "Cart" %}</a>
     </li>
     <li class="nav-item dropdown"></li>
         <a class="nav-link dropdown-toggle link-light" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -32,6 +37,7 @@
           {% endfor %}
         </ul>
       </li>
+    
   </ul>
 
   {% block content %}
@@ -42,7 +48,7 @@
 <footer>
   <div class="container d-flex justify-content-center">
     <p class="mx-2">Cinema Ticketing System © 2025</p>
-    <p class="mx-2"><a href="/contact">{% translate "Contact Us" %}</a></p>
+    <p class="mx-2"><a href="{% url 'contact_form' %}">{% translate "Contact Us" %}</a></p>
   </div>
 </footer>
 

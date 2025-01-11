@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import Group, Permission
 
-import os
-
 # create ticket managers group
 ticket_managers_group, created = Group.objects.get_or_create(name='Ticket Managers')
 if created:

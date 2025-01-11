@@ -2,29 +2,50 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
 from django.http import JsonResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django import forms
 
 from .models import Event, Ticket
+from accounting.models import Order
 from branding.models import Branding
+from .forms import TicketSelectionForm
 
 def event_list(request):
     # Retrieve all events, you can filter by start_time if needed
     events = Event.objects.all().order_by('start_time')  # Or use 'start_time' for upcoming events
     return render(request, 'event_list.html', {'events': events})
 
-class EventLandingPageView(TemplateView):
-    template_name = "landing.html"
- 
-    def get_context_data(self, **kwargs):
-        product = Event.objects.get(name="Test Product")
-        prices = Event.price_classes.objects.filter(event=product)
-        context = super(EventLandingPageView,
-                        self).get_context_data(**kwargs)
-        context.update({
-            "product": product,
-            "prices": prices
-        })
-        return context
+# Event detail view with ticket selection
+def event_detail(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    price_classes = event.price_classes.all()
     
+    if request.method == 'POST':
+        form = TicketSelectionForm(request.POST, price_classes=price_classes)
+        if form.is_valid():
+            selected_tickets = []
+            for price_class in price_classes:
+                quantity = form.cleaned_data.get(f'quantity_{price_class.id}', 0)
+                if quantity > 0:
+                    for _ in range(quantity):
+                        new_ticket = Ticket(
+                            event=event,
+                            price_class=price_class,
+                            activated=False,
+                        )
+                        new_ticket.save()
+                        selected_tickets.append(new_ticket)
+                        
+            order, _ = Order.objects.get_or_create(session_id=request.session.session_key)
+            order.update_tickets(selected_tickets)
+            
+    else:
+        form = TicketSelectionForm(price_classes=price_classes)
+
+    return render(request, 'event_details.html', {
+        'event': event,
+        'price_classes': price_classes,
+        'form': form,
+    })
 
 # ticket scanning
 def user_in_ticket_managers_group_or_admin(user):
