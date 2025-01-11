@@ -44,6 +44,8 @@ class Ticket(models.Model):
     seat = models.IntegerField() # seat number
     sold = models.BooleanField(default=False)  # Track if ticket is sold
 
+    email = models.EmailField(blank=True, null=True)  # Email address of the ticket holder
+
     # ticket activation
     activated = models.BooleanField(default=False)  # ticket is activated
     

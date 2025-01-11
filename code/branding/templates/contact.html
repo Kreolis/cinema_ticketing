@@ -24,13 +24,9 @@
     <form method="post" action="">
         {% csrf_token %}
 
-        {# Use bootstrap_form to render the form #}
         {% bootstrap_form form %}
 
-        {# Add a submit button styled with Bootstrap #}
-        <div class="mt-3">
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
+        {% bootstrap_button _("Submit") button_type="submit" button_class="btn-primary" %}
     </form>
     
 {% endblock %}

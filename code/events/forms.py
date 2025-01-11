@@ -10,5 +10,6 @@ class TicketSelectionForm(forms.Form):
                 min_value=0,
                 max_value=10,
                 initial=0,
-                widget=forms.NumberInput(attrs={'class': 'form-control'})
+                widget=forms.NumberInput(attrs={'class': 'form-control'}),
+                help_text="Select the number of tickets for this price class."
             )

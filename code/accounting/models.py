@@ -71,6 +71,8 @@ class Payment(BasePayment):
     """
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
 
+    payment_mail_is_ticket_mail = models.BooleanField(default=True)
+
     #def __str__(self):
     #    return f"Payment {self.id} for Order {self.order.id}"
     def get_failure_url(self) -> str:

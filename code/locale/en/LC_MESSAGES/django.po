@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-09 22:22+0200\n"
+"POT-Creation-Date: 2025-01-11 16:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,152 +17,162 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: branding/templates/contact.html:5 branding/templates/contact.html:10
-#: templates/master.html:28
-msgid "Contact Us"
+#: .\accounting\templates\cart.html:9 .\templates\master.html:21
+msgid "Cart"
 msgstr ""
 
-#: branding/templates/contact.html:12
-msgid "For any questions or concerns, please contact us at:"
+#: .\accounting\templates\cart.html:12
+msgid "Your Cart"
 msgstr ""
 
-#: branding/templates/contact.html:17
-msgid "Name"
+#: .\accounting\templates\cart.html:25
+msgid "Event Name"
 msgstr ""
 
-#: branding/templates/contact.html:21
-msgid "Email"
+#: .\accounting\templates\cart.html:26 .\events\templates\check_in.html:148
+msgid "Seat Number"
 msgstr ""
 
-#: branding/templates/contact.html:25
-msgid "Message"
-msgstr ""
-
-#: branding/templates/contact.html:28
-msgid "Submit"
-msgstr ""
-
-#: config/settings.py:127
-msgid "English"
-msgstr ""
-
-#: config/settings.py:128
-msgid "German"
-msgstr ""
-
-#: events/templates/event_list.html:5 events/templates/event_list.html:10
-msgid "Upcoming Events"
-msgstr ""
-
-#: events/templates/event_list.html:16
-#: tickets/templates/ticket_selection.html:12
-msgid "Start Time"
-msgstr ""
-
-#: events/templates/event_list.html:17
-#: tickets/templates/ticket_selection.html:13
-msgid "Location"
-msgstr ""
-
-#: events/templates/event_list.html:18
-#: tickets/templates/ticket_selection.html:14
-msgid "Duration"
-msgstr ""
-
-#: events/templates/event_list.html:19
-msgid "Price Classes"
-msgstr ""
-
-#: events/templates/event_list.html:25
-#: tickets/templates/ticket_selection.html:16
-msgid "View Program"
-msgstr ""
-
-#: events/templates/qr_scanner.html:4 events/templates/qr_scanner.html:7
-msgid "QR Code Scanner"
-msgstr ""
-
-#: events/templates/qr_scanner.html:21
-msgid "QR Code Detected"
-msgstr ""
-
-#: events/templates/qr_scanner.html:35
-msgid "Scan error"
-msgstr ""
-
-#: events/templates/qr_scanner.html:52
-msgid "Error starting QR scanner"
-msgstr ""
-
-#: events/templates/qr_scanner.html:54
-msgid "Please grant camera permissions to scan QR codes."
-msgstr ""
-
-#: templates/master.html:16
-msgid "HOME"
-msgstr ""
-
-#: tickets/templates/confirmation.html:5 tickets/templates/failure.html:5
-#: tickets/templates/payment.html:5 tickets/templates/payment.html:10
-msgid "Payment"
-msgstr ""
-
-#: tickets/templates/confirmation.html:10
-msgid "Payment Successful"
-msgstr ""
-
-#: tickets/templates/confirmation.html:12
-msgid "Payment for ticket"
-msgstr ""
-
-#: tickets/templates/confirmation.html:12
-msgid "has been successfully processed!"
-msgstr ""
-
-#: tickets/templates/create.html:5 tickets/templates/create.html:10
-msgid "Payment for"
-msgstr ""
-
-#: tickets/templates/create.html:11
-msgid "List of Tickets"
-msgstr ""
-
-#: tickets/templates/create.html:19
-msgid "Total"
-msgstr ""
-
-#: tickets/templates/create.html:24
-msgid "Pay"
-msgstr ""
-
-#: tickets/templates/failure.html:10
-msgid "Payment Failed"
-msgstr ""
-
-#: tickets/templates/failure.html:11
-msgid "Something went wrong with your payment. Please try again later."
-msgstr ""
-
-#: tickets/templates/payment.html:14
-msgid "Proceed"
-msgstr ""
-
-#: tickets/templates/ticket_selection.html:19
-msgid "Select Tickets"
-msgstr ""
-
-#: tickets/templates/ticket_selection.html:26
-msgid "Price Class"
-msgstr ""
-
-#: tickets/templates/ticket_selection.html:27
+#: .\accounting\templates\cart.html:27
 msgid "Price"
 msgstr ""
 
-#: tickets/templates/ticket_selection.html:28
-msgid "Quantity"
+#: .\accounting\templates\cart.html:28
+msgid "Price Class"
 msgstr ""
 
-#: tickets/templates/ticket_selection.html:48
+#: .\accounting\templates\cart.html:45
+msgid "Total"
+msgstr ""
+
+#: .\accounting\templates\cart.html:58
+msgid "Continue ticket selection"
+msgstr ""
+
+#: .\accounting\templates\cart.html:59
 msgid "Proceed to Payment"
+msgstr ""
+
+#: .\accounting\templates\payment_form.html:9
+#: .\accounting\templates\payment_form.html:12
+msgid "Payment Form"
+msgstr ""
+
+#: .\accounting\templates\payment_form.html:25
+msgid "Country Code"
+msgstr ""
+
+#: .\accounting\templates\payment_form.html:32
+#: .\branding\templates\contact.html:29
+msgid "Submit"
+msgstr ""
+
+#: .\branding\templates\contact.html:9 .\branding\templates\contact.html:13
+#: .\templates\master.html:51
+msgid "Contact Us"
+msgstr ""
+
+#: .\branding\templates\contact.html:15
+msgid "For any questions or concerns, please contact us at:"
+msgstr ""
+
+#: .\config\settings.py:132
+msgid "English"
+msgstr ""
+
+#: .\config\settings.py:133
+msgid "German"
+msgstr ""
+
+#: .\events\templates\check_in.html:8 .\events\templates\check_in.html:11
+msgid "Event Check-In"
+msgstr ""
+
+#: .\events\templates\check_in.html:38
+msgid "Last QR Code Detected"
+msgstr ""
+
+#: .\events\templates\check_in.html:56 .\events\templates\check_in.html:114
+#: .\events\templates\check_in.html:158
+msgid "Deactivate"
+msgstr ""
+
+#: .\events\templates\check_in.html:78
+msgid "Scan error"
+msgstr ""
+
+#: .\events\templates\check_in.html:95
+msgid "Error starting QR scanner"
+msgstr ""
+
+#: .\events\templates\check_in.html:97
+msgid "Please grant camera permissions to scan QR codes."
+msgstr ""
+
+#: .\events\templates\check_in.html:114 .\events\templates\check_in.html:158
+msgid "Activate"
+msgstr ""
+
+#: .\events\templates\check_in.html:142
+msgid "Event Tickets"
+msgstr ""
+
+#: .\events\templates\check_in.html:146
+msgid "Action"
+msgstr ""
+
+#: .\events\templates\check_in.html:147
+msgid "Has been activated"
+msgstr ""
+
+#: .\events\templates\check_in.html:149
+msgid "Ticket ID"
+msgstr ""
+
+#: .\events\templates\check_in.html:150
+msgid "Sold"
+msgstr ""
+
+#: .\events\templates\event_details.html:15
+#: .\events\templates\event_list.html:20
+msgid "Start Time"
+msgstr ""
+
+#: .\events\templates\event_details.html:16
+#: .\events\templates\event_list.html:21
+msgid "Location"
+msgstr ""
+
+#: .\events\templates\event_details.html:17
+#: .\events\templates\event_list.html:22
+msgid "Duration"
+msgstr ""
+
+#: .\events\templates\event_details.html:19
+#: .\events\templates\event_list.html:29
+msgid "View Program"
+msgstr ""
+
+#: .\events\templates\event_details.html:22
+msgid "Select Tickets"
+msgstr ""
+
+#: .\events\templates\event_details.html:38
+msgid "Add to Cart"
+msgstr ""
+
+#: .\events\templates\event_list.html:9 .\events\templates\event_list.html:14
+msgid "Upcoming Events"
+msgstr ""
+
+#: .\events\templates\event_list.html:23
+msgid "Price Classes"
+msgstr ""
+
+#: .\templates\master.html:18
+msgid "Events List"
+msgstr ""
+
+#: .\templates\master.html:25
+msgid "Language"
 msgstr ""
