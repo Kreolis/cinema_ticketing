@@ -8,7 +8,7 @@
 
 <html>
 <head>
-  {% if get_active_favicon %}
+  {% if get_active_favicon == None %}
     <link rel="icon" href="{% get_active_favicon %}" type="image/x-icon">
   {% else %}
     <link rel="icon" href="" type="image/x-icon">
