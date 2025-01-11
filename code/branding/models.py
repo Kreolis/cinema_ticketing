@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import Group, Permission
+from django.core.exceptions import ValidationError
+from PIL import Image
 
 # create ticket managers group
 ticket_managers_group, created = Group.objects.get_or_create(name='Ticket Managers')
@@ -60,3 +62,9 @@ class Branding(models.Model):
         self.favicon.delete()
         self.success_sound.delete()
         super(Branding, self).delete(*args, **kwargs)
+
+    def clean(self):
+        if self.favicon:
+            image = Image.open(self.favicon)
+            if image.width > 64 or image.height > 64:
+                raise ValidationError("Favicon size should not exceed 64x64 pixels.")

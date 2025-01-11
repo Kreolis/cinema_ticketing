@@ -1,14 +1,19 @@
-
 <!DOCTYPE html>
 {% load bootstrap5 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
+{% load branding_tags %}
 
 {% load i18n %}
 
 <html>
 <head>
-  <title>{% block title %}{% endblock %}</title>
+  {% if get_active_favicon %}
+    <link rel="icon" href="{% get_active_favicon %}" type="image/x-icon">
+  {% else %}
+    <link rel="icon" href="" type="image/x-icon">
+  {% endif %}
+    <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
 
