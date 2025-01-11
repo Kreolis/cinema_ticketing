@@ -44,4 +44,6 @@ jobs:
         STRIPE_PUBLIC_KEY: ${{ env.STRIPE_PUBLIC_KEY }}
       run: |
         cd code
+        python manage.py makemigrations
+        python manage.py migrate
         python manage.py test
