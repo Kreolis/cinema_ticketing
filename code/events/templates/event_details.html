@@ -35,8 +35,13 @@
         {% bootstrap_form form %}
 
         {# Add a submit button styled with Bootstrap #}
-        {% bootstrap_button _("Add to Cart") button_type="submit" button_class="btn-primary" %}
+        <div class="mt-3">
+            {% bootstrap_button _("Add to Cart") button_type="submit" button_class="btn-primary" %}
+            <a href="{% url 'cart_view' %}" class="btn btn-secondary" >{% translate "Go to cart" %}</a>
+        </div>
 
     </form>
 
+    
+    
 {% endblock %}

@@ -6,10 +6,10 @@
 {% load i18n %}
 
 {% block title %}
-    {% translate "Cart" %}
+    {% translate "Order Overview" %}
 {% endblock %}
 {% block content %}
-    <h1>{% translate "Your Cart" %}</h1>
+    <h1>{% translate "Your Order" %}</h1>
 
     <!-- Include jQuery library via CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -55,7 +55,7 @@
 
     <!-- Proceed to payment button -->
     <div class="mt-3">
-        <a href="{% url 'event_list' %}" class="btn btn-primary">{% translate "Continue ticket selection" %}</a>
         <a href="{% url 'payment_form' %}" class="btn btn-primary">{% translate "Proceed to Payment" %}</a>
+        <a href="{% url 'event_list' %}" class="btn btn-secondary">{% translate "Continue ticket selection" %}</a>
     </div>
 {% endblock %}
