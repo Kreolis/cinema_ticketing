@@ -1,6 +1,6 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django import forms
 
@@ -47,6 +47,32 @@ def event_detail(request, event_id):
         'form': form,
     })
 
+# user ticket controls during order
+def update_ticket_email(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    if request.method == 'POST':
+        new_email = request.POST.get('email')
+        if new_email:
+            ticket.email = new_email
+            ticket.save()
+            order = get_object_or_404(Order, session_id=request.session.session_key)
+            return JsonResponse({"status": "success", "updated_email": ticket.email})
+    return JsonResponse({"status": "error", "message": "Invalid request"})
+
+def delete_ticket(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    order = get_object_or_404(Order, session_id=request.session.session_key)
+    order.delete_ticket(ticket)
+    return JsonResponse({"status": "success"})
+
+def send_ticket_email_view(request, ticket_id):
+    ticket = get_object_or_404(Ticket, pk=ticket_id)
+    if ticket.email:
+        ticket.send_to_email()
+        return HttpResponse("Email sent successfully.")
+    return HttpResponse("No email address provided.")
+
+
 # ticket scanning
 def user_in_ticket_managers_group_or_admin(user):
     return user.groups.filter(name='admin_user_group').exists() or user.groups.filter(name='ticket_managers_group').exists() or user.is_superuser
@@ -86,3 +112,4 @@ def toggle_ticket_activation(request, ticket_id):
     ticket.activated = not ticket.activated
     ticket.save()
     return JsonResponse({"status": "success", "activated": ticket.activated})
+

@@ -154,9 +154,9 @@
             {% for ticket in tickets %}
                 <tr id="row-{{ ticket.id }}">
                     <td>
-                        <button id="toggle-btn-{{ ticket.id }}" class="btn {% if ticket.activated %}btn-danger{% else %}btn-success{% endif %}" onclick="toggleActivation('{{ ticket.id }}')">
+                        {% bootstrap_button button_type="button" button_class="btn {% if ticket.activated %}btn-danger{% else %}btn-success{% endif %}" id="toggle-btn-{{ ticket.id }}" onclick="toggleActivation('{{ ticket.id }}')" %}
                             {% if ticket.activated %}{% translate 'Deactivate' %}{% else %}{% translate 'Activate' %}{% endif %}
-                        </button>
+                        {% endbootstrap_button %}
                     </td>
                     <td id="activated-cell-{{ ticket.id }}">{{ ticket.activated }}</td>
                     <td>{{ ticket.seat }}</td>
