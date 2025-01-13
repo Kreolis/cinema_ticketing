@@ -1,0 +1,137 @@
+{% extends "master.html" %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% load i18n %}
+
+{% block title %}
+    {% translate "Order and Payment Overview" %}
+{% endblock %}
+{% block content %}
+    <h1>{% translate "Order and Payment Overview" %}</h1>
+
+    <!-- Include jQuery library via CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Include DataTables.net library via CDN -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" />
+    <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
+
+    <h2>{% translate "Order Details" %}</h2>
+    <p>{% translate "Your order is valid for another" %} <span id="initial-time-remaining">{{ time_remaining }}:00</span> {% translate "minutes" %}.</p>
+    <table id="tickets-table" class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>{% translate "Event Name" %}</th>
+                <th>{% translate "Seat Number" %}</th>
+                <th>{% translate "Email" %}</th>
+                <th>{% translate "Price" %}</th>
+                <th>{% translate "Price Class" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in order.tickets.all %}
+                <tr>
+                    <td>{{ ticket.event.name }}</td>
+                    <td>{{ ticket.seat }}</td>
+                    <td>{{ ticket.email }}</td>
+                    <td>{{ ticket.price_class.price }}</td>
+                    <td>{{ ticket.price_class.name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>{% translate "Payment Details" %}</h2>
+    <table class="table table-striped">
+        <tr>
+            <th>{% translate "Payment Variant" %}</th>
+            <td>{{ order.payment.variant }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Payment Amount" %}</th>
+            <td>{{ order.payment.total }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Payment Currency" %}</th>
+            <td>{{ order.payment.currency }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing First Name" %}</th>
+            <td>{{ order.payment.billing_first_name }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Last Name" %}</th>
+            <td>{{ order.payment.billing_last_name }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Address Line 1" %}</th>
+            <td>{{ order.payment.billing_address_1 }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Address Line 2" %}</th>
+            <td>{{ order.payment.billing_address_2 }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing City" %}</th>
+            <td>{{ order.payment.billing_city }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Postcode" %}</th>
+            <td>{{ order.payment.billing_postcode }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Country" %}</th>
+            <td>{{ order.payment.billing_country_code }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Country Area" %}</th>
+            <td>{{ order.payment.billing_country_area }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Email" %}</th>
+            <td>{{ order.payment.billing_email }}</td>
+        </tr>
+    </table>
+
+    <p>{% translate "Your order is valid for another" %} <span id="timeout-time-remaining">{{ time_remaining }}:00</span> {% translate "minutes" %}.</p>
+
+    <div class="mt-3">
+        <a href="{% url 'confirm_order' %}" class="btn btn-primary">{% translate "Confirm Order" %}</a>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#tickets-table').DataTable();
+
+            // Initialize countdown with the time_remaining value
+            var initialTimeRemaining = parseInt($('#initial-time-remaining').text().split(':')[0]);
+            var timeoutTimeRemaining = parseInt($('#timeout-time-remaining').text().split(':')[0]);
+            startCountdown(initialTimeRemaining, '#initial-time-remaining');
+            startCountdown(timeoutTimeRemaining, '#timeout-time-remaining');
+
+            // Redirect to cart_view when countdown message is clicked
+            $('#initial-time-remaining, #timeout-time-remaining').on('click', function() {
+                window.location.href = "{% url 'cart_view' %}";
+            });
+        });
+
+        // Countdown timer
+        function startCountdown(minutes, elementId) {
+            var remainingTime = minutes * 60;
+            var interval = setInterval(function() {
+                if (remainingTime <= 0) {
+                    clearInterval(interval);
+                    $(elementId).text('0:00');
+                    alert(_("Your order has expired."));
+                } else {
+                    remainingTime--;
+                    var minutesLeft = Math.floor(remainingTime / 60);
+                    var secondsLeft = remainingTime % 60;
+                    $(elementId).text(minutesLeft + ':' + (secondsLeft < 10 ? '0' : '') + secondsLeft);
+                }
+            }, 1000);
+        }
+    </script>
+{% endblock %}

@@ -138,6 +138,7 @@ LOCALE_PATHS = [
 ]
 
 # Recaptcha settings if available, if not defined package will use test keys
+RECAPTCHA_REQUIRED_SCORE = 0.85
 if not DEBUG:
     RECAPTCHA_PUBLIC_KEY = config('RECAPTCHA_PUBLIC_KEY')
     RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY')
@@ -173,6 +174,18 @@ if DEBUG:
 else:
     CONFIRM_DELETE_PAID_ORDER = False
 
+# Mail settings
+# Email backend configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+EMAIL_PORT = config('EMAIL_PORT', default=587)  # Typically 587 for TLS, 465 for SSL
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)  # Use TLS (True) or SSL (False)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='your-email@example.com')  # Replace with your email address
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='your-email-password')  # Replace with your email password
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='your-email@example.com')  # Replace with your default from email address
+
 # This can be a string or callable, and should return a base host that
 # will be used when receiving callbacks and notifications from payment
 # providers.
@@ -186,7 +199,7 @@ PAYMENT_HOST = 'localhost:8000'
 PAYMENT_USES_SSL = False
 
 # A dotted path to the Payment class.
-PAYMENT_MODEL = 'tickets.Payment'
+PAYMENT_MODEL = 'accounting.Payment'
 
 # Stripe credentials
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')

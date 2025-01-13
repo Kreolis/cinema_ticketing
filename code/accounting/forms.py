@@ -5,8 +5,9 @@ from iso3166 import countries
 import locale
 
 class PaymentInfoForm(forms.ModelForm):
-    captcha = ReCaptchaField(label="", required=True)
-    
+    #captcha = ReCaptchaField(label="", required=True)
+    captcha = forms.CharField(label="Captcha", required=False)
+
     class Meta:
         model = Payment
         COUNTRY_CHOICES = [(country.alpha2, country.name) for country in countries]
@@ -22,7 +23,6 @@ class PaymentInfoForm(forms.ModelForm):
             'billing_country_code',# Country code of the billing address
             'billing_country_area',# Country area of the billing address
             'billing_email',       # Email address for billing contact
-            'payment_mail_is_ticket_mail', # Flag to indicate if payment email is the same as ticket email
             'captcha',  # ReCaptcha field for spam protection
         ]
         labels = {
@@ -35,7 +35,6 @@ class PaymentInfoForm(forms.ModelForm):
             'billing_country_code': 'Country',
             'billing_country_area': 'State/Province',
             'billing_email': 'Email',
-            'payment_mail_is_ticket_mail': 'Use Payment Email for Ticket',
         }
         help_texts = {
             'billing_first_name': 'Enter the first name as it appears on the billing statement.',
@@ -46,8 +45,7 @@ class PaymentInfoForm(forms.ModelForm):
             'billing_postcode': 'Enter the postcode for the billing address.',
             'billing_country_code': 'Enter the country for the billing address.',
             'billing_country_area': 'Enter the state or province for the billing address.',
-            'billing_email': 'Enter the email address where billing information will be sent.',
-            'payment_mail_is_ticket_mail': 'Check this box if the payment email is the same as the ticket email.',
+            'billing_email': 'Enter the email address where billing information will be sent. If you have not set the send-to-email for each ticket this email will be used for all tickets.',
         }
         widgets = {
             'billing_first_name': forms.TextInput(attrs={'required': True, 'max_length': 30}),
@@ -59,9 +57,16 @@ class PaymentInfoForm(forms.ModelForm):
             'billing_country_code': forms.Select(choices=COUNTRY_CHOICES, attrs={'required': True, 'initial': locale_country_code}),
             'billing_country_area': forms.TextInput(attrs={'max_length': 100}),
             'billing_email': forms.EmailInput(attrs={'required': True}),
-            'payment_mail_is_ticket_mail': forms.CheckboxInput(attrs={'required': True}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['billing_country_code'].initial = self.Meta.locale_country_code
+
+class UpdateEmailsForm(forms.Form):
+    email = forms.EmailField(
+        label='Email', 
+        help_text='Enter the email address where all tickets will be sent to.',
+        required=True, 
+        widget=forms.EmailInput(attrs={'required': True, 'class': 'form-control'})
+    )

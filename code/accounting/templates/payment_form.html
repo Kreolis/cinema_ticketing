@@ -11,17 +11,57 @@
 {% block content %}
     <h1>{% translate "Payment Form" %}</h1>
 
+    <!-- Include jQuery library via CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <p>{% translate "Your order is valid for another" %} <span id="initial-time-remaining">{{ time_remaining }}:00</span> {% translate "minutes" %}.</p>
+
     {% if form.non_field_errors %}
         <div class="alert alert-danger">
             {{ form.non_field_errors }}
         </div>
     {% endif %}
 
+
     <form method="post" action="">
         {% csrf_token %}
         {% bootstrap_form form %}
+        <p>{% translate "Your order is valid for another" %} <span id="timeout-time-remaining">{{ time_remaining }}:00</span> {% translate "minutes" %}.</p>
 
         {% bootstrap_button _("Submit") button_type="submit" button_class="btn-primary" %}
+        <a href="{% url 'cart_view' %}" class="btn btn-secondary">{% translate "Go back to cart" %}</a>
     </form>
+    
+    <script>
+        $(document).ready(function() {
+            
+            // Initialize countdown with the time_remaining value
+            var initialTimeRemaining = parseInt($('#initial-time-remaining').text().split(':')[0]);
+            var timeoutTimeRemaining = parseInt($('#timeout-time-remaining').text().split(':')[0]);
+            startCountdown(initialTimeRemaining, '#initial-time-remaining');
+            startCountdown(timeoutTimeRemaining, '#timeout-time-remaining');
 
+            // Redirect to cart_view when countdown message is clicked
+            $('#initial-time-remaining, #timeout-time-remaining').on('click', function() {
+                window.location.href = "{% url 'cart_view' %}";
+            });
+        });
+
+        // Countdown timer
+        function startCountdown(minutes, elementId) {
+            var remainingTime = minutes * 60;
+            var interval = setInterval(function() {
+                if (remainingTime <= 0) {
+                    clearInterval(interval);
+                    $(elementId).text('0:00');
+                    alert(_("Your order has expired."));
+                } else {
+                    remainingTime--;
+                    var minutesLeft = Math.floor(remainingTime / 60);
+                    var secondsLeft = remainingTime % 60;
+                    $(elementId).text(minutesLeft + ':' + (secondsLeft < 10 ? '0' : '') + secondsLeft);
+                }
+            }, 1000);
+        }
+    </script>
 {% endblock %}
