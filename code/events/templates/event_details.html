@@ -19,6 +19,10 @@
         <p><a href="{{ event.program_link }}">{% translate "View Program" %}</a></p>
     {% endif %}
 
+
+    {% if show_button %}
+        <a href="{% url 'event_check_in' event.id %}" class="btn btn-primary" >{% translate "Go ticket Check-In" %}</a>
+    {% else %}
     <h2>{% translate "Select Tickets" %}</h2>
 
     {# Check for form errors and display them #}
@@ -41,7 +45,6 @@
         </div>
 
     </form>
-
-    
+    {% endif %}
     
 {% endblock %}
