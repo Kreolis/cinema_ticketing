@@ -1,8 +1,9 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import TemplateView
-from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django import forms
+from django.http import FileResponse, JsonResponse
+from django.shortcuts import get_object_or_404
+
+import io
 
 from .models import Event, Ticket
 from accounting.models import Order
@@ -19,6 +20,10 @@ def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     price_classes = event.price_classes.all()
     
+    # Ensure the session is created
+    if not request.session.session_key:
+        request.session.create()
+
     if request.method == 'POST':
         form = TicketSelectionForm(request.POST, price_classes=price_classes)
         if form.is_valid():
@@ -68,12 +73,26 @@ def delete_ticket(request, ticket_id):
     order.delete_ticket(ticket)
     return JsonResponse({"status": "success"})
 
-def send_ticket_email_view(request, ticket_id):
+def show_generated_ticket_pdf(request, ticket_id):
+    # Fetch the ticket by ID
+    ticket = Ticket.objects.get(pk=ticket_id)
+    
+    # Generate PDF for the selected ticket
+    pdf = ticket.generate_pdf_ticket()
+    # Create a BytesIO stream to hold the PDF data
+    file_stream = io.BytesIO(pdf.output())
+
+    # Create a FileResponse to send the PDF file
+    response = FileResponse(file_stream, content_type='application/pdf', filename="ticket_{ticket.id}.pdf")
+    
+    return response
+
+def send_ticket_email(request, ticket_id):
     ticket = get_object_or_404(Ticket, pk=ticket_id)
     if ticket.email:
         ticket.send_to_email()
-        return HttpResponse("Email sent successfully.")
-    return HttpResponse("No email address provided.")
+        return JsonResponse({"status": "success", "message": "Email sent to " + ticket.email})
+    return JsonResponse({"status": "error", "message": "No email address provided."})
 
 
 # ticket scanning

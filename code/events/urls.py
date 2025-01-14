@@ -7,7 +7,8 @@ from .views import (
     toggle_ticket_activation,
     delete_ticket,
     update_ticket_email,
-    send_ticket_email_view
+    show_generated_ticket_pdf,
+    send_ticket_email
 )
 
 urlpatterns = [
@@ -18,5 +19,6 @@ urlpatterns = [
     path('toggle-ticket-activation/<uuid:ticket_id>/', toggle_ticket_activation, name='toggle_ticket_activation'),
     path('delete-ticket/<uuid:ticket_id>/', delete_ticket, name='delete_ticket'),  # Delete ticket URL
     path('update-ticket-email/<uuid:ticket_id>/', update_ticket_email, name='update_ticket_email'),  # Update ticket email URL
-    path('send_ticket_email/<uuid:ticket_id>/', send_ticket_email_view, name='send_ticket_email'),
+    path('ticket_<uuid:ticket_id>.pdf', show_generated_ticket_pdf, name='show_generated_ticket_pdf'),
+    path('send_ticket_email/<uuid:ticket_id>/', send_ticket_email, name='send_ticket_email'),
 ]
