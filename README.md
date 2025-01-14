@@ -197,7 +197,7 @@ We welcome contributions to this project! To contribute:
 ### 📝 To-Do List
 
 - [ ] Add user authentication for ticket buyers.
-- [ ] Add support for payments via PayPal or other gateways.
+- [ ] properly implement handleing of django-payments providers and gateways
 - [ ] Add support for refunds or cancellations.
 - [ ] add statistics page
 - [ ] github workflow failure: proper initialisation of groups
