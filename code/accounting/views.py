@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.http import HttpResponse
+from django.http import FileResponse
+
+import io
 
 from django.conf import settings
 
@@ -122,3 +124,18 @@ def ticket_list(request, order_id):
         return render(request, 'ticket_list.html', {'order': order})
     else:
         return redirect('payment_form')
+    
+
+def show_generated_invoice(request, order_id):
+    # Fetch the ticket by ID
+    order = get_object_or_404(Order, session_id=order_id)
+    
+    # Generate PDF for the selected ticket
+    pdf = order.generate_pdf_invoice()
+    # Create a BytesIO stream to hold the PDF data
+    file_stream = io.BytesIO(pdf.output())
+
+    # Create a FileResponse to send the PDF file
+    response = FileResponse(file_stream, content_type='application/pdf', filename="order_invoice_{order_id}.pdf")
+    
+    return response

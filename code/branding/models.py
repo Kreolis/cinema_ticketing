@@ -42,12 +42,28 @@ class Contact(models.Model):
 # model for logos and other branding images
 class Branding(models.Model):
     name = models.CharField(max_length=100, help_text="Enter the name of your branding")
+    site_name = models.CharField(max_length=100, null=True, blank=True, help_text="Enter the name of your site. This will be used as the title of the site and in communcations.")
     logo = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text="Upload the logo image")
     favicon = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text="Upload the favicon image (max 64x64 pixels)")
     ticket_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text="Upload the global ticket background image")
     event_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text="Upload the global event background image")
     order_timeout = models.IntegerField(default=10, help_text="Timeout in minutes until user needs to start fresh with their order")
     success_sound = models.FileField(upload_to='branding/sounds', null=True, blank=True, help_text="Upload the success sound file for ticket scanner")
+
+    # invoice settings
+    invoice_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text="Upload the global invoice background image")
+    invoice_logo = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text="Upload the logo image for invoices")
+    invoice_company_name = models.CharField(max_length=100, null=True, blank=True, help_text="Enter your name to appear on invoices")
+    invoice_address_1 = models.TextField(null=True, blank=True, help_text="Enter your address to appear on invoices")
+    invoice_address_2 = models.TextField(null=True, blank=True, help_text="Enter your address to appear on invoices")
+    invoice_city = models.CharField(max_length=100, null=True, blank=True, help_text="Enter your city to appear on invoices")
+    invoice_postal_code = models.CharField(max_length=20,null=True, blank=True,  help_text="Enter your postal code to appear on invoices")
+    invoice_country = models.CharField(max_length=100, null=True, blank=True, help_text="Enter your country to appear on invoices")
+    invoice_email = models.EmailField(null=True, blank=True, help_text="Enter your email address to appear on invoices")
+    invoice_phone = models.CharField(max_length=20, null=True, blank=True, help_text="Enter your phone number to appear on invoices")
+    invoice_vat_id = models.CharField(max_length=20, null=True, blank=True, help_text="Enter your VAT number to appear on invoices")
+    invoice_tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text="Enter the tax rate to appear on invoices")
+
     is_active = models.BooleanField(default=False, help_text="Indicates if this branding is active")
 
     def __str__(self):
