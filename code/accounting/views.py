@@ -9,15 +9,25 @@ from payments import get_payment_model, RedirectNeeded
 from payments.models import PaymentStatus
 from payments.forms import PaymentForm
 
-from .models import Order, Payment
+from .models import Order
 from .forms import PaymentInfoForm  # Add this import
 from .forms import UpdateEmailsForm  # Add this import
 
 def cart_view(request):
     order, _ = Order.objects.get_or_create(session_id=request.session.session_key)
-    if not order.is_valid():
+
+    if order.status == PaymentStatus.CONFIRMED:
+        # this is an old order that has already been paid
+        # create a new session and order
+        request.session.cycle_key()
+        order, _ = Order.objects.get_or_create(session_id=request.session.session_key)
+
+    elif not order.is_valid():
+        # this is an old order that has expired
+        # delete the order and create a new one
         order.delete()
         order, _ = Order.objects.get_or_create(session_id=request.session.session_key)
+
     if request.method == 'POST':
         form = UpdateEmailsForm(request.POST)
         if form.is_valid():

@@ -137,6 +137,23 @@ LOCALE_PATHS = [
     BASE_DIR / 'locale/',
 ]
 
+# Session settings
+# Use database-backed sessions to persist session data between requests
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# Secure session cookies
+SESSION_COOKIE_SECURE = True  # Ensures cookies are only sent over HTTPS
+SESSION_COOKIE_HTTPONLY = True  # Prevents JavaScript access to the cookie
+SESSION_COOKIE_SAMESITE = 'Strict'  # Blocks cookies from being sent with cross-site requests (prevents CSRF)
+
+# Session timeout settings
+SESSION_COOKIE_AGE = 1800  # in sec, 30 minutes of inactivity before expiration
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Session survives browser close, allows users to continue orders
+
+# Save session on every user request
+SESSION_SAVE_EVERY_REQUEST = True  # Refresh session expiration on activity
+
+
 # Recaptcha settings if available, if not defined package will use test keys
 RECAPTCHA_REQUIRED_SCORE = 0.85
 if not DEBUG:
