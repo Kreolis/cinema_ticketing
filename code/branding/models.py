@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
 # create ticket managers group
@@ -30,10 +31,10 @@ if created:
 
 # model for contact form emails
 class Contact(models.Model):
-    firstname = models.CharField(max_length=100, help_text="Enter the first name")
-    lastname = models.CharField(max_length=100, help_text="Enter the last name")
-    email = models.EmailField(help_text="Enter the email address")
-    is_active = models.BooleanField(default=False, help_text="Indicates if the contact is active")
+    firstname = models.CharField(max_length=100, help_text=_("Enter the first name"))
+    lastname = models.CharField(max_length=100, help_text=_("Enter the last name"))
+    email = models.EmailField(help_text=_("Enter the email address"))
+    is_active = models.BooleanField(default=False, help_text=_("Indicates if the contact is active"))
 
     def __str__(self):
         return f"{self.firstname} {self.lastname}"
@@ -41,30 +42,30 @@ class Contact(models.Model):
 
 # model for logos and other branding images
 class Branding(models.Model):
-    name = models.CharField(max_length=100, help_text="Enter the name of your branding")
-    site_name = models.CharField(max_length=100, null=True, blank=True, help_text="Enter the name of your site. This will be used as the title of the site and in communcations.")
-    logo = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text="Upload the logo image")
-    favicon = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text="Upload the favicon image (max 64x64 pixels)")
-    ticket_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text="Upload the global ticket background image")
-    event_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text="Upload the global event background image")
-    order_timeout = models.IntegerField(default=10, help_text="Timeout in minutes until user needs to start fresh with their order")
-    success_sound = models.FileField(upload_to='branding/sounds', null=True, blank=True, help_text="Upload the success sound file for ticket scanner")
+    name = models.CharField(max_length=100, help_text=_("Enter the name of your branding"))
+    site_name = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the name of your site. This will be used as the title of the site and in communcations."))
+    logo = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the logo image"))
+    favicon = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the favicon image (max 64x64 pixels)"))
+    ticket_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global ticket background image"))
+    event_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global event background image"))
+    order_timeout = models.IntegerField(default=10, help_text=_("Timeout in minutes until user needs to start fresh with their order"))
+    success_sound = models.FileField(upload_to='branding/sounds', null=True, blank=True, help_text=_("Upload the success sound file for ticket scanner"))
 
     # invoice settings
-    invoice_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text="Upload the global invoice background image")
-    invoice_logo = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text="Upload the logo image for invoices")
-    invoice_company_name = models.CharField(max_length=100, null=True, blank=True, help_text="Enter your name to appear on invoices")
-    invoice_address_1 = models.TextField(null=True, blank=True, help_text="Enter your address to appear on invoices")
-    invoice_address_2 = models.TextField(null=True, blank=True, help_text="Enter your address to appear on invoices")
-    invoice_city = models.CharField(max_length=100, null=True, blank=True, help_text="Enter your city to appear on invoices")
-    invoice_postal_code = models.CharField(max_length=20,null=True, blank=True,  help_text="Enter your postal code to appear on invoices")
-    invoice_country = models.CharField(max_length=100, null=True, blank=True, help_text="Enter your country to appear on invoices")
-    invoice_email = models.EmailField(null=True, blank=True, help_text="Enter your email address to appear on invoices")
-    invoice_phone = models.CharField(max_length=20, null=True, blank=True, help_text="Enter your phone number to appear on invoices")
-    invoice_vat_id = models.CharField(max_length=20, null=True, blank=True, help_text="Enter your VAT number to appear on invoices")
-    invoice_tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text="Enter the tax rate to appear on invoices")
+    invoice_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global invoice background image"))
+    invoice_logo = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the logo image for invoices"))
+    invoice_company_name = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter your name to appear on invoices"))
+    invoice_address_1 = models.TextField(null=True, blank=True, help_text=_("Enter your address to appear on invoices"))
+    invoice_address_2 = models.TextField(null=True, blank=True, help_text=_("Enter your address to appear on invoices"))
+    invoice_city = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter your city to appear on invoices"))
+    invoice_postal_code = models.CharField(max_length=20, null=True, blank=True, help_text=_("Enter your postal code to appear on invoices"))
+    invoice_country = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter your country to appear on invoices"))
+    invoice_email = models.EmailField(null=True, blank=True, help_text=_("Enter your email address to appear on invoices"))
+    invoice_phone = models.CharField(max_length=20, null=True, blank=True, help_text=_("Enter your phone number to appear on invoices"))
+    invoice_vat_id = models.CharField(max_length=20, null=True, blank=True, help_text=_("Enter your VAT number to appear on invoices"))
+    invoice_tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text=_("Enter the tax rate to appear on invoices"))
 
-    is_active = models.BooleanField(default=False, help_text="Indicates if this branding is active")
+    is_active = models.BooleanField(default=False, help_text=_("Indicates if this branding is active"))
 
     def __str__(self):
         return self.name
@@ -86,7 +87,7 @@ class Branding(models.Model):
         if self.favicon:
             image = Image.open(self.favicon)
             if image.width > 64 or image.height > 64:
-                raise ValidationError("Favicon size should not exceed 64x64 pixels.")
+                raise ValidationError(_("Favicon size should not exceed 64x64 pixels."))
 
 
 def get_active_branding():

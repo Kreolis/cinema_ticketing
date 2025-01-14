@@ -1,26 +1,30 @@
 from django.db import models
 from django.conf import settings
 from djmoney.models.fields import MoneyField
-import uuid
+
 from django.core.mail import EmailMessage
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
+
 from fpdf import FPDF
 import qrcode
-import os, io
+import os
 import tempfile
+import uuid
+
+from branding.models import get_active_branding
 
 class Location(models.Model):
     """
     Global location model for events.
     """
-    name = models.CharField(max_length=255, unique=True)
-    total_seats = models.PositiveIntegerField()
+    name = models.CharField(_("name"), max_length=255, unique=True)
+    total_seats = models.PositiveIntegerField(_("total seats"))
     
     # address fields
-    street = models.CharField(("street"), max_length=128, default="Musterstraße")
-    house_number = models.IntegerField(("house number"), default=0)
-    city = models.CharField(("city"), max_length=64, default="Landshut")
-    zip_code = models.CharField(("zip code"), max_length=5, default="84028")
+    street = models.CharField(_("street"), max_length=128, default="Musterstraße")
+    house_number = models.IntegerField(_("house number"), default=0)
+    city = models.CharField(_("city"), max_length=64, default="Landshut")
+    zip_code = models.CharField(_("zip code"), max_length=5, default="84028")
 
     def __str__(self):
         return self.name
@@ -32,8 +36,8 @@ class PriceClass(models.Model):
     """
     Global price class model for events.
     """
-    name = models.CharField(max_length=100)  # e.g., VIP, Regular
-    price = MoneyField(max_digits=14, decimal_places=2)
+    name = models.CharField(_("name"), max_length=100)  # e.g., VIP, Regular
+    price = MoneyField(_("price"), max_digits=14, decimal_places=2)
 
     def __str__(self):
         return f"{self.name}"
@@ -44,15 +48,15 @@ class Ticket(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False) # ticket id
 
-    price_class = models.ForeignKey(PriceClass, on_delete=models.CASCADE)  # Reference to PriceClass (ticket price)
-    event = models.ForeignKey("Event", on_delete=models.CASCADE)  # Add event to ticket
-    seat = models.IntegerField() # seat number
-    sold = models.BooleanField(default=False)  # Track if ticket is sold
+    price_class = models.ForeignKey(PriceClass, verbose_name=_("price class"), on_delete=models.CASCADE)  # Reference to PriceClass (ticket price)
+    event = models.ForeignKey("Event", verbose_name=_("event"), on_delete=models.CASCADE)  # Add event to ticket
+    seat = models.IntegerField(_("seat number")) # seat number
+    sold = models.BooleanField(_("sold"), default=False)  # Track if ticket is sold
 
-    email = models.EmailField(blank=True, null=True)  # Email address of the ticket holder
+    email = models.EmailField(_("email"), blank=True, null=True)  # Email address of the ticket holder
 
     # ticket activation
-    activated = models.BooleanField(default=False)  # ticket is activated
+    activated = models.BooleanField(_("activated"), default=False)  # ticket is activated
     
     def save(self, *args, **kwargs):
         # Automatically assign the next available seat number for this event
@@ -64,7 +68,7 @@ class Ticket(models.Model):
     def __str__(self):
         return str(self.id) + " - " + str(self.event) + " - " + str(self.seat)
 
-    def generate_pdf_ticket(self, template_path=None):
+    def generate_pdf_ticket(self):
         """
         Generate a PDF ticket for the given Ticket instance.
         """
@@ -88,15 +92,15 @@ class Ticket(models.Model):
             pdf.set_font(font)
 
             # If a template is provided, use it as the canvas
-            if template_path:
-                if os.path.exists(template_path):
+            if self.event.ticket_background:
+                if os.path.exists(self.event.ticket_background.path):
                     try:
-                        pdf.set_page_background(template_path)
+                        pdf.set_page_background(self.event.ticket_background.path)
                     except Exception as e:
                         print(f"Error loading template image: {e}")
                 else:
                     pdf.set_page_background(None)  # Proceed without a template if not found
-                    print("Template file not found. Proceeding without it.")
+                    #print("Template file not found. Proceeding without it.")
             
             pdf.add_page()
             borders = 0
@@ -109,25 +113,25 @@ class Ticket(models.Model):
             pdf.set_font(font, size=15)
             pdf.ln(1.25)  # Move to the next line
 
-            pdf.cell(4.0, 0.6, text="Start:", border=borders, align='L')
+            pdf.cell(4.0, 0.6, text=_("Start:"), border=borders, align='L')
             pdf.cell(5.0, 0.6, text=f"{self.event.start_time.strftime('%H:%M %d.%m.%Y')}", border=borders, align='L')
 
-            pdf.cell(2.5, 0.6, text="Duration:", border=borders, align='R')
+            pdf.cell(2.5, 0.6, text=_("Duration:"), border=borders, align='R')
             pdf.cell(2.5, 0.6, text=f"{self.event.get_duration_minutes()} min", border=borders, align='L')
 
             pdf.ln(0.75)  # Move to the next line
-            pdf.cell(4.0, 0.6, text="Venue:", border=borders, align='L')
+            pdf.cell(4.0, 0.6, text=_("Venue:"), border=borders, align='L')
             pdf.cell(10.0, 0.6, text=f"{self.event.location.get_address()}", border=borders,  align='L')
             
             pdf.ln(0.75)  # Move to the next line
-            pdf.cell(4.0, 0.6, text="Seat Number:", border=borders, align='L')
+            pdf.cell(4.0, 0.6, text=_("Seat Number:"), border=borders, align='L')
             pdf.cell(2.0, 0.6, text=f"{self.seat}", border=borders,  align='L')
 
             pdf.ln(1.25)  # Move to the next line
-            pdf.cell(4.0, 0.6, text="Price Class:", border=borders, align='L')
+            pdf.cell(4.0, 0.6, text=_("Price Class:"), border=borders, align='L')
             pdf.cell(4.0, 0.6, text=f"{self.price_class.name}", border=borders, align='L')        
             pdf.ln(0.75)  # Move to the next line
-            pdf.cell(4.0, 0.6, text="Price:", border=borders, align='L')
+            pdf.cell(4.0, 0.6, text=_("Price:"), border=borders, align='L')
             pdf.cell(4.0, 0.6, text=f"{self.price_class.price.amount} EUR", border=borders, align='L')
 
             # render ticket footer
@@ -186,7 +190,6 @@ class Ticket(models.Model):
                 [self.email]
             )
             email.attach(f"ticket_{self.id}.pdf", pdf_output, 'application/pdf')
-            print(f"Sending ticket to {self.email}")
             email.send()
         else:
             raise ValueError(_("No email address associated with this ticket."))
@@ -195,17 +198,23 @@ class Event(models.Model):
     """
     Global event model.
     """
-    name = models.CharField(max_length=255, unique=True) # name of event, needs to be unique
-    start_time = models.DateTimeField() # start time of event
-    duration = models.DurationField(default='02:00:00')  # 2 hours
-    location = models.ForeignKey(Location, on_delete=models.CASCADE) # add location to event
-    price_classes = models.ManyToManyField(PriceClass, related_name="events")  # multiple PriceClasses for an event
-    program_link = models.URLField(blank=True, null=True) # link to website with program
+    name = models.CharField(_("name"), max_length=255, unique=True) # name of event, needs to be unique
+    start_time = models.DateTimeField(_("start time")) # start time of event
+    duration = models.DurationField(_("duration"), default='02:00:00')  # 2 hours
+    location = models.ForeignKey(Location, verbose_name=_("location"), on_delete=models.CASCADE) # add location to event
+    price_classes = models.ManyToManyField(PriceClass, verbose_name=_("price classes"), related_name="events")  # multiple PriceClasses for an event
+    program_link = models.URLField(_("program link"), blank=True, null=True) # link to website with program
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False) # event id
     
     # Optional field to customize the number of seats for this event
-    custom_seats = models.PositiveIntegerField(null=True, blank=True)  # If None, use total_seats from location
+    custom_seats = models.PositiveIntegerField(_("custom seats"), null=True, blank=True)  # If None, use total_seats from location
+
+    branding = get_active_branding()
+    if branding and branding.ticket_background:
+        ticket_background = models.ImageField(_("ticket background"), upload_to='event/images', null=True, blank=True, default=branding.ticket_background)
+    
+    ticket_background = models.ImageField(_("ticket background"), upload_to='event/images', null=True, blank=True)  # Background image for tickets
 
     def __str__(self):
         return self.name
