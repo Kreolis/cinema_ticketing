@@ -1,0 +1,134 @@
+{% extends "master.html" %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% load i18n %}
+
+{% block title %}
+    {% translate "Order Details" %}
+{% endblock %}
+{% block content %}
+    <h1>{% translate "Order Details" %}</h1>
+
+    <!-- Include jQuery library via CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Include DataTables.net library via CDN -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" />
+    <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
+
+    <h2>{% translate "Tickets" %}</h2>
+
+    <div id="message-container"></div>
+
+    <table id="tickets-table" class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>{% translate "Event Name" %}</th>
+                <th>{% translate "Seat Number" %}</th>
+                <th>{% translate "Email" %}</th>
+                <th>{% translate "Price" %}</th>
+                <th>{% translate "Price Class" %}</th>
+                <th>{% translate "Actions" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in order.tickets.all %}
+                <tr>
+                    <td>{{ ticket.event.name }}</td>
+                    <td>{{ ticket.seat }}</td>
+                    <td>{{ ticket.email }}</td>
+                    <td>{{ ticket.price_class.price }}</td>
+                    <td>{{ ticket.price_class.name }}</td>
+                    <td>
+                        <a href="{% url 'send_ticket_email' ticket.id %}" class="btn btn-secondary send-email-btn" data-ticket-id="{{ ticket.id }}">
+                            {% translate "Send to Email" %}
+                        </a>
+                        <a href="{% url 'show_generated_ticket_pdf' ticket.id %}" class="btn btn-primary" target="_blank">
+                            {% translate "Show PDF" %}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>{% translate "Payment Details" %}</h2>
+    <table class="table table-striped">
+        <tr>
+            <th>{% translate "Payment Variant" %}</th>
+            <td>{{ order.payment.variant }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Payment Amount" %}</th>
+            <td>{{ order.payment.total }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Payment Currency" %}</th>
+            <td>{{ order.payment.currency }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing First Name" %}</th>
+            <td>{{ order.payment.billing_first_name }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Last Name" %}</th>
+            <td>{{ order.payment.billing_last_name }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Address Line 1" %}</th>
+            <td>{{ order.payment.billing_address_1 }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Address Line 2" %}</th>
+            <td>{{ order.payment.billing_address_2 }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing City" %}</th>
+            <td>{{ order.payment.billing_city }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Postcode" %}</th>
+            <td>{{ order.payment.billing_postcode }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Country" %}</th>
+            <td>{{ order.payment.billing_country_code }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Country Area" %}</th>
+            <td>{{ order.payment.billing_country_area }}</td>
+        </tr>
+        <tr>
+            <th>{% translate "Billing Email" %}</th>
+            <td>{{ order.payment.billing_email }}</td>
+        </tr>
+    </table>
+
+    <script>
+        $(document).ready(function() {
+            $('#tickets-table').DataTable();
+
+            $('.send-email-btn').click(function(event) {
+                event.preventDefault();
+                var ticketId = $(this).data('ticket-id');
+                var url = $(this).attr('href');
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        $('#message-container').append('<div class="alert alert-success">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                    },
+                    error: function(xhr, status, error) {
+                        var response = JSON.parse(xhr.responseText);
+                        $('#message-container').append('<div class="alert alert-danger">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

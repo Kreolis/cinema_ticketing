@@ -94,11 +94,21 @@ def confirm_order(request):
 
             for ticket in order.tickets.all():
                 ticket.send_to_email()
-                
-            # Create a new session
-            request.session.flush()
-            request.session.create()
-                
+            
+            # Send confirmation and invoice email
+            order.send_confirmation_email()
+            
+            # order is paid
+            # make sure the user can make a new order by creating a new session
+            request.session.cycle_key()
+            
         except RedirectNeeded as e:
             return e.response
-    return redirect('event_list')
+    return redirect('ticket_list', order_id=order.session_id)
+
+def ticket_list(request, order_id):
+    order = get_object_or_404(Order, session_id=order_id)
+    if order.payment.status == PaymentStatus.CONFIRMED:
+        return render(request, 'ticket_list.html', {'order': order})
+    else:
+        return redirect('payment_form')
