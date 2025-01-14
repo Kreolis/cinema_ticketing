@@ -197,17 +197,12 @@ We welcome contributions to this project! To contribute:
 ### 📝 To-Do List
 
 - [ ] Add user authentication for ticket buyers.
-- [ ] PDF generation for invoice
-- [ ] Implement email notifications for ticket purchases.
 - [ ] Add support for payments via PayPal or other gateways.
 - [ ] Add support for refunds or cancellations.
-- [ ] add support for different email per ticket
 - [ ] add statistics page
 - [ ] github workflow failure: proper initialisation of groups
 - [ ] global event picture generation from name
 - [ ] custom event picture per event
-- [ ] global ticket background picture
-- [ ] custom ticket background picture per event
 - [ ] language toggle with redirect to current page
 - [ ] Order ticket count shown in menu
 - [ ] fix payment creation for each order (currently each time the form is filled a new order is created, old one is stached)
