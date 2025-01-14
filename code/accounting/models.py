@@ -14,8 +14,6 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect
 
-import qrcode
-import tempfile
 from fpdf import FPDF
 import os
 
@@ -23,7 +21,7 @@ class Payment(BasePayment):
     """
     Custom payment model that extends django-payments' BasePayment model
     """
-
+    
     #def __str__(self):
     #    return f"Payment {self.id} for Order {self.order.id}"
     def get_failure_url(self) -> str:
@@ -38,7 +36,7 @@ class Payment(BasePayment):
 
     def get_purchased_items(self) -> str:
         # Return items that will be included in this payment.
-        return None
+        return 'payment/purchases_items.html'
     
     def __str__(self):
         return f"Payment {self.id}"

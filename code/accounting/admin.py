@@ -20,14 +20,6 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'status', 'total', 'created', 'show_invoice_pdf')
+    list_display = ('id', 'status', 'total', 'created')
     list_filter = ('status', 'created')
     search_fields = ('id', 'total', 'status')
-
-    def show_invoice_pdf(self, obj):
-        return format_html(
-            '<a class="button" href="{}" target="_blank">Generate PDF</a>&nbsp;',
-            reverse('show_generated_invoice', args=[obj.session_id]),
-        )
-    show_invoice_pdf.short_description = 'Show Invoice PDF'
-    show_invoice_pdf.allow_tags = True

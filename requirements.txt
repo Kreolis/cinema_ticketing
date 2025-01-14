@@ -6,9 +6,11 @@ psycopg2  # For PostgreSQL
 
 django-recaptcha # For using Google reCAPTCHA
 
+django-rosetta # translation managment
+
 django-money # For handling money values
 django-payments # For handling payments
-django-rosetta # translation managment
+stripe # For handling payments, gateway for django-payments
 
 iso3166 # For handling country codes
 

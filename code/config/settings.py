@@ -225,7 +225,7 @@ STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
 # Named configuration for your payment provider(s).
 PAYMENT_VARIANTS = {
     # Settings for Development
-    'default': ('payments.dummy.DummyProvider', {}),
+    'default': ('payments.dummy.DummyProvider', {'capture': False}),
     'stripe': (
         'payments.stripe.StripeProviderV3',
         {

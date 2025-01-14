@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.http import FileResponse
+from django.http import FileResponse, JsonResponse
 
 import io
 
@@ -11,11 +11,19 @@ from payments import get_payment_model, RedirectNeeded
 from payments.models import PaymentStatus
 from payments.forms import PaymentForm
 
+from payments.stripe import StripeProviderV3
+
+from stripe.error import CardError
+import stripe
+
 from .models import Order
 from .forms import PaymentInfoForm  # Add this import
 from .forms import UpdateEmailsForm  # Add this import
 
 def cart_view(request):
+    if not request.session.session_key:
+        request.session.create()
+
     order, _ = Order.objects.get_or_create(session_id=request.session.session_key)
 
     if order.status == PaymentStatus.CONFIRMED:
@@ -46,9 +54,14 @@ def cart_view(request):
 
 def payment_form(request):
     order = get_object_or_404(Order, session_id=request.session.session_key)
+
     if not order.is_valid():
         order.delete()
         order = Order.objects.create(session_id=request.session.session_key)
+        return redirect('cart_view')
+
+    error_message = None
+    
     if request.method == 'POST':
         form = PaymentInfoForm(request.POST)
         
@@ -58,7 +71,7 @@ def payment_form(request):
             order.update_payment(payment)
 
             # Set payment attributes
-            payment.variant = 'default'
+            payment.variant = 'stripe'
             payment.total = order.total.amount
             payment.currency = settings.DEFAULT_CURRENCY
 
@@ -69,13 +82,47 @@ def payment_form(request):
                 if ticket.email == None:
                     ticket.email = payment.billing_email
                     ticket.save()
+            
+            token = request.POST.get('stripeToken')  # The token from the frontend
+            print(token)
+            if not token:
+                error_message = 'Invalid payment token'
+            else:
+                try:
+                    #charge = StripeProviderV3(api_key=settings.STRIPE_SECRET_KEY).process_payment(payment, token)
+                    #print(charge)
 
-            return redirect('order_payment_overview')  # Redirect to the overview page
+                    stripe.api_key = settings.STRIPE_SECRET_KEY
+                    charge = stripe.Charge.create(
+                        amount=int(order.total.amount * 100),  # Stripe amount is in cents
+                        currency=settings.DEFAULT_CURRENCY,
+                        description=f"Payment for Order #{order.id}",
+                        source=token,
+                        capture=False,  # Authorize without capturing
+                    )
+
+                    # Create a Payment record in Django
+                    order.payment.change_status(PaymentStatus.PREAUTH)
+                    order.payment.token = charge.id
+                    order.payment.save()
+
+                    order.status = PaymentStatus.PREAUTH
+                    order.save()
+                
+                except CardError as e:
+                    # Handle error if the card is declined or other issues
+                    error_message = e.user_message
+        
+
+            if not error_message:
+                return redirect('order_payment_overview')  # Redirect to the overview page
+        else:
+            error_message = form.errors
     else:
         form = PaymentInfoForm(instance=order.payment)
 
     time_remaining = order.get_remaining_time()
-    return render(request, 'payment_form.html', {'form': form, 'order': order, 'time_remaining': time_remaining})
+    return render(request, 'payment_form.html', {'form': form, 'order': order, 'time_remaining': time_remaining, 'error_message': error_message, 'stripe_public_key': settings.STRIPE_PUBLIC_KEY})
 
 def order_payment_overview(request):
     order = get_object_or_404(Order, session_id=request.session.session_key)
@@ -94,12 +141,18 @@ def payment_process(request, payment_id):
             return redirect('order_payment_overview')
     return TemplateResponse(request, 'payment_process.html', {'form': form, 'payment': payment})
 
-def confirm_order(request):
-    order = get_object_or_404(Order, session_id=request.session.session_key)
+def confirm_order(request, order_id):
+    order = get_object_or_404(Order, session_id=order_id)
     #payment = get_object_or_404(get_payment_model(), order=order)
     payment = order.payment
-    if payment.status == PaymentStatus.WAITING:
+    if payment.status == PaymentStatus.PREAUTH:
         try:
+            # make the payment with stripe
+            # Capture the payment after review or fulfillment
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            stripe.Charge.capture(order.payment.token)
+            #payment.capture()
+
             payment.change_status(PaymentStatus.CONFIRMED)
             order.status = PaymentStatus.CONFIRMED
             order.save()
@@ -116,7 +169,9 @@ def confirm_order(request):
             
         except RedirectNeeded as e:
             return e.response
-    return redirect('ticket_list', order_id=order.session_id)
+    else:
+        return redirect('payment_form')
+    return redirect('ticket_list', order_id=order_id)
 
 def ticket_list(request, order_id):
     order = get_object_or_404(Order, session_id=order_id)
