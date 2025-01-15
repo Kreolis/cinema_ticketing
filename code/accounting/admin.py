@@ -1,8 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
-from .models import Payment, Order
-from events.models import Ticket
+from .models import Order
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
@@ -17,9 +16,3 @@ class OrderAdmin(admin.ModelAdmin):
         )
     show_invoice_pdf.short_description = 'Show Invoice PDF'
     show_invoice_pdf.allow_tags = True
-
-@admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'status', 'total', 'created')
-    list_filter = ('status', 'created')
-    search_fields = ('id', 'total', 'status')

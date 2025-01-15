@@ -22,7 +22,7 @@
                 <p><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
                 <p><strong>{% translate "Price Classes" %}:</strong>
                     {% for price_class in event.price_classes.all %}
-                        {{ price_class.name }} ({{ price_class.price }} {{ price_class.currancy }})
+                        {{ price_class.name }} ({{ price_class.price }} {{ currency }})
                     {% endfor %}
                 </p>
                 {% if event.program_link %}

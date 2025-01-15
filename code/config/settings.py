@@ -47,9 +47,9 @@ INSTALLED_APPS = [
     'django_recaptcha', # recaptcha support
     
     # custom apps
+    'branding',     # branding management
     'events',       # events management
     'accounting',   # payment and order management
-    'branding',     # branding management
 ]
 
 MIDDLEWARE = [
@@ -216,7 +216,7 @@ PAYMENT_HOST = 'localhost:8000'
 PAYMENT_USES_SSL = False
 
 # A dotted path to the Payment class.
-PAYMENT_MODEL = 'accounting.Payment'
+PAYMENT_MODEL = 'accounting.Order'
 
 # Stripe credentials
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
@@ -231,7 +231,8 @@ PAYMENT_VARIANTS = {
         {
             'api_key': STRIPE_SECRET_KEY,
             'use_token': True,
-            'secure_endpoint': False
+            'secure_endpoint': False,
+            'capture': False,
         }
     )
 }

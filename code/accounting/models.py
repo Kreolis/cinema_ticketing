@@ -1,67 +1,89 @@
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta, datetime
-
-from djmoney.models.fields import MoneyField
+from typing import Iterable
+from decimal import Decimal
 
 from events.models import Ticket
 from branding.models import get_active_branding
 
-from payments.models import BasePayment, PaymentStatus
+from payments.models import BasePayment, PaymentStatus, PurchasedItem
 from django.core.mail import EmailMessage
 from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect
+from django.urls import reverse
 
 from fpdf import FPDF
 import os
-
-class Payment(BasePayment):
+# class for holding one sessions order until payment is completed
+class Order(BasePayment):
     """
     Custom payment model that extends django-payments' BasePayment model
     """
     
-    #def __str__(self):
-    #    return f"Payment {self.id} for Order {self.order.id}"
+    session_id = models.CharField(max_length=255, unique=True)
+    tickets = models.ManyToManyField(Ticket, related_name="Tickets")
+
+    timeout = models.IntegerField(default=10)  # in minutes
+
+    variant = "stripe" 
+
+    currency = models.CharField(max_length=10, default=settings.DEFAULT_CURRENCY)
+
+    def get_purchased_items(self) -> Iterable[PurchasedItem]:
+        """Return an iterable of purchased items.
+
+        This information is sent to the payment processor when initiating the payment
+        flow. See :class:`.PurchasedItem` for details.
+        """
+        for ticket in self.tickets.all():
+            branding = get_active_branding()
+            if branding and branding.invoice_tax_rate:
+                tax_rate = branding.invoice_tax_rate
+            else:
+                tax_rate = 0.0
+            yield PurchasedItem(
+                name=ticket.event.name,
+                quantity=1,
+                price=ticket.price_class.price,
+                currency=ticket.price_class.price.currency,
+                sku=ticket.id,
+                tax_rate=tax_rate,
+            )
+
     def get_failure_url(self) -> str:
-        # Return a URL where users are redirected after
-        # they fail to complete a payment:
-        return 'payment/failure.html'
+        """URL where users will be redirected after a failed payment.
+
+        Return the URL where users will be redirected after a failed attempt to complete
+        a payment. This is usually a page explaining the situation to the user with an
+        option to retry the payment.
+
+        Note that the URL may contain the ID of this payment, allowing
+        the target page to show relevant contextual information.
+        """
+        return "http://127.0.0.1:8000" + reverse('cart_view')
 
     def get_success_url(self) -> str:
-        # Return a URL where users are redirected after
-        # they successfully complete a payment:
-        return 'payment/confirmation.html'
+        """URL where users will be redirected after a successful payment.
 
-    def get_purchased_items(self) -> str:
-        # Return items that will be included in this payment.
-        return 'payment/purchases_items.html'
-    
-    def __str__(self):
-        return f"Payment {self.id}"
+        Return the URL where users will be redirected after a successful payment. This
+        is usually a page showing a payment summary, though it's application-dependant
+        what to show on it.
 
-# class for holding one sessions order until payment is completed
-class Order(models.Model):
-    session_id = models.CharField(max_length=255, unique=True)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now_add=True)
-    tickets = models.ManyToManyField(Ticket, related_name="Tickets")
-    total = MoneyField(max_digits=14, decimal_places=2, default=0.0)
-    timeout = models.IntegerField(default=10)  # in minutes
+        Note that the URL may contain the ID of this payment, allowing
+        the target page to show relevant contextual information.
+        """
+        return "http://127.0.0.1:8000" + reverse('ticket_list' , kwargs={'order_id': self.session_id})
+
+
+    #def __str__(self):
+    #    return f"Payment {self.id}"
 
     # set to branding order_timeout if available
     if get_active_branding() and get_active_branding().order_timeout:
         timeout = get_active_branding().order_timeout
-
-    #status based on PaymentStatus
-    status = models.CharField(
-        max_length=10,
-        choices=PaymentStatus.CHOICES,
-        default=PaymentStatus.WAITING,
-    )
-
-    payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, default=None, null=True)
 
     def __str__(self):
         return _("Order {id} for session {session_id}").format(id=self.id, session_id=self.session_id)
@@ -69,9 +91,9 @@ class Order(models.Model):
     def is_valid(self) -> bool:
         if self.status == PaymentStatus.CONFIRMED:
             return True
-        if self.updated is None:
+        if self.modified is None:
             return False
-        return timezone.now() - self.updated <= timedelta(minutes=self.timeout)
+        return timezone.now() - self.modified <= timedelta(minutes=self.timeout)
 
     def save(self, *args, **kwargs):
         if not self.pk and Order.objects.filter(session_id=self.session_id).exists():
@@ -87,7 +109,7 @@ class Order(models.Model):
         self.tickets.add(*new_tickets)
         # calculate new total amount
         self.total = sum(ticket.price_class.price for ticket in self.tickets.all())  # Sum ticket prices
-        self.updated = timezone.now()
+        self.modified = timezone.now()
         self.save()
     
     def delete_ticket(self, ticket):
@@ -97,21 +119,15 @@ class Order(models.Model):
         ticket.delete()
         # calculate new total amount
         self.total = sum(ticket.price_class.price for ticket in self.tickets.all())  # Sum ticket prices
-        self.updated = timezone.now()
+        self.modified = timezone.now()
         self.save()
-
-    def update_payment(self, new_payment):
-        """
-        Update the payment associated with this order.
-        """
-        if self.payment:
-            self.payment.delete() # delete old payment
-        self.payment = new_payment
-        self.updated = timezone.now()
+    
+    def reset_timeout(self):
+        self.modified = timezone.now()
         self.save()
 
     def get_remaining_time(self):
-        return self.timeout - (timezone.now() - self.updated).seconds // 60
+        return self.timeout - (timezone.now() - self.modified).seconds // 60
     
     def generate_pdf_invoice(self):
         """
@@ -268,9 +284,7 @@ class Order(models.Model):
             else:
                 messages.warning(None, _("You are about to delete a paid order. All associated tickets will also be deleted."))
         
-        self.tickets.all().delete()
-        if self.payment:
-            self.payment.delete()   
+        self.tickets.all().delete() 
         super().delete(*args, **kwargs)
 
 

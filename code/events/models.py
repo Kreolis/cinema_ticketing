@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-from djmoney.models.fields import MoneyField
 
 from django.core.mail import EmailMessage
 from django.utils.translation import gettext_lazy as _
@@ -37,10 +36,10 @@ class PriceClass(models.Model):
     Global price class model for events.
     """
     name = models.CharField(_("name"), max_length=100)  # e.g., VIP, Regular
-    price = MoneyField(_("price"), max_digits=14, decimal_places=2)
+    price =  models.DecimalField(max_digits=9, decimal_places=2, default="0.0")
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name} - {self.price} {settings.DEFAULT_CURRENCY}"
 
 class Ticket(models.Model):
     """
@@ -132,7 +131,7 @@ class Ticket(models.Model):
             pdf.cell(4.0, 0.6, text=f"{self.price_class.name}", border=borders, align='L')        
             pdf.ln(0.75)  # Move to the next line
             pdf.cell(4.0, 0.6, text=_("Price:"), border=borders, align='L')
-            pdf.cell(4.0, 0.6, text=f"{self.price_class.price.amount} EUR", border=borders, align='L')
+            pdf.cell(4.0, 0.6, text=f"{self.price_class.price} {settings.DEFAULT_CURRENCY}", border=borders, align='L')
 
             # render ticket footer
             pdf.set_font(font, size=10)

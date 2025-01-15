@@ -62,7 +62,7 @@
                             {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
                         </form>
                     </td>
-                    <td>{{ ticket.price_class.price }}</td>
+                    <td>{{ ticket.price_class.price }} {{ currency }}</td>
                     <td>{{ ticket.price_class.name }}</td>
                     <td>
                         <form action="{% url 'delete_ticket' ticket.id %}" method="post" class="delete-ticket-form" style="display:inline;">
@@ -78,7 +78,7 @@
     <table id="total-table" class="table table-striped mt-3">
         <tr>
             <td colspan="2"><strong>{% translate "Total" %}</strong></td>
-            <td><strong>{{ order.total }}</strong></td>
+            <td><strong>{{ order.total }} {{ currency }}</strong></td>
         </tr>
     </table>
 

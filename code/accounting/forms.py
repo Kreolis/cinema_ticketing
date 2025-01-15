@@ -1,15 +1,15 @@
 from django import forms
-from .models import Payment
+from .models import Order
 from django_recaptcha.fields import ReCaptchaField
 from iso3166 import countries
 import locale
 
 class PaymentInfoForm(forms.ModelForm):
     #captcha = ReCaptchaField(label="", required=True)
-    captcha = forms.CharField(label="Captcha", required=False)
+    #captcha = forms.CharField(label="Captcha", required=False)
 
     class Meta:
-        model = Payment
+        model = Order
         COUNTRY_CHOICES = [(country.alpha2, country.name) for country in countries]
         locale_country_code = locale.getdefaultlocale()[0].split('_')[1].upper()  # Get the default locale country code
 
@@ -23,7 +23,6 @@ class PaymentInfoForm(forms.ModelForm):
             'billing_country_code',# Country code of the billing address
             'billing_country_area',# Country area of the billing address
             'billing_email',       # Email address for billing contact
-            'captcha',  # ReCaptcha field for spam protection
         ]
         labels = {
             'billing_first_name': 'First Name',

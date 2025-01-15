@@ -207,6 +207,8 @@ We welcome contributions to this project! To contribute:
 - [ ] Order ticket count shown in menu
 - [ ] fix payment creation for each order (currently each time the form is filled a new order is created, old one is stached)
 - [ ] Use shorter ids for urls and names
+- [ ] make setting upload with csv
+- [ ] fix issue of tickets that are not sold and not accociated with an order when session is closed
 
 
 ### 👨‍💼 Main Contributors

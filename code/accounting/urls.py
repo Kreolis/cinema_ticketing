@@ -6,7 +6,7 @@ from .views import (
     order_payment_overview,
     confirm_order,
     ticket_list,
-    show_generated_invoice
+    show_generated_invoice,
 )
 
 urlpatterns = [

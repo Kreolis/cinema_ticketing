@@ -39,7 +39,7 @@
                     <td>{{ ticket.event.name }}</td>
                     <td>{{ ticket.seat }}</td>
                     <td>{{ ticket.email }}</td>
-                    <td>{{ ticket.price_class.price }}</td>
+                    <td>{{ ticket.price_class.price }} {{ currency }}</td>
                     <td>{{ ticket.price_class.name }}</td>
                     <td>
                         <a href="{% url 'send_ticket_email' ticket.id %}" class="btn btn-secondary send-email-btn" data-ticket-id="{{ ticket.id }}">
@@ -62,7 +62,7 @@
         </tr>
         <tr>
             <th>{% translate "Payment Amount" %}</th>
-            <td>{{ order.payment.total }}</td>
+            <td>{{ order.payment.total }} {{ currency }}</td>
         </tr>
         <tr>
             <th>{% translate "Payment Currency" %}</th>
