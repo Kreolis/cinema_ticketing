@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.http import FileResponse, JsonResponse
+from django.urls import reverse
 
 import io
 
@@ -56,13 +57,33 @@ def payment_form(request):
         order = get_payment_model().objects.create(session_id=request.session.session_key)
         return redirect('cart_view')
         
+    gateway_form = None  # Initialize gateway_form to None
+    
     if request.method == 'POST':
         form = PaymentInfoForm(request.POST)
         
         if form.is_valid():
-            order = form.save(commit=False)
+            form_fields = form.cleaned_data
+            # update the order with the form data
+            order.billing_first_name = form_fields["billing_first_name"]
+            order.billing_last_name = form_fields["billing_last_name"]
+            order.billing_address_1 = form_fields["billing_address_1"]
+            order.billing_address_2 = form_fields["billing_address_2"]
+            order.billing_city = form_fields["billing_city"]
+            order.billing_postcode = form_fields["billing_postcode"]
+            order.billing_country_code = form_fields["billing_country_code"]
+            order.billing_country_area = form_fields["billing_country_area"]
+            order.billing_email = form_fields["billing_email"]
+
             order.session_id = request.session.session_key
-            order.status = PaymentStatus.WAITING
+            order.change_status(PaymentStatus.WAITING)
+
+            # if the payment vairant is able to do a preauth, set the success and failure urls
+            # check first if the name of the variant is matching with a variant that has the capture field set to False
+            if settings.PAYMENT_VARIANTS[order.variant][1].get('capture', True) == False:
+                order.failure_url = request.build_absolute_uri(reverse('cart_view'))
+                order.success_url = request.build_absolute_uri(reverse('order_payment_overview', args=[order.session_id]))
+            
             order.save()
 
             # update tickets so that they have an email address
@@ -70,42 +91,44 @@ def payment_form(request):
                 if ticket.email == None:
                     ticket.email = order.billing_email
                     ticket.save()
+            if settings.PAYMENT_VARIANTS[order.variant][1].get('capture', True) == False:
+                try:
+                    order.change_status(PaymentStatus.PREAUTH)
+                    gateway_form = order.get_form(request)
+                except RedirectNeeded as e:
+                    return redirect(str(e))
             
-            try:
-                gateway_form =  order.get_form(request)
-            except RedirectNeeded as e:
-                return e.response
-            
-            return redirect('order_payment_overview')  # Redirect to the overview page
+            return redirect('order_payment_overview', order_id=order.session_id)
     else:
-        form = PaymentInfoForm(instance=order)
+        # Initialize the form with the current order data
+        form = PaymentInfoForm(initial={
+            'billing_first_name': order.billing_first_name,
+            'billing_last_name': order.billing_last_name,
+            'billing_address_1': order.billing_address_1,
+            'billing_address_2': order.billing_address_2,
+            'billing_city': order.billing_city,
+            'billing_postcode': order.billing_postcode,
+            'billing_country_code': order.billing_country_code,
+            'billing_country_area': order.billing_country_area,
+            'billing_email': order.billing_email,
+        })
 
     time_remaining = order.get_remaining_time()
     return render(request, 'payment_form.html', 
-                  {'form': form, 
+                  {'form': form,
+                   'gateway_form': gateway_form,
                    'order': order, 
                    'time_remaining': time_remaining, 
                    'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
                    'currency': settings.DEFAULT_CURRENCY
                 })
 
-def order_payment_overview(request):
-    order = get_object_or_404(get_payment_model(), session_id=request.session.session_key)
+def order_payment_overview(request, order_id):
+    order = get_object_or_404(get_payment_model(), session_id=order_id)
     order.reset_timeout()
-
+    
     time_remaining = order.get_remaining_time()
     return render(request, 'order_payment_overview.html', {'order': order, 'time_remaining': time_remaining,
-        'currency': settings.DEFAULT_CURRENCY})
-
-
-def payment_process(request):
-    order = get_object_or_404(get_payment_model(), session_id=request.session.session_key)
-    if order.status == PaymentStatus.WAITING:
-        form = PaymentForm(data=request.POST or None, payment=order)
-        if form.is_valid():
-            form.save()
-            return redirect('order_payment_overview')
-    return TemplateResponse(request, 'payment_process.html', {'form': form, 'payment': order,
         'currency': settings.DEFAULT_CURRENCY})
 
 def confirm_order(request, order_id):
@@ -114,10 +137,9 @@ def confirm_order(request, order_id):
         try:
             # make the payment with stripe
             # Capture the payment after review or fulfillment
-            #payment.capture()
+            order.capture()
 
             order.change_status(PaymentStatus.CONFIRMED)
-            order.status = PaymentStatus.CONFIRMED
             order.save()
 
             for ticket in order.tickets.all():
@@ -133,13 +155,29 @@ def confirm_order(request, order_id):
             
         except RedirectNeeded as e:
             return e.response
+        
+    elif order.status == PaymentStatus.WAITING:
+        # variant was not preauthe therefore initiate the payment
+        order.failure_url = request.build_absolute_uri(reverse('payment_form'))
+        order.success_url = request.build_absolute_uri(reverse('ticket_list', args=[order_id]))
+    
+        order.save()
+
+        try:
+            order.change_status(PaymentStatus.INPUT)
+            gateway_form = order.get_form(request)
+        except RedirectNeeded as e:
+            return redirect(str(e))
     else:
         return redirect('payment_form')
     return redirect('ticket_list', order_id=order_id)
 
 def ticket_list(request, order_id):
     order = get_object_or_404(get_payment_model(), session_id=order_id)
-    print("halllo here is the ticket list")
+
+    if order.status == PaymentStatus.INPUT:
+        order.change_status(PaymentStatus.CONFIRMED)
+        
     if order.status == PaymentStatus.CONFIRMED:
         return render(request, 'ticket_list.html', {'order': order,
         'currency': settings.DEFAULT_CURRENCY})
@@ -157,6 +195,6 @@ def show_generated_invoice(request, order_id):
     file_stream = io.BytesIO(pdf.output())
 
     # Create a FileResponse to send the PDF file
-    response = FileResponse(file_stream, content_type='application/pdf', filename="order_invoice_{order_id}.pdf")
+    response = FileResponse(file_stream, content_type='application/pdf', filename=f"order_invoice_{order_id}.pdf")
     
     return response

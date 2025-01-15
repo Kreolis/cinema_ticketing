@@ -22,7 +22,7 @@
         </div>
     {% endif %}
 
-    <form method="post" action="">
+    <form id="form" method="post" action="">
         {% csrf_token %}
         {% bootstrap_form form %}
         <p>{% translate "Your order is valid for another" %} <span id="timeout-time-remaining">{{ time_remaining }}:00</span> {% translate "minutes" %}.</p>
@@ -32,6 +32,18 @@
             <a href="{% url 'cart_view' %}" class="btn btn-secondary">{% translate "Go back to cart" %}</a>
         </div>
     </form>
+
+    {% if gateway_form %}
+        <p>{% translate "You will be redirected to the payment gateway to complete your payment." %}</p>
+        <form id="gatewayform" method="post" action="">
+            {% csrf_token %}
+            {% bootstrap_form gateway_form %}
+            <div class="form-group mt-3">
+                {% bootstrap_button _("Complete Payment") button_type="submit" button_class="btn-primary" %}
+            </div>
+        </form>
+    {% endif %}
+   
     
     <script>
         $(document).ready(function() {

@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 from datetime import timedelta, datetime
 from typing import Iterable
-from decimal import Decimal
 
 from events.models import Ticket
 from branding.models import get_active_branding
@@ -17,6 +16,7 @@ from django.urls import reverse
 
 from fpdf import FPDF
 import os
+
 # class for holding one sessions order until payment is completed
 class Order(BasePayment):
     """
@@ -28,9 +28,12 @@ class Order(BasePayment):
 
     timeout = models.IntegerField(default=10)  # in minutes
 
-    variant = "stripe" 
+    variant = settings.DEFAULT_PAYMENT_VARIANT
 
     currency = models.CharField(max_length=10, default=settings.DEFAULT_CURRENCY)
+
+    failure_url = models.URLField(max_length=255, blank=True, null=True)
+    success_url = models.URLField(max_length=255, blank=True, null=True)
 
     def get_purchased_items(self) -> Iterable[PurchasedItem]:
         """Return an iterable of purchased items.
@@ -48,7 +51,7 @@ class Order(BasePayment):
                 name=ticket.event.name,
                 quantity=1,
                 price=ticket.price_class.price,
-                currency=ticket.price_class.price.currency,
+                currency=settings.DEFAULT_CURRENCY,
                 sku=ticket.id,
                 tax_rate=tax_rate,
             )
@@ -63,7 +66,8 @@ class Order(BasePayment):
         Note that the URL may contain the ID of this payment, allowing
         the target page to show relevant contextual information.
         """
-        return "http://127.0.0.1:8000" + reverse('cart_view')
+
+        return self.failure_url
 
     def get_success_url(self) -> str:
         """URL where users will be redirected after a successful payment.
@@ -75,7 +79,7 @@ class Order(BasePayment):
         Note that the URL may contain the ID of this payment, allowing
         the target page to show relevant contextual information.
         """
-        return "http://127.0.0.1:8000" + reverse('ticket_list' , kwargs={'order_id': self.session_id})
+        return self.success_url
 
 
     #def __str__(self):
@@ -101,6 +105,10 @@ class Order(BasePayment):
             # return existing order instead of creating a new one
             existing_order = Order.objects.get(session_id=self.session_id)
             return existing_order
+
+        if not self.created:
+            self.modified = timezone.now()
+            self.modified = timezone.now()
         
         super().save(*args, **kwargs)
 
@@ -160,13 +168,13 @@ class Order(BasePayment):
         date = datetime.today().strftime('%Y-%m-%d')
         due_date = (self.created + timedelta(days=30)).strftime('%Y-%m-%d')
         bill_to = (
-            f"{self.payment.billing_first_name} {self.payment.billing_last_name}\n"
-            f"{self.payment.billing_address_1}\n"
-            f"{self.payment.billing_address_2}\n"
-            f"{self.payment.billing_city}\n"
-            f"{self.payment.billing_postcode}\n"
-            f"{self.payment.billing_country_code}\n"
-            f"{self.payment.billing_country_area}"
+            f"{self.billing_first_name} {self.billing_last_name}\n"
+            f"{self.billing_address_1}\n"
+            f"{self.billing_address_2}\n"
+            f"{self.billing_city}\n"
+            f"{self.billing_postcode}\n"
+            f"{self.billing_country_code}\n"
+            f"{self.billing_country_area}"
         )
         if branding and branding.invoice_tax_rate:
             tax_rate = branding.invoice_tax_rate
@@ -174,7 +182,7 @@ class Order(BasePayment):
             tax_rate = 0.0
 
         # Calculate totals
-        items = [{"description": ticket.event.name, "qty": 1, "unit_price": ticket.price_class.price.amount} for ticket in self.tickets.all()]
+        items = [{"description": ticket.event.name, "qty": 1, "unit_price": ticket.price_class.price} for ticket in self.tickets.all()]
         subtotal_with_tax = sum(item["qty"] * item["unit_price"] for item in items)
         tax = subtotal_with_tax * tax_rate
         subtotal = subtotal_with_tax - tax
@@ -226,22 +234,22 @@ class Order(BasePayment):
         for item in items:
             pdf.cell(8, 0.6, item["description"], border=1)
             pdf.cell(3, 0.6, str(item["qty"]), border=1, align="C")
-            pdf.cell(4, 0.6, f"${item['unit_price']:.2f}", border=1, align="C")
-            pdf.cell(4, 0.6, f"${item['qty'] * item['unit_price']:.2f}", border=1, align="C")
+            pdf.cell(4, 0.6, f"{item['unit_price']:.2f}  {settings.DEFAULT_CURRENCY}", border=1, align="C")
+            pdf.cell(4, 0.6, f"{item['qty'] * item['unit_price']:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
             pdf.ln()
 
         # Add totals
         pdf.set_font(font, size=12, style='B')
         pdf.cell(15, 0.6, _("Subtotal"), border=1)
-        pdf.cell(4, 0.6, f"${subtotal:.2f}", border=1, align="C")
+        pdf.cell(4, 0.6, f"{subtotal:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
         pdf.ln()
 
         pdf.cell(15, 0.6, _("Tax ({tax_rate}%)").format(tax_rate=tax_rate * 100), border=1)
-        pdf.cell(4, 0.6, f"${tax:.2f}", border=1, align="C")
+        pdf.cell(4, 0.6, f"{tax:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
         pdf.ln()
 
         pdf.cell(15, 0.6, _("Total"), border=1)
-        pdf.cell(4, 0.6, f"${total:.2f}", border=1, align="C")
+        pdf.cell(4, 0.6, f"{total:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
         pdf.ln()
 
         return pdf
@@ -284,7 +292,9 @@ class Order(BasePayment):
             else:
                 messages.warning(None, _("You are about to delete a paid order. All associated tickets will also be deleted."))
         
-        self.tickets.all().delete() 
+        for ticket in self.tickets.all():
+            ticket.delete()
+
         super().delete(*args, **kwargs)
 
 

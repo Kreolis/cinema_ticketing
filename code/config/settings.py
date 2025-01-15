@@ -210,6 +210,7 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='your-email@example.co
 # Keep in mind that if you use `localhost`, external servers won't be
 # able to reach you for webhook notifications.
 PAYMENT_HOST = 'localhost:8000'
+#PAYMENT_PROTOCOL = 'https'
 
 # Whether to use TLS (HTTPS). If false, will use plain-text HTTP.
 # Defaults to ``not settings.DEBUG``.
@@ -232,7 +233,19 @@ PAYMENT_VARIANTS = {
             'api_key': STRIPE_SECRET_KEY,
             'use_token': True,
             'secure_endpoint': False,
+            'endpoint_secret': config('STRIPE_WEBHOOK_SECRET'),
+        }
+    ),
+    'paypal': (
+        'payments.paypal.PaypalProvider',
+        {
+            'client_id': 'user@example.com',
+            'secret': 'iseedeadpeople',
+            'endpoint': 'https://api.sandbox.paypal.com',
+            #'endpoint': 'https://api.paypal.com', # for production
             'capture': False,
         }
     )
 }
+
+DEFAULT_PAYMENT_VARIANT = 'stripe'
