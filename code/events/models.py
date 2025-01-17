@@ -51,7 +51,8 @@ class PriceClass(models.Model):
     Global price class model for events.
     """
     name = models.CharField(_("name"), max_length=100)  # e.g., VIP, Regular
-    price =  models.DecimalField(max_digits=9, decimal_places=2, default="0.0")
+    price =  models.DecimalField(max_digits=9, decimal_places=2, default="0.0", help_text=_(f"Price in {settings.DEFAULT_CURRENCY}"))  # Price for the ticket
+    notification_message = models.TextField(_("notification message"), blank=True, null=True)  # Optional message to display to the user
 
     def __str__(self):
         return f"{self.name} - {self.price} {settings.DEFAULT_CURRENCY}"
