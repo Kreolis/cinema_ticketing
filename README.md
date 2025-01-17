@@ -64,6 +64,7 @@ RECAPTCHA_PRIVATE_KEY = 'YourRecaptchaPrivateKey'
 ```bash
 python manage.py makemigrations
 python manage.py migrate
+python manage.py create_groups
 ```
 
 ### 6. Run the Development Server

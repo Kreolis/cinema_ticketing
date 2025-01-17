@@ -14,22 +14,26 @@
     <h1>{% translate "Upcoming Events" %}</h1>
 
     <div class="event-list">
-        {% for event in events %}
-            <div class="event-item">
-                <h2><a href="{% url 'event_details' event.id %}">{{ event.name }}</a></h2>
-                <p><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
-                <p><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
-                <p><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
-                <p><strong>{% translate "Price Classes" %}:</strong>
-                    {% for price_class in event.price_classes.all %}
-                        {{ price_class.name }} ({{ price_class.price }} {{ currency }})
-                    {% endfor %}
-                </p>
-                {% if event.program_link %}
-                    <p><a href="{{ event.program_link }}">{% translate "View Program" %}</a></p>
-                {% endif %}
-            </div>
-        {% endfor %}
+        {% if events %}
+            {% for event in events %}
+                <div class="event-item">
+                    <h2><a href="{% url 'event_details' event.id %}">{{ event.name }}</a></h2>
+                    <p><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
+                    <p><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
+                    <p><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
+                    <p><strong>{% translate "Price Classes" %}:</strong>
+                        {% for price_class in event.price_classes.all %}
+                            {{ price_class.name }} ({{ price_class.price }} {{ currency }})
+                        {% endfor %}
+                    </p>
+                    {% if event.program_link %}
+                        <p><a href="{{ event.program_link }}">{% translate "View Program" %}</a></p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>{% translate "Currently there are no events available for purchase." %}</p>
+        {% endif %}
     </div>
 {% endblock %}
         
