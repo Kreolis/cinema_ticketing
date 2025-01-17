@@ -111,7 +111,7 @@ def event_check_in(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     tickets = Ticket.objects.filter(event=event)
     branding = Branding.objects.filter(is_active=True).first()
-    return render(request, 'check_in.html', {
+    return render(request, 'event_check_in.html', {
         'event': event,
         'tickets': tickets,
         'branding': branding,
