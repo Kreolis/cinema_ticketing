@@ -89,7 +89,7 @@ def show_generated_ticket_pdf(request, ticket_id):
     file_stream = io.BytesIO(pdf.output())
 
     # Create a FileResponse to send the PDF file
-    response = FileResponse(file_stream, content_type='application/pdf', filename="ticket_{ticket.id}.pdf")
+    response = FileResponse(file_stream, content_type='application/pdf', filename=f"ticket_{ticket.id}.pdf")
     
     return response
 
