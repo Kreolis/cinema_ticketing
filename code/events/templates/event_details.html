@@ -10,6 +10,9 @@
 {% endblock %}
 
 {% block content %}
+    <!-- Include jQuery library via CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <h1>{{ event.name }}</h1>
     
     <p><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
@@ -19,11 +22,27 @@
         <p><a href="{{ event.program_link }}">{% translate "View Program" %}</a></p>
     {% endif %}
 
+    <div id="presale-active-content" style="display: none;">
+        <p>{% translate "Presale is active. Tickets are sold in presale." %}</p>
+        {% if event.allow_door_selling %}
+            <p>{% translate "Tickets are also sold at the door after the presale ends at " %} {{ presale_end_time }}</p>
+            <p>{% translate "Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} {{ event.start_time }}</p>
+        {% endif %}
+    </div>
+    <div id="presale-inactive-content" style="display: none;">
+        {% if event.allow_door_selling %}
+            <p>{% translate "Presale period is over. Tickets are only sold at the door." %}</p>
+            <p>{% translate "Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} {{ event.start_time }}</p>  
+        {% else %}
+            <p>{% translate "Presale period is over. Tickets are not anymore available." %}</p>
+        {% endif %}
+    </div>
 
     {% if ticket_manager %}
-        <a href="{% url 'event_check_in' event.id %}" class="btn btn-primary" >{% translate "Go ticket Check-In" %}</a>
-        <a href="{% url 'event_door_selling' event.id %}" class="btn btn-primary" >{% translate "Go ticket Door Selling" %}</a>
+        <a href="{% url 'event_check_in' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Check-In" %}</a>
+        <a href="{% url 'event_door_selling' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Door Selling" %}</a>
     {% else %}
+
         <h2>{% translate "Select Tickets" %}</h2>
 
         {# Check for form errors and display them #}
@@ -47,5 +66,27 @@
 
         </form>
     {% endif %}
+
+    <script>
+        const presaleEndTime = new Date("{{ presale_end_time|date:'c' }}");
+        const presaleStatusElement = document.getElementById('presale-status');
+        const presaleActiveContent = document.getElementById('presale-active-content');
+        const presaleInactiveContent = document.getElementById('presale-inactive-content');
+
+        function updatePresaleStatus() {
+            const now = new Date();
+            if (now < presaleEndTime) {
+                presaleActiveContent.style.display = 'block';
+                presaleInactiveContent.style.display = 'none';
+            } else {
+                presaleActiveContent.style.display = 'none';
+                presaleInactiveContent.style.display = 'block';
+            }
+        }
+
+        // Update the status immediately and then every minute
+        updatePresaleStatus();
+        setInterval(updatePresaleStatus, 60000);
+    </script>
     
 {% endblock %}

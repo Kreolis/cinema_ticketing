@@ -25,6 +25,8 @@ def event_list(request):
 def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     price_classes = event.price_classes.all()
+
+    presale_end_time = event.presale_end_time()
     
     # Ensure the session is created
     if not request.session.session_key:
@@ -59,7 +61,8 @@ def event_detail(request, event_id):
         'price_classes': price_classes,
         'form': form,
         'ticket_manager': ticket_manager,
-        'currency': settings.DEFAULT_CURRENCY
+        'presale_end_time': presale_end_time,
+        'currency': settings.DEFAULT_CURRENCY,
     })
 
 # user ticket controls during order
