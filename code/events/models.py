@@ -50,7 +50,7 @@ class Ticket(models.Model):
     price_class = models.ForeignKey(PriceClass, verbose_name=_("price class"), on_delete=models.CASCADE)  # Reference to PriceClass (ticket price)
     event = models.ForeignKey("Event", verbose_name=_("event"), on_delete=models.CASCADE)  # Add event to ticket
     seat = models.IntegerField(_("seat number")) # seat number
-    sold = models.BooleanField(_("sold"), default=False)  # Track if ticket is sold
+    sold_as = models.CharField(_("sold as"), max_length=10, choices=SoldAsStatus.CHOICES, default=SoldAsStatus.WAITING)  # How the ticket was sold
 
     email = models.EmailField(_("email"), blank=True, null=True)  # Email address of the ticket holder
 
@@ -210,10 +210,33 @@ class Event(models.Model):
     custom_seats = models.PositiveIntegerField(_("custom seats"), null=True, blank=True)  # If None, use total_seats from location
 
     branding = get_active_branding()
-    if branding and branding.ticket_background:
-        ticket_background = models.ImageField(_("ticket background"), upload_to='event/images', null=True, blank=True, default=branding.ticket_background)
     
-    ticket_background = models.ImageField(_("ticket background"), upload_to='event/images', null=True, blank=True)  # Background image for tickets
+    ticket_background = models.ImageField(
+        _("ticket background"), 
+        upload_to='event/images', 
+        null=True, 
+        blank=True, 
+        default=branding.ticket_background if branding and branding.ticket_background else None
+    )
+    
+    event_background = models.ImageField(
+        _("event background"), 
+        upload_to='event/images', 
+        null=True, 
+        blank=True, 
+        default=branding.event_background if branding and branding.event_background else None
+    )
+    
+    presale_ends_before = models.IntegerField(
+        _("presale ends before"), 
+        default=branding.presale_ends_before if branding and branding.presale_ends_before else 1
+    )
+    
+    allow_door_selling = models.BooleanField(
+        _("allow door selling"), 
+        default=branding.allow_door_selling if branding and branding.allow_door_selling else True
+    )
+
 
     def __str__(self):
         return self.name
@@ -223,6 +246,12 @@ class Event(models.Model):
         Return the duration of the event in minutes.
         """
         return self.duration.total_seconds() / 60
+    
+    def presale_end_time(self):
+        """
+        Returns time when presale ends. 
+        """
+        return self.start_time - timedelta(hours=self.presale_ends_before)
 
     @property
     def available_seats(self):
