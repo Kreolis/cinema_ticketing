@@ -51,13 +51,13 @@ def event_detail(request, event_id):
     else:
         form = TicketSelectionForm(price_classes=price_classes)
 
-    show_button = user_in_ticket_managers_group_or_admin(request.user)
+    ticket_manager = user_in_ticket_managers_group_or_admin(request.user)
 
     return render(request, 'event_details.html', {
         'event': event,
         'price_classes': price_classes,
         'form': form,
-        'show_button': show_button,
+        'ticket_manager': ticket_manager,
         'currency': settings.DEFAULT_CURRENCY
     })
 

@@ -20,31 +20,32 @@
     {% endif %}
 
 
-    {% if show_button %}
+    {% if ticket_manager %}
         <a href="{% url 'event_check_in' event.id %}" class="btn btn-primary" >{% translate "Go ticket Check-In" %}</a>
+        <a href="{% url 'event_door_selling' event.id %}" class="btn btn-primary" >{% translate "Go ticket Door Selling" %}</a>
     {% else %}
-    <h2>{% translate "Select Tickets" %}</h2>
+        <h2>{% translate "Select Tickets" %}</h2>
 
-    {# Check for form errors and display them #}
-    {% if form.non_field_errors %}
-        <div class="alert alert-danger">
-            {{ form.non_field_errors }}
-        </div>
-    {% endif %}
+        {# Check for form errors and display them #}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
 
-    <form method="post" action="">
-        {% csrf_token %}
+        <form method="post" action="">
+            {% csrf_token %}
 
-        {# Use bootstrap_form to render the form #}
-        {% bootstrap_form form %}
+            {# Use bootstrap_form to render the form #}
+            {% bootstrap_form form %}
 
-        {# Add a submit button styled with Bootstrap #}
-        <div class="mt-3">
-            {% bootstrap_button _("Add to Cart") button_type="submit" button_class="btn-primary" %}
-            <a href="{% url 'cart_view' %}" class="btn btn-secondary" >{% translate "Go to cart" %}</a>
-        </div>
+            {# Add a submit button styled with Bootstrap #}
+            <div class="mt-3">
+                {% bootstrap_button _("Add to Cart") button_type="submit" button_class="btn-primary" %}
+                <a href="{% url 'cart_view' %}" class="btn btn-secondary" >{% translate "Go to cart" %}</a>
+            </div>
 
-    </form>
+        </form>
     {% endif %}
     
 {% endblock %}
