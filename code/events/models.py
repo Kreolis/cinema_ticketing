@@ -4,6 +4,8 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils.translation import gettext_lazy as _
 
+from datetime import timedelta
+
 from fpdf import FPDF
 import qrcode
 import os
@@ -11,6 +13,19 @@ import tempfile
 import uuid
 
 from branding.models import get_active_branding
+
+class SoldAsStatus:
+    WAITING = "waiting"
+    PRESALE = "preauth"
+    DOOR = "confirmed"
+    REFUNDED = "refunded"
+    
+    CHOICES = [
+        (WAITING, _("Ticket not yet sold")),
+        (PRESALE, _("Ticket sold in presale")),
+        (DOOR, _("Ticket sold at the door")),
+        (REFUNDED, _("Ticket refunded")),
+    ]
 
 class Location(models.Model):
     """

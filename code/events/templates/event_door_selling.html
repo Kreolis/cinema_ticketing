@@ -1,0 +1,62 @@
+{% extends "master.html" %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% load i18n %}
+
+{% block title %}{% translate "Event Door Selling" %}{% endblock %}
+
+{% block content %}
+    <h1 class="mt-4">{% translate "Event Door Selling" %} - {{ event.name }}</h1>
+
+    <!-- Include jQuery library via CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Include DataTables.net library via CDN -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" />
+    <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
+    
+    <h2 id="presale-status" class="text-warning"></h2>
+
+    <!-- Elements to show/hide based on presale status -->
+    <div id="presale-active-content" style="display: none;">
+        <p>{% translate "Presale is active. Tickets are sold in presale." %}</p>
+        {% if event.allow_door_selling %}
+            <p>{% translate "Tickets are also sold at the door after the presale ends at " %} {{ presale_end_time }}</p>
+            <p>{% translate "Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before}}h </strong> {% translate " defore the event starts at " %} {{ event.start_time }}</p>
+        {% endif %}
+    </div>
+    <div id="presale-inactive-content" style="display: none;">
+        <p>{% translate "Presale is inactive. Tickets are only sold at the door." %}</p>
+    </div>
+
+    <script>
+        const presaleEndTime = new Date("{{ presale_end_time|date:'c' }}"); // Pass presale_end_time to JavaScript
+        const presaleStatusElement = document.getElementById('presale-status');
+        const presaleActiveContent = document.getElementById('presale-active-content');
+        const presaleInactiveContent = document.getElementById('presale-inactive-content');
+
+        function updatePresaleStatus() {
+            const now = new Date();
+            if (now < presaleEndTime) {
+                presaleStatusElement.textContent = "{% translate 'Presale is active - Presale ONLY - END: ' %} {{ presale_end_time }}";
+                presaleActiveContent.style.display = 'block';
+                presaleInactiveContent.style.display = 'none';
+            } else {
+                presaleStatusElement.textContent = "{% translate 'Presale is inactive - Door ONLY' %}";
+                presaleActiveContent.style.display = 'none';
+                presaleInactiveContent.style.display = 'block';
+            }
+        }
+
+        // Update the status immediately and then every minute
+        updatePresaleStatus();
+        setInterval(updatePresaleStatus, 60000);
+
+        $(document).ready(function() {
+            $('#tickets-table').DataTable();
+        });
+    </script>
+
+{% endblock %}

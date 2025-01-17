@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 
 import io
+from datetime import timedelta, datetime
 
 from payments import get_payment_model
 
@@ -142,3 +143,17 @@ def toggle_ticket_activation(request, ticket_id):
     ticket.save()
     return JsonResponse({"status": "success", "activated": ticket.activated})
 
+@login_required
+@user_passes_test(user_in_ticket_managers_group_or_admin)
+def event_door_selling(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    price_classes = event.price_classes.all()
+
+    presale_end_time = event.presale_end_time()
+
+    return render(request, 'event_door_selling.html', {
+        'event': event,
+        'presale_end_time': presale_end_time,
+        'price_classes': price_classes,
+        'currency': settings.DEFAULT_CURRENCY
+    })
