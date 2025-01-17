@@ -232,8 +232,8 @@ PAYMENT_VARIANTS = {
         {
             'api_key': STRIPE_SECRET_KEY,
             'use_token': True,
-            'secure_endpoint': False,
-            'endpoint_secret': config('STRIPE_WEBHOOK_SECRET'),
+            'secure_endpoint': True,
+            'endpoint_secret': config('STRIPE_WEBHOOK_SECRET', default='whsec_test_secret'),
         }
     ),
     'paypal': (
@@ -241,11 +241,14 @@ PAYMENT_VARIANTS = {
         {
             'client_id': 'user@example.com',
             'secret': 'iseedeadpeople',
-            'endpoint': 'https://api.sandbox.paypal.com',
-            #'endpoint': 'https://api.paypal.com', # for production
+            'endpoint': 'https://api.paypal.com', # for production
             'capture': False,
         }
     )
 }
+
+if DEBUG:
+    PAYMENT_VARIANTS['stripe'][1]['secure_endpoint'] = False
+    PAYMENT_VARIANTS['paypal'][1]['endpoint'] = 'https://api.sandbox.paypal.com'
 
 DEFAULT_PAYMENT_VARIANT = 'stripe'
