@@ -3,31 +3,35 @@ from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
+from django.db.models.signals import post_migrate
+from django.apps import apps
 
-# create ticket managers group
-ticket_managers_group, created = Group.objects.get_or_create(name='Ticket Managers')
-if created:
-    # Assign permissions ticket and events management
-    permissions = [
-        'add_event', 'add_location', 'add_priceclass', 'add_ticket',
-        'change_event', 'change_location', 'change_priceclass', 'change_ticket',
-        'delete_event', 'delete_location', 'delete_priceclass', 'delete_ticket',
-        'view_event', 'view_location', 'view_priceclass', 'view_ticket',
-        'add_payment', 'change_payment', 'delete_payment', 'view_payment'
-    ]
+def create_groups_and_permissions(sender, **kwargs):
+    if sender.name == 'branding':  # Ensure this runs only for the 'branding' app
+        # create ticket managers group
+        ticket_managers_group, created = Group.objects.get_or_create(name='Ticket Managers')
+        if created:
+            # Assign permissions ticket and events management
+            permissions = [
+                'add_event', 'add_location', 'add_priceclass', 'add_ticket',
+                'change_event', 'change_location', 'change_priceclass', 'change_ticket',
+                'delete_event', 'delete_location', 'delete_priceclass', 'delete_ticket',
+                'view_event', 'view_location', 'view_priceclass', 'view_ticket',
+                'add_payment', 'change_payment', 'delete_payment', 'view_payment'
+            ]
 
-    for perm in permissions:
-        permission = Permission.objects.get(codename=perm)
-        ticket_managers_group.permissions.add(permission)
+            for perm in permissions:
+                permission = Permission.objects.get(codename=perm)
+                ticket_managers_group.permissions.add(permission)
 
+        # create admin group
+        admins_group, created = Group.objects.get_or_create(name='Admins')
+        if created:
+            # Assign all permissions to admins
+            all_permissions = Permission.objects.all()
+            admins_group.permissions.set(all_permissions)
 
-# create admin group
-admins_group, created = Group.objects.get_or_create(name='Admins')
-if created:
-    # Assign all permissions to admins
-    all_permissions = Permission.objects.all()
-    admins_group.permissions.set(all_permissions)
-    
+post_migrate.connect(create_groups_and_permissions, sender=apps.get_app_config('branding'))
 
 # model for contact form emails
 class Contact(models.Model):
@@ -73,7 +77,7 @@ class Branding(models.Model):
     # make sure only one image is active at a time
     def save(self, *args, **kwargs):
         if self.is_active:
-            Branding.objects.all().update(is_active=False)
+            Branding.objects.filter(is_active=True).update(is_active=False)
         super(Branding, self).save(*args, **kwargs)
 
     # delete image files when object is deleted
