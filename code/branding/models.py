@@ -21,10 +21,14 @@ class Branding(models.Model):
     site_name = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the name of your site. This will be used as the title of the site and in communcations."))
     logo = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the logo image"))
     favicon = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the favicon image (max 64x64 pixels)"))
-    ticket_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global ticket background image"))
-    event_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global event background image"))
     order_timeout = models.IntegerField(default=10, help_text=_("Timeout in minutes until user needs to start fresh with their order"))
     success_sound = models.FileField(upload_to='branding/sounds', null=True, blank=True, help_text=_("Upload the success sound file for ticket scanner"))
+
+    # general event and ticket settings
+    ticket_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global ticket background image"))
+    event_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global event background image"))
+    presale_ends_before = models.IntegerField(default=1, help_text=_("Number of hours before event start when presale ends"))
+    allow_door_selling = models.BooleanField(default=True, help_text=_("Indicates if selling tickets at the door is allowed"))
 
     # invoice settings
     invoice_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global invoice background image"))
