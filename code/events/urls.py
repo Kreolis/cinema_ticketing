@@ -9,7 +9,9 @@ from .views import (
     update_ticket_email,
     show_generated_ticket_pdf,
     send_ticket_email,
-    event_door_selling
+    event_door_selling,
+    event_statistics,
+    all_event_statistics
 )
 
 urlpatterns = [
@@ -23,4 +25,6 @@ urlpatterns = [
     path('update-ticket-email/<uuid:ticket_id>/', update_ticket_email, name='update_ticket_email'),  # Update ticket email URL
     path('ticket_<uuid:ticket_id>.pdf', show_generated_ticket_pdf, name='show_generated_ticket_pdf'),
     path('send_ticket_email/<uuid:ticket_id>/', send_ticket_email, name='send_ticket_email'),
+    path('<uuid:event_id>/statistics/', event_statistics, name='event_statistics'),
+    path('overall-statistics/', all_event_statistics, name='all_event_statistics')
 ]

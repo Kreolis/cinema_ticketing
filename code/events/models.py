@@ -287,22 +287,82 @@ class Event(models.Model):
             self.save()
         return self.is_active
 
-    @property
-    def available_seats(self):
+    def calculate_statistics(self):
         """
-        Return the number of seats available for this event.
+        Calculate statistics for the event.
+        """
+        tickets = Ticket.objects.filter(event=self)
+        price_classes = self.price_classes.all()
+
+        total_stats = {
+            'waiting': tickets.filter(sold_as=SoldAsStatus.WAITING).count(),
+            'presale_online': tickets.filter(sold_as=SoldAsStatus.PRESALE_ONLINE).count(),
+            'presale_door': tickets.filter(sold_as=SoldAsStatus.PRESALE_DOOR).count(),
+            'door': tickets.filter(sold_as=SoldAsStatus.DOOR).count(),
+            'total_sold': tickets.exclude(sold_as=SoldAsStatus.WAITING).count(),
+            'total_count': tickets.all().count(),
+            'activated_presale_online': tickets.filter(sold_as=SoldAsStatus.PRESALE_ONLINE, activated=True).count(),
+            'activated_presale_door': tickets.filter(sold_as=SoldAsStatus.PRESALE_DOOR, activated=True).count(),
+            'activated_door': tickets.filter(sold_as=SoldAsStatus.DOOR, activated=True).count(),
+            'total_activated': tickets.filter(activated=True).count(),
+            'earned_presale_online': 0,
+            'earned_presale_door': 0,
+            'earned_door': 0,
+            'total_earned': 0
+        }
+        price_class_stats = {}
+
+        for price_class in price_classes:
+            waiting_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.WAITING).count()
+            presale_online_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_ONLINE).count()
+            presale_door_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_DOOR).count()
+            door_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.DOOR).count()
+            
+            activated_waiting_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.WAITING, activated=True).count()
+            activated_presale_online_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_ONLINE, activated=True).count()
+            activated_presale_door_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_DOOR, activated=True).count()
+            activated_door_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.DOOR, activated=True).count()
+            
+            earned_presale_online = presale_online_count * price_class.price
+            earned_presale_door = presale_door_count * price_class.price
+            earned_door = door_count * price_class.price
+            
+            total_stats['earned_presale_online'] += earned_presale_online
+            total_stats['earned_presale_door'] += earned_presale_door
+            total_stats['earned_door'] += earned_door
+            
+            earned = (presale_online_count + presale_door_count + door_count) * price_class.price
+            total_stats['total_earned'] += earned
+
+
+            price_class_stats[price_class] = {
+                'waiting': waiting_count,
+                'presale_online': presale_online_count,
+                'presale_door': presale_door_count,
+                'door': door_count,
+                'total_sold': presale_online_count + presale_door_count + door_count,
+                'total_count': waiting_count + presale_online_count + presale_door_count + door_count,
+                'activated_presale_online': activated_presale_online_count,
+                'activated_presale_door': activated_presale_door_count,
+                'activated_door': activated_door_count,
+                'total_activated': activated_waiting_count + activated_presale_online_count + activated_presale_door_count + activated_door_count,
+                'earned_presale_online': earned_presale_online,
+                'earned_presale_door': earned_presale_door,
+                'earned_door': earned_door,
+                'total_earned': earned,
+            }
+
+        return total_stats, price_class_stats
+    
+    @property
+    def remaining_seats(self):
+        """
+        Return the number of seats still available for this event.
         If custom_seats is set, use that; otherwise, fallback to the location's total_seats.
         """
         total_seats = self.custom_seats if self.custom_seats is not None else self.location.total_seats
-        sold_tickets = self.ticket_set.filter(sold=True).count()  # Count sold tickets for the event
+        sold_tickets = Ticket.objects.filter(event=self).all().count()  # Count sold tickets for the event
         return total_seats - sold_tickets  # Subtract sold tickets from total seats
-
-    @property
-    def sold_tickets_count(self):
-        """
-        Return the number of tickets that have been sold for this event.
-        """
-        return self.ticket_set.filter(sold=True).count()
 
     @property
     def total_seats(self):

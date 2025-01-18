@@ -5,7 +5,7 @@
 
 {% load i18n %}
 
-{% block title %}{% translate "Event Door Selling" %}{% endblock %}
+{% block title %}{% translate "Event Door Selling" %} - {{ event.name }}{% endblock %}
 
 {% block content %}
     <h1 class="mt-4">{% translate "Event Door Selling" %} - {{ event.name }}</h1>
@@ -44,6 +44,7 @@
         <div id="ticket-form" style="display: none;">
             <!-- Display form if presale and in presale period or door selling allowed after presale period -->
             <h2>{% translate "Tickets" %}</h2>
+            <h3>{% translate "Remaining seats: " %} {{ event.remaining_seats }} / {{ event.total_seats }}</h3>
             <form method="post" action="">
                 {% csrf_token %}
 

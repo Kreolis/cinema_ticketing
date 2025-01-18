@@ -51,7 +51,7 @@ def event_detail(request, event_id):
                             event=event,
                             price_class=price_class,
                             activated=False,
-                            sold_as_status=SoldAsStatus.WAITING
+                            sold_as=SoldAsStatus.WAITING
                         )
                         new_ticket.save()
                         selected_tickets.append(new_ticket)
@@ -208,5 +208,70 @@ def event_door_selling(request, event_id):
         'presale_end_time': presale_end_time,
         'price_classes': price_classes,
         'form': form,
+        'currency': settings.DEFAULT_CURRENCY
+    })
+
+@login_required
+@user_passes_test(user_in_ticket_managers_group_or_admin)
+def event_statistics(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    total_stats, price_class_stats =  event.calculate_statistics()
+    return render(request, 'event_statistics.html', {
+        'price_class_stats': price_class_stats,
+        'total_stats': total_stats,
+        'event': event,
+        'currency': settings.DEFAULT_CURRENCY
+    })
+
+
+@login_required
+@user_passes_test(user_in_ticket_managers_group_or_admin)
+def all_event_statistics(request):
+    events = Event.objects.all().order_by('start_time')
+    events_stats = []
+
+    overall_total_stats = {
+        'waiting': 0,
+        'presale_online': 0,
+        'presale_door': 0,
+        'door': 0,
+        'total_sold': 0,
+        'total_count': 0,
+        'activated_presale_online': 0,
+        'activated_presale_door': 0,
+        'activated_door': 0,
+        'total_activated': 0,
+        'earned_presale_online': 0,
+        'earned_presale_door': 0,
+        'earned_door': 0,
+        'total_earned': 0
+    }
+
+    for event in events:
+        total_stats, price_class_stats =  event.calculate_statistics()
+        events_stats.append({
+            'event': event,
+            'price_class_stats': price_class_stats,
+            'total_stats': total_stats
+        })
+
+        overall_total_stats['waiting'] += total_stats['waiting']
+        overall_total_stats['presale_online'] += total_stats['presale_online']
+        overall_total_stats['presale_door'] += total_stats['presale_door']
+        overall_total_stats['door'] += total_stats['door']
+        overall_total_stats['total_sold'] += total_stats['total_sold']
+        overall_total_stats['total_count'] += total_stats['total_count']
+        overall_total_stats['activated_presale_online'] += total_stats['activated_presale_online']
+        overall_total_stats['activated_presale_door'] += total_stats['activated_presale_door']
+        overall_total_stats['activated_door'] += total_stats['activated_door']
+        overall_total_stats['total_activated'] += total_stats['total_activated']
+        overall_total_stats['earned_presale_online'] += total_stats['earned_presale_online']
+        overall_total_stats['earned_presale_door'] += total_stats['earned_presale_door']
+        overall_total_stats['earned_door'] += total_stats['earned_door']
+        overall_total_stats['total_earned'] += total_stats['total_earned']
+
+    return render(request, 'all_event_statistics.html', {
+        'events_stats': events_stats,
+        'overall_total_stats': overall_total_stats,
         'currency': settings.DEFAULT_CURRENCY
     })

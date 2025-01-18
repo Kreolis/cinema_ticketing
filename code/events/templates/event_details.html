@@ -41,6 +41,7 @@
     {% if ticket_manager %}
         <a href="{% url 'event_check_in' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Check-In" %}</a>
         <a href="{% url 'event_door_selling' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Door Selling" %}</a>
+        <a href="{% url 'event_statistics' event.id %}" class="btn btn-secondary">{% translate "Go to Statistics" %}</a>
     {% else %}
         {% if event_active %}
             <div id="ticket-form" style="display: none;">
