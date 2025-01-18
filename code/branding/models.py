@@ -27,7 +27,8 @@ class Branding(models.Model):
     # general event and ticket settings
     ticket_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global ticket background image"))
     event_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global event background image"))
-    presale_ends_before = models.IntegerField(default=1, help_text=_("Number of hours before event start when presale ends"))
+    allow_presale = models.BooleanField(default=True, help_text=_("Indicates if presale is allowed"))
+    presale_ends_before = models.IntegerField(default=1, help_text=_("Number of hours before event start when presale ends and door (not presale) selling starts"))
     allow_door_selling = models.BooleanField(default=True, help_text=_("Indicates if selling tickets at the door is allowed"))
 
     # invoice settings

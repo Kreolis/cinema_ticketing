@@ -4,18 +4,20 @@ from django.http import FileResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 
+from django.utils.translation import gettext as _
+
 import io
-from datetime import timedelta, datetime
+from datetime import datetime, timezone
 
 from payments import get_payment_model
 
-from .models import Event, Ticket
+from .models import Event, Ticket, SoldAsStatus
 from branding.models import Branding
 from .forms import TicketSelectionForm
 
 def event_list(request):
-    # Retrieve all events, you can filter by start_time if needed
-    events = Event.objects.all().order_by('start_time')  # Or use 'start_time' for upcoming events
+    # Retrieve all events, you can filter if they are active
+    events = Event.objects.filter(is_active=True).order_by('start_time')
     return render(request, 'event_list.html', 
                   {'events': events,
                    'currency': settings.DEFAULT_CURRENCY
@@ -24,6 +26,7 @@ def event_list(request):
 # Event detail view with ticket selection
 def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
+
     price_classes = event.price_classes.all()
 
     presale_end_time = event.presale_end_time()
@@ -33,6 +36,10 @@ def event_detail(request, event_id):
         request.session.create()
 
     if request.method == 'POST':
+        if (presale_end_time < datetime.now(timezone.utc)) or (not event.check_active()):
+            # Presale has ended or is inactive
+            return JsonResponse({"status": "error", "message": _("Presale has ended for this event.")})
+        
         form = TicketSelectionForm(request.POST, price_classes=price_classes)
         if form.is_valid():
             selected_tickets = []
@@ -44,6 +51,7 @@ def event_detail(request, event_id):
                             event=event,
                             price_class=price_class,
                             activated=False,
+                            sold_as_status=SoldAsStatus.WAITING
                         )
                         new_ticket.save()
                         selected_tickets.append(new_ticket)
@@ -58,6 +66,7 @@ def event_detail(request, event_id):
 
     return render(request, 'event_details.html', {
         'event': event,
+        'event_active': event.check_active(),
         'price_classes': price_classes,
         'form': form,
         'ticket_manager': ticket_manager,
@@ -117,6 +126,7 @@ def event_check_in(request, event_id):
     branding = Branding.objects.filter(is_active=True).first()
     return render(request, 'event_check_in.html', {
         'event': event,
+        'event_active': event.check_active(),
         'tickets': tickets,
         'branding': branding,
         'currency': settings.DEFAULT_CURRENCY
@@ -154,9 +164,49 @@ def event_door_selling(request, event_id):
 
     presale_end_time = event.presale_end_time()
 
+    if request.method == 'POST':
+        form = TicketSelectionForm(request.POST, price_classes=price_classes)
+        if form.is_valid():
+            if event.check_active():
+                # event is active: all good.
+                for price_class in price_classes:
+                    quantity = form.cleaned_data.get(f'quantity_{price_class.id}', 0)
+                    if quantity > 0:
+                        for _ in range(quantity):
+                            if presale_end_time < datetime.now(timezone.utc):
+                                # Presale has ended
+                                
+                                if event.allow_door_selling:
+                                    # sell tickets as DOOR
+                                    new_ticket = Ticket(
+                                        event=event,
+                                        price_class=price_class,
+                                        activated=False,
+                                        sold_as=SoldAsStatus.DOOR
+                                    )
+                                else:
+                                    # Door selling is not allowed
+                                    return JsonResponse({"status": "error", "message": _("Door selling is not allowed for this event.")})
+                            else:
+                                # Sell tickets as PRESALE
+                                new_ticket = Ticket(
+                                    event=event,
+                                    price_class=price_class,
+                                    activated=False,
+                                    sold_as=SoldAsStatus.PRESALE_DOOR
+                                )
+                            new_ticket.save()
+            else:
+                # event is not active
+                return JsonResponse({"status": "error", "message": _("Event is not active.")})
+            
+    form = TicketSelectionForm(price_classes=price_classes)
+
     return render(request, 'event_door_selling.html', {
         'event': event,
+        'event_active': event.check_active(),
         'presale_end_time': presale_end_time,
         'price_classes': price_classes,
+        'form': form,
         'currency': settings.DEFAULT_CURRENCY
     })

@@ -1,19 +1,19 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.template.response import TemplateResponse
-from django.http import FileResponse, JsonResponse
 from django.urls import reverse
 
 import io
 
 from django.conf import settings
+from django.http import FileResponse
 
 # django-payments
 from payments import get_payment_model, RedirectNeeded
 from payments.models import PaymentStatus
-from payments.forms import PaymentForm
 
 from .forms import PaymentInfoForm  # Add this import
 from .forms import UpdateEmailsForm  # Add this import
+
+from events.models import SoldAsStatus 
 
 def cart_view(request):
     if not request.session.session_key:
@@ -143,8 +143,9 @@ def confirm_order(request, order_id):
             order.save()
 
             for ticket in order.tickets.all():
-                ticket.sold = True
+                ticket.sold_as = SoldAsStatus.PRESALE_ONLINE
                 ticket.send_to_email()
+                ticket.save()
             
             # Send confirmation and invoice email
             order.send_confirmation_email()
@@ -157,7 +158,7 @@ def confirm_order(request, order_id):
             return e.response
         
     elif order.status == PaymentStatus.WAITING:
-        # variant was not preauthe therefore initiate the payment
+        # variant was not preauthed therefore initiate the payment
         order.failure_url = request.build_absolute_uri(reverse('payment_form'))
         order.success_url = request.build_absolute_uri(reverse('ticket_list', args=[order_id]))
     
@@ -177,6 +178,18 @@ def ticket_list(request, order_id):
 
     if order.status == PaymentStatus.INPUT:
         order.change_status(PaymentStatus.CONFIRMED)
+
+        for ticket in order.tickets.all():
+                ticket.sold_as = SoldAsStatus.PRESALE_ONLINE
+                ticket.send_to_email()
+                ticket.save()
+
+        # Send confirmation and invoice email
+        order.send_confirmation_email()
+
+        # order is paid
+        # make sure the user can make a new order by creating a new session
+        request.session.cycle_key()
         
     if order.status == PaymentStatus.CONFIRMED:
         return render(request, 'ticket_list.html', {'order': order,

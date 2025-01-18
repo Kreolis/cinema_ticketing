@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils.translation import gettext_lazy as _
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 from fpdf import FPDF
 import qrcode
@@ -16,14 +16,16 @@ from branding.models import get_active_branding
 
 class SoldAsStatus:
     WAITING = "waiting"
-    PRESALE = "preauth"
-    DOOR = "confirmed"
+    PRESALE_ONLINE = "presale_online"
+    PRESALE_DOOR = "presale_door"
+    DOOR = "door"
     REFUNDED = "refunded"
     
     CHOICES = [
         (WAITING, _("Ticket not yet sold")),
-        (PRESALE, _("Ticket sold in presale")),
-        (DOOR, _("Ticket sold at the door")),
+        (PRESALE_ONLINE, _("Ticket was sold in online presale")),
+        (PRESALE_DOOR, _("Ticket was sold in door presale")),
+        (DOOR, _("Ticket was sold at the door")),
         (REFUNDED, _("Ticket refunded")),
     ]
 
@@ -66,7 +68,7 @@ class Ticket(models.Model):
     price_class = models.ForeignKey(PriceClass, verbose_name=_("price class"), on_delete=models.CASCADE)  # Reference to PriceClass (ticket price)
     event = models.ForeignKey("Event", verbose_name=_("event"), on_delete=models.CASCADE)  # Add event to ticket
     seat = models.IntegerField(_("seat number")) # seat number
-    sold_as = models.CharField(_("sold as"), max_length=10, choices=SoldAsStatus.CHOICES, default=SoldAsStatus.WAITING)  # How the ticket was sold
+    sold_as = models.CharField(_("sold as"), max_length=14, choices=SoldAsStatus.CHOICES, default=SoldAsStatus.WAITING)  # How the ticket was sold
 
     email = models.EmailField(_("email"), blank=True, null=True)  # Email address of the ticket holder
 
@@ -221,6 +223,8 @@ class Event(models.Model):
     program_link = models.URLField(_("program link"), blank=True, null=True) # link to website with program
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False) # event id
+
+    is_active = models.BooleanField(_("is active"), default=True) # event is active
     
     # Optional field to customize the number of seats for this event
     custom_seats = models.PositiveIntegerField(_("custom seats"), null=True, blank=True)  # If None, use total_seats from location
@@ -243,8 +247,13 @@ class Event(models.Model):
         default=branding.event_background if branding and branding.event_background else None
     )
     
+    allow_presale = models.IntegerField(
+        _("allow presale"), 
+        default=branding.allow_presale if branding and branding.allow_presale else True
+    )
+
     presale_ends_before = models.IntegerField(
-        _("presale ends before"), 
+        _("presale ends before and door (not presale) selling starts"), 
         default=branding.presale_ends_before if branding and branding.presale_ends_before else 1
     )
     
@@ -268,6 +277,15 @@ class Event(models.Model):
         Returns time when presale ends. 
         """
         return self.start_time - timedelta(hours=self.presale_ends_before)
+    
+    def check_active(self):
+        """
+        Check if the event is active.
+        """
+        if self.start_time + self.duration < datetime.now(timezone.utc):
+            self.is_active = False
+            self.save()
+        return self.is_active
 
     @property
     def available_seats(self):

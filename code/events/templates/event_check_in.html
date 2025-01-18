@@ -10,177 +10,181 @@
 {% block content %}
     <h1 class="mt-4">{% translate "Event Check-In" %} - {{ event.name }}</h1>
 
-    <!-- Video feed container -->
-    <div id="qr-reader" class="mt-4" style="width: 100%; height: 100%;"></div>
+    {% if event_active %}
+        <!-- Video feed container -->
+        <div id="qr-reader" class="mt-4" style="width: 100%; height: 100%;"></div>
 
-    <!-- Display the scanned QR code -->
-    <div id="result" class="mt-3"></div>
+        <!-- Display the scanned QR code -->
+        <div id="result" class="mt-3"></div>
 
-    <!-- Include the html5-qrcode library via CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
+        <!-- Include the html5-qrcode library via CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
 
-    <!-- Add an audio element for the success sound if defined -->
-    {% if branding and branding.success_sound %}
-        <audio id="success-sound" src="{{ branding.success_sound.url }}" preload="auto"></audio>
-    {% endif %}
+        <!-- Add an audio element for the success sound if defined -->
+        {% if branding and branding.success_sound %}
+            <audio id="success-sound" src="{{ branding.success_sound.url }}" preload="auto"></audio>
+        {% endif %}
 
-    <script>
-        let scanningEnabled = true;
+        <script>
+            let scanningEnabled = true;
 
-        function onScanSuccess(decodedText, decodedResult) {
-            if (!scanningEnabled) return;
+            function onScanSuccess(decodedText, decodedResult) {
+                if (!scanningEnabled) return;
 
-            // Disable scanning for 500ms
-            scanningEnabled = false;
-            setTimeout(() => scanningEnabled = true, 1000);
+                // Disable scanning for 500ms
+                scanningEnabled = false;
+                setTimeout(() => scanningEnabled = true, 1000);
 
-            // Handle the result
-            document.getElementById('result').textContent = "{% translate 'Last QR Code Detected' %}: " + decodedText;
-            
-            // Send this data to Django backend using form data
-            const formData = new FormData();
-            formData.append('qr_code', decodedText);
+                // Handle the result
+                document.getElementById('result').textContent = "{% translate 'Last QR Code Detected' %}: " + decodedText;
+                
+                // Send this data to Django backend using form data
+                const formData = new FormData();
+                formData.append('qr_code', decodedText);
 
-            fetch("{% url 'handle_qr_result' event.id %}", {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": "{{ csrf_token }}",
-                },
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success") {
-                    const ticketId = data.ticket_id;
-                    const button = document.getElementById(`toggle-btn-${ticketId}`);
-                    button.textContent = "{% translate 'Deactivate' %}";
-                    button.classList.remove('btn-success');
-                    button.classList.add('btn-danger');
+                fetch("{% url 'handle_qr_result' event.id %}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const ticketId = data.ticket_id;
+                        const button = document.getElementById(`toggle-btn-${ticketId}`);
+                        button.textContent = "{% translate 'Deactivate' %}";
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-danger');
 
-                    // Update the activation status in the table
-                    const activatedCell = document.getElementById(`activated-cell-${ticketId}`);
-                    activatedCell.textContent = data.activated;
+                        // Update the activation status in the table
+                        const activatedCell = document.getElementById(`activated-cell-${ticketId}`);
+                        activatedCell.textContent = data.activated;
 
-                    // Play success sound if defined
-                    {% if branding and branding.success_sound %}
-                        document.getElementById('success-sound').play();
-                    {% endif %}
+                        // Play success sound if defined
+                        {% if branding and branding.success_sound %}
+                            document.getElementById('success-sound').play();
+                        {% endif %}
 
-                    flashRow(ticketId);
-                } else {
-                    alert(data.message);
-                }
-            });
-        }
-
-        function onScanError(errorMessage) {
-            // Handle scan errors
-            console.error("{% translate 'Scan error' %}:", errorMessage);
-        }
-
-        // Initialize the QR code scanner
-        let html5QrCode = new Html5Qrcode("qr-reader");
-
-        // Start scanning with the camera
-        html5QrCode.start(
-            { facingMode: "environment" }, // Use the back camera
-            {
-                fps: 10, // Frames per second
-                qrbox: { width: 250, height: 250 }, // QR code detection area
-            },
-            onScanSuccess,
-            onScanError
-        ).catch(err => {
-            // This block will catch errors such as permission issues or if no camera is available
-            console.error("{% translate 'Error starting QR scanner' %}:", err);
-            if (err.name === 'NotAllowedError' || err.name === 'NotFoundError') {
-                alert("{% translate 'Please grant camera permissions to scan QR codes.' %}");
-                document.getElementById('qr-reader').style.display = 'none'; // Collapse the QR reader
+                        flashRow(ticketId);
+                    } else {
+                        alert(data.message);
+                    }
+                });
             }
-        });
 
-        function toggleActivation(ticketId) {
-            fetch(`/toggle-ticket-activation/${ticketId}/`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": "{{ csrf_token }}",
+            function onScanError(errorMessage) {
+                // Handle scan errors
+                console.error("{% translate 'Scan error' %}:", errorMessage);
+            }
+
+            // Initialize the QR code scanner
+            let html5QrCode = new Html5Qrcode("qr-reader");
+
+            // Start scanning with the camera
+            html5QrCode.start(
+                { facingMode: "environment" }, // Use the back camera
+                {
+                    fps: 10, // Frames per second
+                    qrbox: { width: 250, height: 250 }, // QR code detection area
                 },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success") {
-                    const button = document.getElementById(`toggle-btn-${ticketId}`);
-                    button.textContent = data.activated ? "{% translate 'Deactivate' %}" : "{% translate 'Activate' %}";
-                    button.classList.toggle('btn-danger', data.activated);
-                    button.classList.toggle('btn-success', !data.activated);
-
-                    // Update the activation status in the table
-                    const activatedCell = document.getElementById(`activated-cell-${ticketId}`);
-                    activatedCell.textContent = data.activated;
-
-                    flashRow(ticketId);
+                onScanSuccess,
+                onScanError
+            ).catch(err => {
+                // This block will catch errors such as permission issues or if no camera is available
+                console.error("{% translate 'Error starting QR scanner' %}:", err);
+                if (err.name === 'NotAllowedError' || err.name === 'NotFoundError') {
+                    alert("{% translate 'Please grant camera permissions to scan QR codes.' %}");
+                    document.getElementById('qr-reader').style.display = 'none'; // Collapse the QR reader
                 }
             });
-        }
 
-        function flashRow(ticketId) {
-            const row = document.getElementById(`row-${ticketId}`);
-            row.classList.add('flash');
-            setTimeout(() => row.classList.remove('flash'), 1000);
-        }
-    </script>
+            function toggleActivation(ticketId) {
+                fetch(`/toggle-ticket-activation/${ticketId}/`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const button = document.getElementById(`toggle-btn-${ticketId}`);
+                        button.textContent = data.activated ? "{% translate 'Deactivate' %}" : "{% translate 'Activate' %}";
+                        button.classList.toggle('btn-danger', data.activated);
+                        button.classList.toggle('btn-success', !data.activated);
 
-    <!-- Include jQuery library via CDN -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        // Update the activation status in the table
+                        const activatedCell = document.getElementById(`activated-cell-${ticketId}`);
+                        activatedCell.textContent = data.activated;
 
-    <!-- Include DataTables.net library via CDN -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" />
-    <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
-    
-    <!-- Tickets table -->
-    <h2 class="mt-4">{% translate "Event Tickets" %}</h2>
-    <table id="tickets-table" class="table table-striped mt-3">
-        <thead>
-            <tr>
-                <th>{% translate "Action" %}</th>
-                <th>{% translate "Has been activated" %}</th>
-                <th>{% translate "Seat Number" %}</th>
-                <th>{% translate "Ticket ID" %}</th>
-                <th>{% translate "Sold" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for ticket in tickets %}
-                <tr id="row-{{ ticket.id }}">
-                    <td>
-                        <button id="toggle-btn-{{ ticket.id }}" class="btn {% if ticket.activated %}btn-danger{% else %}btn-success{% endif %}" onclick="toggleActivation('{{ ticket.id }}')">
-                            {% if ticket.activated %}{% translate 'Deactivate' %}{% else %}{% translate 'Activate' %}{% endif %}
-                        </button>
-                    </td>
-                    <td id="activated-cell-{{ ticket.id }}">{{ ticket.activated }}</td>
-                    <td>{{ ticket.seat }}</td>
-                    <td>{{ ticket.id }}</td>
-                    <td>{{ ticket.sold }}</td>
+                        flashRow(ticketId);
+                    }
+                });
+            }
+
+            function flashRow(ticketId) {
+                const row = document.getElementById(`row-${ticketId}`);
+                row.classList.add('flash');
+                setTimeout(() => row.classList.remove('flash'), 1000);
+            }
+        </script>
+
+        <!-- Include jQuery library via CDN -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- Include DataTables.net library via CDN -->
+        <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" />
+        <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
+        
+        <!-- Tickets table -->
+        <h2 class="mt-4">{% translate "Event Tickets" %}</h2>
+        <table id="tickets-table" class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>{% translate "Action" %}</th>
+                    <th>{% translate "Has been activated" %}</th>
+                    <th>{% translate "Seat Number" %}</th>
+                    <th>{% translate "Ticket ID" %}</th>
+                    <th>{% translate "Sold" %}</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                    <tr id="row-{{ ticket.id }}">
+                        <td>
+                            <button id="toggle-btn-{{ ticket.id }}" class="btn {% if ticket.activated %}btn-danger{% else %}btn-success{% endif %}" onclick="toggleActivation('{{ ticket.id }}')">
+                                {% if ticket.activated %}{% translate 'Deactivate' %}{% else %}{% translate 'Activate' %}{% endif %}
+                            </button>
+                        </td>
+                        <td id="activated-cell-{{ ticket.id }}">{{ ticket.activated }}</td>
+                        <td>{{ ticket.seat }}</td>
+                        <td>{{ ticket.id }}</td>
+                        <td>{{ ticket.sold }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <script>
-        $(document).ready(function() {
-            $('#tickets-table').DataTable();
-        });
-    </script>
+        <script>
+            $(document).ready(function() {
+                $('#tickets-table').DataTable();
+            });
+        </script>
 
-    <style>
-        .flash {
-            animation: flash-animation 1s;
-        }
+        <style>
+            .flash {
+                animation: flash-animation 1s;
+            }
 
-        @keyframes flash-animation {
-            0% { background-color: yellow; }
-            100% { background-color: transparent; }
-        }
-    </style>
+            @keyframes flash-animation {
+                0% { background-color: yellow; }
+                100% { background-color: transparent; }
+            }
+        </style>
+    {% else %}
+        <h2 class="text-danger">{% translate "Event is not active or is in the past." %}</h2>
+    {% endif %}
 {% endblock %}

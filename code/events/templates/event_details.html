@@ -42,29 +42,37 @@
         <a href="{% url 'event_check_in' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Check-In" %}</a>
         <a href="{% url 'event_door_selling' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Door Selling" %}</a>
     {% else %}
+        {% if event_active %}
+            <div id="ticket-form" style="display: none;">
+                <h2>{% translate "Select Tickets" %}</h2>
 
-        <h2>{% translate "Select Tickets" %}</h2>
-
-        {# Check for form errors and display them #}
-        {% if form.non_field_errors %}
-            <div class="alert alert-danger">
-                {{ form.non_field_errors }}
+                {# Check for form errors and display them #}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+    
+                <form method="post" action="">
+                    {% csrf_token %}
+    
+                    <!-- Add quick fill buttons below each form field -->
+                    {{ form.generate_quick_fill_buttons|safe }}
+                    <p></p>
+                    
+                    {# Use bootstrap_form to render the form #}
+                    {% bootstrap_form form %}
+    
+                    {# Add a submit button styled with Bootstrap #}
+                    <div class="mt-3">
+                        {% bootstrap_button _("Add to Cart") button_type="submit" button_class="btn-primary" %}
+                        <a href="{% url 'cart_view' %}" class="btn btn-secondary" >{% translate "Go to cart" %}</a>
+                    </div>
+    
+                </form>
             </div>
+            
         {% endif %}
-
-        <form method="post" action="">
-            {% csrf_token %}
-
-            {# Use bootstrap_form to render the form #}
-            {% bootstrap_form form %}
-
-            {# Add a submit button styled with Bootstrap #}
-            <div class="mt-3">
-                {% bootstrap_button _("Add to Cart") button_type="submit" button_class="btn-primary" %}
-                <a href="{% url 'cart_view' %}" class="btn btn-secondary" >{% translate "Go to cart" %}</a>
-            </div>
-
-        </form>
     {% endif %}
 
     <script>
@@ -72,21 +80,39 @@
         const presaleStatusElement = document.getElementById('presale-status');
         const presaleActiveContent = document.getElementById('presale-active-content');
         const presaleInactiveContent = document.getElementById('presale-inactive-content');
+        const ticketForm = document.getElementById('ticket-form');
+
 
         function updatePresaleStatus() {
             const now = new Date();
             if (now < presaleEndTime) {
                 presaleActiveContent.style.display = 'block';
                 presaleInactiveContent.style.display = 'none';
+                ticketForm.style.display = 'block';
             } else {
                 presaleActiveContent.style.display = 'none';
                 presaleInactiveContent.style.display = 'block';
+                ticketForm.style.display = 'none';
             }
         }
-
         // Update the status immediately and then every minute
         updatePresaleStatus();
         setInterval(updatePresaleStatus, 60000);
+
+        document.querySelectorAll('.quick-fill').forEach(button => {
+            button.addEventListener('click', function() {
+                const field = this.getAttribute('data-field');
+                const value = parseInt(this.getAttribute('data-value'));
+                const input = document.querySelector(`input[name="${field}"]`);
+                input.value = parseInt(input.value) + value;
+            });
+        });
+
+        document.querySelector('.reset-form').addEventListener('click', function() {
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                input.value = 0;
+            });
+        });
     </script>
     
 {% endblock %}
