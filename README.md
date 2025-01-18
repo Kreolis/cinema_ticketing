@@ -199,17 +199,17 @@ We welcome contributions to this project! To contribute:
 
 - [ ] Add user authentication for ticket buyers.
 - [ ] Add support for refunds or cancellations.
-- [ ] add statistics page
-- [ ] github workflow failure: proper initialisation of groups
+- [ ] make custom print function for statistics
+- [ ] global show ticket seat number
 - [ ] global event picture generation from name
 - [ ] custom event picture per event
 - [ ] language toggle with redirect to current page
 - [ ] Order ticket count shown in menu
 - [ ] Use shorter ids for urls and names
 - [ ] make setting upload with csv
-- [ ] implement order and ticket export to csv
 - [ ] fix issue of tickets that are not sold and not accociated with an order when session is closed (session checker)
-
+- [ ] ticket in pre sale at the door with mail
+- [ ] in check in show mail and name of buyer
 
 ### 👨‍💼 Main Contributors
 
