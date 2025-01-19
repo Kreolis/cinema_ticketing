@@ -25,13 +25,13 @@ def cart_view(request):
         # this is an old order that has already been paid
         # create a new session and order
         request.session.cycle_key()
-        order, _ = get_payment_model().objects.get_or_create(session_id=request.session.session_key)
+        order = get_payment_model().objects.get_or_create(session_id=request.session.session_key)
 
     elif not order.is_valid():
         # this is an old order that has expired
         # delete the order and create a new one
         order.delete()
-        order, _ = get_payment_model().objects.get_or_create(session_id=request.session.session_key)
+        order = get_payment_model().objects.create(session_id=request.session.session_key)
 
     if request.method == 'POST':
         form = UpdateEmailsForm(request.POST)
@@ -49,9 +49,11 @@ def cart_view(request):
         'currency': settings.DEFAULT_CURRENCY})
 
 def payment_form(request):
-    order = get_object_or_404(get_payment_model(), session_id=request.session.session_key)
-    order.reset_timeout()
-
+    try:
+        order = get_object_or_404(get_payment_model(), session_id=request.session.session_key)
+    except:
+        return redirect('cart_view')
+        
     if not order.is_valid():
         order.delete()
         order = get_payment_model().objects.create(session_id=request.session.session_key)
@@ -60,6 +62,7 @@ def payment_form(request):
     gateway_form = None  # Initialize gateway_form to None
     
     if request.method == 'POST':
+        order.reset_timeout()
         form = PaymentInfoForm(request.POST)
         
         if form.is_valid():
@@ -81,8 +84,8 @@ def payment_form(request):
             # if the payment vairant is able to do a preauth, set the success and failure urls
             # check first if the name of the variant is matching with a variant that has the capture field set to False
             if settings.PAYMENT_VARIANTS[order.variant][1].get('capture', True) == False:
-                order.failure_url = request.build_absolute_uri(reverse('cart_view'))
-                order.success_url = request.build_absolute_uri(reverse('order_payment_overview', args=[order.session_id]))
+                order.failure_url = request.build_absolute_uri(reverse('payment_failed'))
+                order.success_url = request.build_absolute_uri(reverse('order_payment', args=[order.session_id]))
             
             order.save()
 
@@ -98,20 +101,23 @@ def payment_form(request):
                 except RedirectNeeded as e:
                     return redirect(str(e))
             
-            return redirect('order_payment_overview', order_id=order.session_id)
+            return redirect('order_payment_overview')
     else:
-        # Initialize the form with the current order data
-        form = PaymentInfoForm(initial={
-            'billing_first_name': order.billing_first_name,
-            'billing_last_name': order.billing_last_name,
-            'billing_address_1': order.billing_address_1,
-            'billing_address_2': order.billing_address_2,
-            'billing_city': order.billing_city,
-            'billing_postcode': order.billing_postcode,
-            'billing_country_code': order.billing_country_code,
-            'billing_country_area': order.billing_country_area,
-            'billing_email': order.billing_email,
-        })
+        # Initialize the form with the current order data if order has data
+        if order.billing_first_name:
+            form = PaymentInfoForm(initial={
+                'billing_first_name': order.billing_first_name,
+                'billing_last_name': order.billing_last_name,
+                'billing_address_1': order.billing_address_1,
+                'billing_address_2': order.billing_address_2,
+                'billing_city': order.billing_city,
+                'billing_postcode': order.billing_postcode,
+                'billing_country_code': order.billing_country_code,
+                'billing_country_area': order.billing_country_area,
+                'billing_email': order.billing_email,
+            })
+        else:
+            form = PaymentInfoForm()
 
     time_remaining = order.get_remaining_time()
     return render(request, 'payment_form.html', 
@@ -126,12 +132,16 @@ def payment_form(request):
 def payment_failed(request):
     return render(request, 'payment_failed.html')
 
+def order_payment(request, order_id):
     order = get_object_or_404(get_payment_model(), session_id=order_id)
     order.reset_timeout()
     
     time_remaining = order.get_remaining_time()
     return render(request, 'order_payment_overview.html', {'order': order, 'time_remaining': time_remaining,
         'currency': settings.DEFAULT_CURRENCY})
+
+def order_payment_overview(request):
+    return order_payment(request, request.session.session_key)
 
 def confirm_order(request, order_id):
     order = get_object_or_404(get_payment_model(), session_id=order_id)
@@ -163,7 +173,7 @@ def confirm_order(request, order_id):
         
     elif order.status == PaymentStatus.WAITING:
         # variant was not preauthed therefore initiate the payment
-        order.failure_url = request.build_absolute_uri(reverse('payment_form'))
+        order.failure_url = request.build_absolute_uri(reverse('payment_failed'))
         order.success_url = request.build_absolute_uri(reverse('ticket_list', args=[order_id]))
     
         order.save()
@@ -193,10 +203,21 @@ def ticket_list(request, order_id):
         # Send confirmation and invoice email
         order.send_confirmation_email()
 
+        if request.session.session_key == None:
+            print(f"Session key: {request.session.session_key}")
+            print("No session key found. Cycle key.")
+            request.session.create()
+        
+
         # order is paid
         # make sure the user can make a new order by creating a new session
-        request.session.cycle_key()
-        
+        while request.session.session_key == order_id:
+            print(f"Session key: {request.session.session_key}")
+            print("Session key is the same as order ID. Cycle key.")
+            request.session.cycle_key()
+
+        print(f"Session key: {request.session.session_key}")
+    # if order is payed show the tickets
     if order.status == PaymentStatus.CONFIRMED:
         return render(request, 'ticket_list.html', {'order': order,
         'currency': settings.DEFAULT_CURRENCY})
