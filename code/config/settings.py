@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'djmoney',      # currency handling
     'payments',     # payment handling
     'bootstrap5',   # bootstrap5 support
     'rosetta',      # translation management
