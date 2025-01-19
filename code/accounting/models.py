@@ -12,8 +12,8 @@ from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect
-from django.urls import reverse
 
+from decimal import Decimal
 from fpdf import FPDF
 import os
 
@@ -95,6 +95,8 @@ class Order(BasePayment):
     def is_valid(self) -> bool:
         if self.status == PaymentStatus.CONFIRMED:
             return True
+        if self.created is None:
+            return False
         if self.modified is None:
             return False
         return timezone.now() - self.modified <= timedelta(minutes=self.timeout)
@@ -107,7 +109,7 @@ class Order(BasePayment):
             return existing_order
 
         if not self.created:
-            self.modified = timezone.now()
+            self.created = timezone.now()
             self.modified = timezone.now()
         
         super().save(*args, **kwargs)
@@ -179,7 +181,7 @@ class Order(BasePayment):
         if branding and branding.invoice_tax_rate:
             tax_rate = branding.invoice_tax_rate
         else:
-            tax_rate = 0.0
+            tax_rate = Decimal(0.0)
 
         # Calculate totals
         items = [{"description": ticket.event.name, "qty": 1, "unit_price": ticket.price_class.price} for ticket in self.tickets.all()]
@@ -259,7 +261,13 @@ class Order(BasePayment):
         Send a confirmation email to the user after the order is confirmed.
         """
         if self.status == PaymentStatus.CONFIRMED:
-            subject = _("Your Invoice for {site_name}").format(site_name=get_active_branding().site_name)
+            branding = get_active_branding()
+            if branding and branding.invoice_tax_rate:
+                site_name = branding.site_name
+            else:
+                site_name = ""
+
+            subject = _(f"Your Invoice for {site_name}")
             message = _("Dear Customer,\n\nThank you for your purchase! "
                         "You can find the invoice of your ticket purchase attached.\n\n"
                         "Please find your tickets and purchase details under the following link:\n\n"
@@ -278,7 +286,7 @@ class Order(BasePayment):
                 subject,
                 message,
                 settings.DEFAULT_FROM_EMAIL,
-                [self.payment.billing_email]
+                [self.billing_email]
             )
             email.attach(f"order_invoice_{self.session_id}.pdf", pdf_output, 'application/pdf')
             email.send()
