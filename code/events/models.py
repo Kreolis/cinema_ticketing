@@ -271,7 +271,7 @@ class Event(models.Model):
         default=branding.event_background if branding and branding.event_background else None
     )
     
-    allow_presale = models.IntegerField(
+    allow_presale = models.BooleanField(
         _("allow presale"), 
         default=branding.allow_presale if branding and branding.allow_presale else True
     )
