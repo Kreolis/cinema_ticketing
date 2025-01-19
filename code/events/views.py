@@ -56,7 +56,7 @@ def event_detail(request, event_id):
                         new_ticket.save()
                         selected_tickets.append(new_ticket)
                         
-            order, _ = get_payment_model().objects.get_or_create(session_id=request.session.session_key)
+            order, _  = get_payment_model().objects.get_or_create(session_id=request.session.session_key)
             order.update_tickets(selected_tickets)
             
     else:
@@ -82,8 +82,7 @@ def update_ticket_email(request, ticket_id):
         if new_email:
             ticket.email = new_email
             ticket.save()
-            order = get_object_or_404(get_payment_model(), session_id=request.session.session_key)
-            return JsonResponse({"status": "success", "updated_email": ticket.email})
+            return JsonResponse({"status": "success", "message": "Email updated to " + ticket.email, "updated_email": ticket.email})
     return JsonResponse({"status": "error", "message": "Invalid request"})
 
 def delete_ticket(request, ticket_id):
@@ -181,7 +180,7 @@ def event_door_selling(request, event_id):
                                     new_ticket = Ticket(
                                         event=event,
                                         price_class=price_class,
-                                        activated=False,
+                                        activated=True,
                                         sold_as=SoldAsStatus.DOOR,
                                         email=form.cleaned_data.get('email'),
                                         first_name=form.cleaned_data.get('first_name'),
@@ -213,6 +212,7 @@ def event_door_selling(request, event_id):
         'event_active': event.check_active(),
         'presale_end_time': presale_end_time,
         'price_classes': price_classes,
+        'pre_sale_door_ticktes': Ticket.objects.filter(event=event).filter(sold_as=SoldAsStatus.PRESALE_DOOR),
         'form': form,
         'currency': settings.DEFAULT_CURRENCY
     })
