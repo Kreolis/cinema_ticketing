@@ -22,28 +22,34 @@
         <p><a href="{{ event.program_link }}">{% translate "View Program" %}</a></p>
     {% endif %}
 
-    <div id="presale-active-content" style="display: none;">
-        <p>{% translate "Presale is active. Tickets are sold in presale." %}</p>
-        {% if event.allow_door_selling %}
-            <p>{% translate "Tickets are also sold at the door after the presale ends at " %} {{ presale_end_time }}</p>
-            <p>{% translate "Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} {{ event.start_time }}</p>
-        {% endif %}
-    </div>
-    <div id="presale-inactive-content" style="display: none;">
-        {% if event.allow_door_selling %}
-            <p>{% translate "Presale period is over. Tickets are only sold at the door." %}</p>
-            <p>{% translate "Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} {{ event.start_time }}</p>  
-        {% else %}
-            <p>{% translate "Presale period is over. Tickets are not anymore available." %}</p>
-        {% endif %}
-    </div>
+    {% if not event.is_sold_out %}
+
+        <div id="presale-active-content" style="display: none;">
+            <p>{% translate "Presale is active. Tickets are sold in presale." %}</p>
+            {% if event.allow_door_selling %}
+                <p>{% translate "Tickets are also sold at the door after the presale ends at " %} {{ presale_end_time }}</p>
+                <p>{% translate "Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} {{ event.start_time }}</p>
+            {% endif %}
+        </div>
+        <div id="presale-inactive-content" style="display: none;">
+            {% if event.allow_door_selling %}
+                <p>{% translate "Presale period is over. Tickets are only sold at the door." %}</p>
+                <p>{% translate "Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} {{ event.start_time }}</p>  
+            {% else %}
+                <p>{% translate "Presale period is over. Tickets are not anymore available." %}</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>{% translate "This event is sold out." %}</p>
+    {% endif %}
+
 
     {% if ticket_manager %}
         <a href="{% url 'event_check_in' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Check-In" %}</a>
         <a href="{% url 'event_door_selling' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Door Selling" %}</a>
         <a href="{% url 'event_statistics' event.id %}" class="btn btn-secondary">{% translate "Go to Statistics" %}</a>
     {% else %}
-        {% if event_active %}
+        {% if event_active and not event.is_sold_out %}
             <div id="ticket-form" style="display: none;">
                 <h2>{% translate "Select Tickets" %}</h2>
 
