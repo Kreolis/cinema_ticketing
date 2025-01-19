@@ -24,9 +24,26 @@ class TicketSelectionForm(forms.Form):
             )
         
         if display_name_fields:
-            self.fields[_('email')] = forms.EmailField(required=False, help_text="optional", widget=forms.EmailInput(attrs={'class': 'form-control'}))
-            self.fields[_('first_name')] = forms.CharField(required=False, help_text="optional", widget=forms.TextInput(attrs={'class': 'form-control'}))
-            self.fields[_('last_name')] = forms.CharField(required=False, help_text="optional", widget=forms.TextInput(attrs={'class': 'form-control'}))
+            self.fields['email'] = forms.EmailField(
+                label=_("Email"), 
+                required=False, 
+                help_text="optional", 
+                widget=forms.EmailInput(attrs={'class': 'form-control'})
+            )
+            
+            self.fields['first_name'] = forms.CharField(
+                label=_("First Name"),
+                required=False, 
+                help_text="optional", 
+                widget=forms.TextInput(attrs={'class': 'form-control'})
+            )
+            
+            self.fields['last_name'] = forms.CharField(
+                label=_("Last Name"),
+                required=False, 
+                help_text="optional", 
+                widget=forms.TextInput(attrs={'class': 'form-control'})
+            )
 
 
     def generate_quick_fill_buttons(self):
