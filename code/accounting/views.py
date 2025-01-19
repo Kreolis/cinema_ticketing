@@ -123,7 +123,9 @@ def payment_form(request):
                    'currency': settings.DEFAULT_CURRENCY
                 })
 
-def order_payment_overview(request, order_id):
+def payment_failed(request):
+    return render(request, 'payment_failed.html')
+
     order = get_object_or_404(get_payment_model(), session_id=order_id)
     order.reset_timeout()
     

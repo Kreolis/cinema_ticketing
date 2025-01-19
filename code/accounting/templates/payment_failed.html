@@ -1,0 +1,18 @@
+{% extends "master.html" %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% load i18n %}
+
+{% block title %}
+    {% translate "Payment Failed" %}
+{% endblock %}
+{% block content %}
+    <h1>{% translate "Payment Failed" %}</h1>
+
+    <p>{% translate "Your payment has failed. Please try again." %}</p>
+
+    <a href="{% url 'cart_view' %}" class="btn btn-secondary">{% translate "Go back to cart" %}</a>
+
+{% endblock %}
