@@ -51,10 +51,8 @@
                 {{ form.generate_quick_fill_buttons|safe }}
                 <p></p>
                 
-                {# Use bootstrap_form to render the form #}
                 {% bootstrap_form form %}
 
-                {# Add a submit button styled with Bootstrap #}
                 <div class="mt-3">
                     {% bootstrap_button _("Commit Order") button_type="submit" button_class="btn-primary" %}
                 </div>

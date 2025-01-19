@@ -122,7 +122,7 @@ def user_in_ticket_managers_group_or_admin(user):
 @user_passes_test(user_in_ticket_managers_group_or_admin)
 def event_check_in(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-    tickets = Ticket.objects.filter(event=event)
+    tickets = Ticket.objects.filter(event=event).exclude(sold_as=SoldAsStatus.WAITING)
     branding = Branding.objects.filter(is_active=True).first()
     return render(request, 'event_check_in.html', {
         'event': event,
@@ -165,7 +165,7 @@ def event_door_selling(request, event_id):
     presale_end_time = event.presale_end_time()
 
     if request.method == 'POST':
-        form = TicketSelectionForm(request.POST, price_classes=price_classes)
+        form = TicketSelectionForm(request.POST, price_classes=price_classes, display_name_fields=True)
         if form.is_valid():
             if event.check_active():
                 # event is active: all good.
@@ -182,7 +182,10 @@ def event_door_selling(request, event_id):
                                         event=event,
                                         price_class=price_class,
                                         activated=False,
-                                        sold_as=SoldAsStatus.DOOR
+                                        sold_as=SoldAsStatus.DOOR,
+                                        email=form.cleaned_data.get('email'),
+                                        first_name=form.cleaned_data.get('first_name'),
+                                        last_name=form.cleaned_data.get('last_name')
                                     )
                                 else:
                                     # Door selling is not allowed
@@ -193,14 +196,17 @@ def event_door_selling(request, event_id):
                                     event=event,
                                     price_class=price_class,
                                     activated=False,
-                                    sold_as=SoldAsStatus.PRESALE_DOOR
+                                    sold_as=SoldAsStatus.PRESALE_DOOR,
+                                    email=form.cleaned_data.get('email'),
+                                    first_name=form.cleaned_data.get('first_name'),
+                                    last_name=form.cleaned_data.get('last_name')
                                 )
                             new_ticket.save()
             else:
                 # event is not active
                 return JsonResponse({"status": "error", "message": _("Event is not active.")})
             
-    form = TicketSelectionForm(price_classes=price_classes)
+    form = TicketSelectionForm(price_classes=price_classes, display_name_fields=True)
 
     return render(request, 'event_door_selling.html', {
         'event': event,

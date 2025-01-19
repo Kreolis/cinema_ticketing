@@ -144,6 +144,8 @@ def confirm_order(request, order_id):
 
             for ticket in order.tickets.all():
                 ticket.sold_as = SoldAsStatus.PRESALE_ONLINE
+                ticket.first_name = order.billing_first_name
+                ticket.last_name = order.billing_last_name
                 ticket.send_to_email()
                 ticket.save()
             
@@ -181,6 +183,8 @@ def ticket_list(request, order_id):
 
         for ticket in order.tickets.all():
                 ticket.sold_as = SoldAsStatus.PRESALE_ONLINE
+                ticket.first_name = order.billing_first_name
+                ticket.last_name = order.billing_last_name
                 ticket.send_to_email()
                 ticket.save()
 

@@ -70,6 +70,9 @@ class Ticket(models.Model):
     seat = models.IntegerField(_("seat number")) # seat number
     sold_as = models.CharField(_("sold as"), max_length=14, choices=SoldAsStatus.CHOICES, default=SoldAsStatus.WAITING)  # How the ticket was sold
 
+    first_name = models.CharField(_("first name"), max_length=128, blank=True, null=True)  # First name of the ticket holder/buyer
+    last_name = models.CharField(_("last name"), max_length=128, blank=True, null=True)  # Last name of the ticket holder/buyer
+
     email = models.EmailField(_("email"), blank=True, null=True)  # Email address of the ticket holder
 
     # ticket activation

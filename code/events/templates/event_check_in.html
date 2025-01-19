@@ -147,8 +147,10 @@
                     <th>{% translate "Action" %}</th>
                     <th>{% translate "Has been activated" %}</th>
                     <th>{% translate "Seat Number" %}</th>
+                    <th>{% translate "Email" %}</th>
+                    <th>{% translate "Name" %}</th>
                     <th>{% translate "Ticket ID" %}</th>
-                    <th>{% translate "Sold" %}</th>
+                    <th>{% translate "Sold as" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -161,8 +163,10 @@
                         </td>
                         <td id="activated-cell-{{ ticket.id }}">{{ ticket.activated }}</td>
                         <td>{{ ticket.seat }}</td>
+                        <td>{{ ticket.email }}</td>
+                        <td>{{ ticket.first_name }} {{ ticket.last_name }}</td>
                         <td>{{ ticket.id }}</td>
-                        <td>{{ ticket.sold }}</td>
+                        <td>{{ ticket.sold_as }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
