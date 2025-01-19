@@ -40,16 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'djmoney',      # currency handling
     'payments',     # payment handling
     'bootstrap5',   # bootstrap5 support
     'rosetta',      # translation management
     'django_recaptcha', # recaptcha support
     
     # custom apps
+    'branding',     # branding management
     'events',       # events management
     'accounting',   # payment and order management
-    'branding',     # branding management
 ]
 
 MIDDLEWARE = [
@@ -210,13 +209,14 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='your-email@example.co
 # Keep in mind that if you use `localhost`, external servers won't be
 # able to reach you for webhook notifications.
 PAYMENT_HOST = 'localhost:8000'
+#PAYMENT_PROTOCOL = 'https'
 
 # Whether to use TLS (HTTPS). If false, will use plain-text HTTP.
 # Defaults to ``not settings.DEBUG``.
 PAYMENT_USES_SSL = False
 
 # A dotted path to the Payment class.
-PAYMENT_MODEL = 'accounting.Payment'
+PAYMENT_MODEL = 'accounting.Order'
 
 # Stripe credentials
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
@@ -231,7 +231,23 @@ PAYMENT_VARIANTS = {
         {
             'api_key': STRIPE_SECRET_KEY,
             'use_token': True,
-            'secure_endpoint': False
+            'secure_endpoint': True,
+            'endpoint_secret': config('STRIPE_WEBHOOK_SECRET', default='whsec_test_secret'),
+        }
+    ),
+    'paypal': (
+        'payments.paypal.PaypalProvider',
+        {
+            'client_id': 'user@example.com',
+            'secret': 'iseedeadpeople',
+            'endpoint': 'https://api.paypal.com', # for production
+            'capture': False,
         }
     )
 }
+
+if DEBUG:
+    PAYMENT_VARIANTS['stripe'][1]['secure_endpoint'] = False
+    PAYMENT_VARIANTS['paypal'][1]['endpoint'] = 'https://api.sandbox.paypal.com'
+
+DEFAULT_PAYMENT_VARIANT = 'stripe'

@@ -4,31 +4,6 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
-# create ticket managers group
-ticket_managers_group, created = Group.objects.get_or_create(name='Ticket Managers')
-if created:
-    # Assign permissions ticket and events management
-    permissions = [
-        'add_event', 'add_location', 'add_priceclass', 'add_ticket',
-        'change_event', 'change_location', 'change_priceclass', 'change_ticket',
-        'delete_event', 'delete_location', 'delete_priceclass', 'delete_ticket',
-        'view_event', 'view_location', 'view_priceclass', 'view_ticket',
-        'add_payment', 'change_payment', 'delete_payment', 'view_payment'
-    ]
-
-    for perm in permissions:
-        permission = Permission.objects.get(codename=perm)
-        ticket_managers_group.permissions.add(permission)
-
-
-# create admin group
-admins_group, created = Group.objects.get_or_create(name='Admins')
-if created:
-    # Assign all permissions to admins
-    all_permissions = Permission.objects.all()
-    admins_group.permissions.set(all_permissions)
-    
-
 # model for contact form emails
 class Contact(models.Model):
     firstname = models.CharField(max_length=100, help_text=_("Enter the first name"))
@@ -46,10 +21,16 @@ class Branding(models.Model):
     site_name = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the name of your site. This will be used as the title of the site and in communcations."))
     logo = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the logo image"))
     favicon = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the favicon image (max 64x64 pixels)"))
-    ticket_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global ticket background image"))
-    event_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global event background image"))
     order_timeout = models.IntegerField(default=10, help_text=_("Timeout in minutes until user needs to start fresh with their order"))
     success_sound = models.FileField(upload_to='branding/sounds', null=True, blank=True, help_text=_("Upload the success sound file for ticket scanner"))
+
+    # general event and ticket settings
+    ticket_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global ticket background image"))
+    display_seat_number = models.BooleanField(default=False, help_text=_("Indicates if seat numbers are diplayed for customers, if not free seating text is displayed"))
+    event_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global event background image"))
+    allow_presale = models.BooleanField(default=True, help_text=_("Indicates if presale is allowed"))
+    presale_ends_before = models.IntegerField(default=1, help_text=_("Number of hours before event start when presale ends and door (not presale) selling starts"))
+    allow_door_selling = models.BooleanField(default=True, help_text=_("Indicates if selling tickets at the door is allowed"))
 
     # invoice settings
     invoice_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global invoice background image"))
@@ -73,7 +54,7 @@ class Branding(models.Model):
     # make sure only one image is active at a time
     def save(self, *args, **kwargs):
         if self.is_active:
-            Branding.objects.all().update(is_active=False)
+            Branding.objects.filter(is_active=True).update(is_active=False)
         super(Branding, self).save(*args, **kwargs)
 
     # delete image files when object is deleted
@@ -91,7 +72,8 @@ class Branding(models.Model):
 
 
 def get_active_branding():
-    if Branding.objects.filter(is_active=True).exists():
-        return Branding.objects.filter(is_active=True).first()
-    else:
-        return None
+    from django.db import connection
+    if 'branding_branding' in connection.introspection.table_names():
+        if Branding.objects.filter(is_active=True).exists():
+            return Branding.objects.filter(is_active=True).first()
+    return None

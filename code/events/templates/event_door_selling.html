@@ -1,0 +1,203 @@
+{% extends "master.html" %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% load i18n %}
+
+{% block title %}{% translate "Event Door Selling" %} - {{ event.name }}{% endblock %}
+
+{% block content %}
+    <h1 class="mt-4">{% translate "Event Door Selling" %} - {{ event.name }}</h1>
+    
+    {% if event_active %}
+        <!-- Include jQuery library via CDN -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- Include DataTables.net library via CDN -->
+        <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" />
+        <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
+        
+        <h2 id="presale-status" class="text-warning"></h2>
+
+        <!-- Elements to show/hide based on presale status -->
+        {% if event.allow_presale %}
+        <div id="presale-active-content" style="display: none;">
+            <p>{% translate "Presale is active. Tickets are sold in presale." %}</p>
+            {% if event.allow_door_selling %}
+                <p>{% translate "Tickets are also sold at the door after the presale ends at " %} {{ presale_end_time }}</p>
+                <p>{% translate "Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} {{ event.start_time }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if event.allow_door_selling %}
+        <div id="presale-inactive-content" style="display: none;">
+            {% if event.allow_presale %}
+                <p>{% translate "Presale period is over. Tickets are only sold at the door." %}</p>
+                <p>{% translate "Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} {{ event.start_time }}</p>  
+            {% else %}
+                <p>{% translate "Presale period is over. Tickets are not anymore available." %}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if event.is_sold_out %}
+            <h2 class="text-danger">{% translate "Event is sold out." %}</h2>
+        {% endif %}
+
+        <div id="ticket-form" style="display: none;">
+            <!-- Display form if presale and in presale period or door selling allowed after presale period -->
+            <h2>{% translate "Tickets" %}</h2>
+            <h3>{% translate "Remaining seats: " %} {{ event.remaining_seats }} / {{ event.total_seats }}</h3>
+            <form method="post" action="">
+                {% csrf_token %}
+
+                {{ form.generate_quick_fill_buttons|safe }}
+                <p></p>
+                
+                {% bootstrap_form form %}
+
+                <div class="mt-3">
+                    {% bootstrap_button _("Commit Order") button_type="submit" button_class="btn-primary" %}
+                </div>
+            </form>
+        </div>
+
+        <div id="message-container"></div>
+
+        <!-- Tickets table -->
+        <h2 class="mt-4">{% translate "Event Tickets" %}</h2>
+        <table id="tickets-table" class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    {% if event.display_seat_number %}
+                        <th>{% translate "Seat Number" %}</th>
+                    {% endif %}
+                    <th>{% translate "Email" %}</th>
+                    <th>{% translate "Name" %}</th>
+                    <th>{% translate "Ticket ID" %}</th>
+                    <th>{% translate "Price" %}</th>
+                    <th>{% translate "Price Class" %}</th>
+                    <th>{% translate "Action" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in pre_sale_door_ticktes %}
+                    <tr id="row-{{ ticket.id }}">
+                        {% if event.display_seat_number %}
+                            <td>{{ ticket.seat }}</td>
+                        {% endif %}
+                        <td>
+                            <form action="{% url 'update_ticket_email' ticket.id %}" method="post" class="update-email-form" style="display:inline-flex;">
+                                {% csrf_token %}
+                                <input type="email" name="email" value="{{ ticket.email }}" class="form-control form-control-sm" required style="margin-right: 5px;">
+                                {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
+                            </form>
+                        </td>
+                        <td>{{ ticket.first_name }} {{ ticket.last_name }}</td>
+                        <td>{{ ticket.id }}</td>
+                        <td>{{ ticket.price_class.price }} {{ currency }}</td>
+                        <td>{{ ticket.price_class.name }}</td>
+                        <td>
+                            <a href="{% url 'show_generated_ticket_pdf' ticket.id %}" class="btn btn-primary" target="_blank">
+                                {% translate "Show Ticket" %}
+                            </a>
+                            <a href="{% url 'send_ticket_email' ticket.id %}" class="btn btn-secondary send-email-btn" data-ticket-id="{{ ticket.id }}">
+                                {% translate "Send ticket to Email" %}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        
+
+        <script>
+            const presaleEndTime = new Date("{{ presale_end_time|date:'c' }}"); 
+            const presaleStatusElement = document.getElementById('presale-status');
+            const presaleActiveContent = document.getElementById('presale-active-content');
+            const presaleInactiveContent = document.getElementById('presale-inactive-content');
+            const ticketForm = document.getElementById('ticket-form');
+
+            function updatePresaleStatus() {
+                const now = new Date();
+                if (now < presaleEndTime) {
+                    presaleStatusElement.textContent = "{% translate 'Presale is active - Presale ONLY - END: ' %} {{ presale_end_time }}";
+                    presaleActiveContent.style.display = 'block';
+                    presaleInactiveContent.style.display = 'none';
+                    ticketForm.style.display = 'block';
+                } else {
+                    presaleStatusElement.textContent = "{% translate 'Presale is inactive - Door ONLY' %}";
+                    presaleActiveContent.style.display = 'none';
+                    presaleInactiveContent.style.display = 'block';
+                    ticketForm.style.display = 'block';
+                }
+            }
+
+            // Update the status immediately and then every minute
+            updatePresaleStatus();
+            setInterval(updatePresaleStatus, 60000);
+
+            document.querySelectorAll('.quick-fill').forEach(button => {
+                button.addEventListener('click', function() {
+                    const field = this.getAttribute('data-field');
+                    const value = parseInt(this.getAttribute('data-value'));
+                    const input = document.querySelector(`input[name="${field}"]`);
+                    input.value = parseInt(input.value) + value;
+                });
+            });
+
+            document.querySelector('.reset-form').addEventListener('click', function() {
+                document.querySelectorAll('input[type="number"]').forEach(input => {
+                    input.value = 0;
+                });
+            });
+
+            // Handle ticket email update via AJAX
+            $('#tickets-table').on('submit', '.update-email-form', function(event) {
+                event.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: form.serialize(),
+                    success: function(response) {
+                        // Update the email in the table
+                        form.find('input[name="email"]').val(response.updated_email);
+                        $('#message-container').append('<div class="alert alert-success">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                    },
+                    error: function(xhr, errmsg, err) {
+                        var response = JSON.parse(xhr.responseText);
+                        $('#message-container').append('<div class="alert alert-danger">' + errmsg + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                    }
+                });
+            });
+
+            $('.send-email-btn').click(function(event) {
+                event.preventDefault();
+                var ticketId = $(this).data('ticket-id');
+                var url = $(this).attr('href');
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        $('#message-container').append('<div class="alert alert-success">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                    },
+                    error: function(xhr, status, error) {
+                        var response = JSON.parse(xhr.responseText);
+                        $('#message-container').append('<div class="alert alert-danger">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                    }
+                });
+            });
+
+        </script>
+    {% else %}
+        <h2 class="text-danger">{% translate "Event is not active or is in the past." %}</h2>
+    {% endif %}
+
+{% endblock %}

@@ -64,6 +64,7 @@ RECAPTCHA_PRIVATE_KEY = 'YourRecaptchaPrivateKey'
 ```bash
 python manage.py makemigrations
 python manage.py migrate
+python manage.py create_groups
 ```
 
 ### 6. Run the Development Server
@@ -197,17 +198,20 @@ We welcome contributions to this project! To contribute:
 ### 📝 To-Do List
 
 - [ ] Add user authentication for ticket buyers.
-- [ ] properly implement handleing of django-payments providers and gateways
 - [ ] Add support for refunds or cancellations.
-- [ ] add statistics page
-- [ ] github workflow failure: proper initialisation of groups
+- [ ] make custom print function for statistics
 - [ ] global event picture generation from name
 - [ ] custom event picture per event
 - [ ] language toggle with redirect to current page
 - [ ] Order ticket count shown in menu
-- [ ] fix payment creation for each order (currently each time the form is filled a new order is created, old one is stached)
 - [ ] Use shorter ids for urls and names
-
+- [ ] make setting upload with csv
+- [ ] fix issue of tickets that are not sold and not accociated with an order when session is closed (session checker)
+- [ ] location based ticket manager
+- [ ] admin stays logged in forever
+- [ ] free ticket option for door selling
+- [ ] pay ticket in advance payment option
+- [ ] event, location and price import
 
 ### 👨‍💼 Main Contributors
 

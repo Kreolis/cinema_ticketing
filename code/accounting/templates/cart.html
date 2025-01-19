@@ -54,7 +54,11 @@
             {% for ticket in order.tickets.all %}
                 <tr>
                     <td>{{ ticket.event.name }}</td>
-                    <td>{{ ticket.seat }}</td>
+                    {% if ticket.event.display_seat_number %}
+                        <td>{{ ticket.seat }}</td>
+                    {% else %}
+                        <td>{% translate "Free seating" %}</td>
+                    {% endif %}
                     <td>
                         <form action="{% url 'update_ticket_email' ticket.id %}" method="post" class="update-email-form" style="display:inline-flex;">
                             {% csrf_token %}
@@ -62,7 +66,7 @@
                             {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
                         </form>
                     </td>
-                    <td>{{ ticket.price_class.price }}</td>
+                    <td>{{ ticket.price_class.price }} {{ currency }}</td>
                     <td>{{ ticket.price_class.name }}</td>
                     <td>
                         <form action="{% url 'delete_ticket' ticket.id %}" method="post" class="delete-ticket-form" style="display:inline;">
@@ -78,7 +82,7 @@
     <table id="total-table" class="table table-striped mt-3">
         <tr>
             <td colspan="2"><strong>{% translate "Total" %}</strong></td>
-            <td><strong>{{ order.total }}</strong></td>
+            <td><strong>{{ order.total }} {{ currency }}</strong></td>
         </tr>
     </table>
 
@@ -99,13 +103,12 @@
                     success: function(response) {
                         // Update the email in the table
                         form.find('input[name="email"]').val(response.updated_email);
-                        // Optionally, update the total if needed
-                        $('#total-table strong').text(response.new_total);
+                        $('#message-container').append('<div class="alert alert-success">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
                     },
                     error: function(xhr, errmsg, err) {
-                        alert("An error occurred: " + errmsg);
+                        var response = JSON.parse(xhr.responseText);
+                        $('#message-container').append('<div class="alert alert-danger">' + errmsg + '</div>').children().last().fadeIn().delay(1500).fadeOut();
                     }
-                });
             });
 
             // Handle ticket deletion via AJAX

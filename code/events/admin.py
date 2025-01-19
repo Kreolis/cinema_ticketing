@@ -16,14 +16,14 @@ class PriceClassAdmin(admin.ModelAdmin):
 class TicketInline(admin.TabularInline):
     model = Ticket
     extra = 1  # Number of empty forms for adding new tickets
-    fields = ('seat', 'email', 'price_class', 'activated', 'sold')  # Fields to display in the inline
+    fields = ('seat', 'email', 'price_class', 'activated', 'sold_as')  # Fields to display in the inline
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ('event', 'seat', 'email', 'price_class', 'sold', 'activated', 'show_pdf_action', 'send_ticket_email_single')
+    list_display = ('event', 'seat', 'email', 'price_class', 'sold_as', 'activated', 'show_pdf_action', 'send_ticket_email_single')
     actions = ['send_ticket_email_selected']
-    list_filter = ('sold', 'activated')
-    search_fields = ('id', 'event', 'sold')
+    list_filter = ('sold_as', 'activated')
+    search_fields = ('id', 'event', 'sold_as')
 
     # Add custom action buttons
     def show_pdf_action(self, obj):

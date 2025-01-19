@@ -37,16 +37,26 @@
             {% for ticket in order.tickets.all %}
                 <tr>
                     <td>{{ ticket.event.name }}</td>
-                    <td>{{ ticket.seat }}</td>
-                    <td>{{ ticket.email }}</td>
-                    <td>{{ ticket.price_class.price }}</td>
+                    {% if ticket.event.display_seat_number %}
+                        <td>{{ ticket.seat }}</td>
+                    {% else %}
+                        <td>{% translate "Free seating" %}</td>
+                    {% endif %}
+                    <td>
+                        <form action="{% url 'update_ticket_email' ticket.id %}" method="post" class="update-email-form" style="display:inline-flex;">
+                            {% csrf_token %}
+                            <input type="email" name="email" value="{{ ticket.email }}" class="form-control form-control-sm" required style="margin-right: 5px;">
+                            {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
+                        </form>
+                    </td>
+                    <td>{{ ticket.price_class.price }} {{ currency }}</td>
                     <td>{{ ticket.price_class.name }}</td>
                     <td>
-                        <a href="{% url 'send_ticket_email' ticket.id %}" class="btn btn-secondary send-email-btn" data-ticket-id="{{ ticket.id }}">
-                            {% translate "Send to Email" %}
-                        </a>
                         <a href="{% url 'show_generated_ticket_pdf' ticket.id %}" class="btn btn-primary" target="_blank">
-                            {% translate "Show PDF" %}
+                            {% translate "Show Ticket" %}
+                        </a>
+                        <a href="{% url 'send_ticket_email' ticket.id %}" class="btn btn-secondary send-email-btn" data-ticket-id="{{ ticket.id }}">
+                            {% translate "Send ticket to Email" %}
                         </a>
                     </td>
                 </tr>
@@ -57,58 +67,74 @@
     <h2>{% translate "Payment Details" %}</h2>
     <table class="table table-striped">
         <tr>
-            <th>{% translate "Payment Variant" %}</th>
-            <td>{{ order.payment.variant }}</td>
-        </tr>
-        <tr>
             <th>{% translate "Payment Amount" %}</th>
-            <td>{{ order.payment.total }}</td>
-        </tr>
-        <tr>
-            <th>{% translate "Payment Currency" %}</th>
-            <td>{{ order.payment.currency }}</td>
+            <td>{{ order.total }} {{ order.currency }}</td>
         </tr>
         <tr>
             <th>{% translate "Billing First Name" %}</th>
-            <td>{{ order.payment.billing_first_name }}</td>
+            <td>{{ order.billing_first_name }}</td>
         </tr>
         <tr>
             <th>{% translate "Billing Last Name" %}</th>
-            <td>{{ order.payment.billing_last_name }}</td>
+            <td>{{ order.billing_last_name }}</td>
         </tr>
         <tr>
             <th>{% translate "Billing Address Line 1" %}</th>
-            <td>{{ order.payment.billing_address_1 }}</td>
+            <td>{{ order.billing_address_1 }}</td>
         </tr>
         <tr>
             <th>{% translate "Billing Address Line 2" %}</th>
-            <td>{{ order.payment.billing_address_2 }}</td>
+            <td>{{ order.billing_address_2 }}</td>
         </tr>
         <tr>
             <th>{% translate "Billing City" %}</th>
-            <td>{{ order.payment.billing_city }}</td>
+            <td>{{ order.billing_city }}</td>
         </tr>
         <tr>
             <th>{% translate "Billing Postcode" %}</th>
-            <td>{{ order.payment.billing_postcode }}</td>
+            <td>{{ order.billing_postcode }}</td>
         </tr>
         <tr>
             <th>{% translate "Billing Country" %}</th>
-            <td>{{ order.payment.billing_country_code }}</td>
+            <td>{{ order.billing_country_code }}</td>
         </tr>
         <tr>
             <th>{% translate "Billing Country Area" %}</th>
-            <td>{{ order.payment.billing_country_area }}</td>
+            <td>{{ order.billing_country_area }}</td>
         </tr>
         <tr>
             <th>{% translate "Billing Email" %}</th>
-            <td>{{ order.payment.billing_email }}</td>
+            <td>{{ order.billing_email }}</td>
         </tr>
     </table>
+
+    <a href="{% url 'show_generated_invoice' order.session_id %}" class="btn btn-primary" target="_blank">
+        {% translate "Show Invoice" %}
+    </a>
 
     <script>
         $(document).ready(function() {
             $('#tickets-table').DataTable();
+
+            // Handle ticket email update via AJAX
+            $('#tickets-table').on('submit', '.update-email-form', function(event) {
+                event.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: form.serialize(),
+                    success: function(response) {
+                        // Update the email in the table
+                        form.find('input[name="email"]').val(response.updated_email);
+                        $('#message-container').append('<div class="alert alert-success">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                    },
+                    error: function(xhr, errmsg, err) {
+                        var response = JSON.parse(xhr.responseText);
+                        $('#message-container').append('<div class="alert alert-danger">' + errmsg + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                    }
+                });
+            });
 
             $('.send-email-btn').click(function(event) {
                 event.preventDefault();

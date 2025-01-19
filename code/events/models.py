@@ -1,9 +1,10 @@
 from django.db import models
 from django.conf import settings
-from djmoney.models.fields import MoneyField
 
 from django.core.mail import EmailMessage
 from django.utils.translation import gettext_lazy as _
+
+from datetime import datetime, timedelta, timezone
 
 from fpdf import FPDF
 import qrcode
@@ -12,6 +13,21 @@ import tempfile
 import uuid
 
 from branding.models import get_active_branding
+
+class SoldAsStatus:
+    WAITING = "waiting"
+    PRESALE_ONLINE = "presale_online"
+    PRESALE_DOOR = "presale_door"
+    DOOR = "door"
+    REFUNDED = "refunded"
+    
+    CHOICES = [
+        (WAITING, _("Ticket not yet sold")),
+        (PRESALE_ONLINE, _("Ticket was sold in online presale")),
+        (PRESALE_DOOR, _("Ticket was sold in door presale")),
+        (DOOR, _("Ticket was sold at the door")),
+        (REFUNDED, _("Ticket refunded")),
+    ]
 
 class Location(models.Model):
     """
@@ -37,10 +53,11 @@ class PriceClass(models.Model):
     Global price class model for events.
     """
     name = models.CharField(_("name"), max_length=100)  # e.g., VIP, Regular
-    price = MoneyField(_("price"), max_digits=14, decimal_places=2)
+    price =  models.DecimalField(max_digits=9, decimal_places=2, default="0.0", help_text=_(f"Price in {settings.DEFAULT_CURRENCY}"))  # Price for the ticket
+    notification_message = models.TextField(_("notification message"), blank=True, null=True)  # Optional message to display to the user
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name} - {self.price} {settings.DEFAULT_CURRENCY}"
 
 class Ticket(models.Model):
     """
@@ -51,7 +68,10 @@ class Ticket(models.Model):
     price_class = models.ForeignKey(PriceClass, verbose_name=_("price class"), on_delete=models.CASCADE)  # Reference to PriceClass (ticket price)
     event = models.ForeignKey("Event", verbose_name=_("event"), on_delete=models.CASCADE)  # Add event to ticket
     seat = models.IntegerField(_("seat number")) # seat number
-    sold = models.BooleanField(_("sold"), default=False)  # Track if ticket is sold
+    sold_as = models.CharField(_("sold as"), max_length=14, choices=SoldAsStatus.CHOICES, default=SoldAsStatus.WAITING)  # How the ticket was sold
+
+    first_name = models.CharField(_("first name"), max_length=128, blank=True, null=True)  # First name of the ticket holder/buyer
+    last_name = models.CharField(_("last name"), max_length=128, blank=True, null=True)  # Last name of the ticket holder/buyer
 
     email = models.EmailField(_("email"), blank=True, null=True)  # Email address of the ticket holder
 
@@ -124,19 +144,31 @@ class Ticket(models.Model):
             pdf.cell(10.0, 0.6, text=f"{self.event.location.get_address()}", border=borders,  align='L')
             
             pdf.ln(0.75)  # Move to the next line
-            pdf.cell(4.0, 0.6, text=_("Seat Number:"), border=borders, align='L')
-            pdf.cell(2.0, 0.6, text=f"{self.seat}", border=borders,  align='L')
+            if self.event.display_seat_number:
+                pdf.cell(4.0, 0.6, text=_("Seat Number:"), border=borders, align='L')
+                pdf.cell(2.0, 0.6, text=f"{self.seat}", border=borders,  align='L')
+            else:
+                pdf.cell(4.0, 0.6, text=_("Free Seating"), border=borders, align='L')
+
 
             pdf.ln(1.25)  # Move to the next line
             pdf.cell(4.0, 0.6, text=_("Price Class:"), border=borders, align='L')
-            pdf.cell(4.0, 0.6, text=f"{self.price_class.name}", border=borders, align='L')        
-            pdf.ln(0.75)  # Move to the next line
+            pdf.cell(4.0, 0.6, text=f"{self.price_class.name}", border=borders, align='L') 
+            if self.price_class.notification_message:
+                pdf.ln(0.55)
+                pdf.set_font(font, size=10)
+                pdf.cell(4.0, 0.35, text="", border=borders, align='L')
+                pdf.multi_cell(10.0, 0.35, text=f"{self.price_class.notification_message}", border=borders, align='L')
+                pdf.set_font(font, size=15)
+                pdf.ln(0.1) 
+            else:
+                pdf.ln(0.75)  # Move to the next line
             pdf.cell(4.0, 0.6, text=_("Price:"), border=borders, align='L')
-            pdf.cell(4.0, 0.6, text=f"{self.price_class.price.amount} EUR", border=borders, align='L')
+            pdf.cell(4.0, 0.6, text=f"{self.price_class.price} {settings.DEFAULT_CURRENCY}", border=borders, align='L')
 
             # render ticket footer
             pdf.set_font(font, size=10)
-            pdf.ln(2.25)  # Move to the next line
+            pdf.set_y(-0.75)  # Set position 2.5 cm from the bottom
             pdf.cell(9.0, 0.4, text=f"{self.id}", border=borders, align='L')
 
             # vertical line to divide ticket into two parts
@@ -150,7 +182,10 @@ class Ticket(models.Model):
             pdf.set_x(15.2)  # Set x position for ticket check side
             pdf.cell(5.5, 0.5, text=f"{self.event.name}", border=borders, align='C', new_y="NEXT", new_x="LEFT")
             pdf.cell(5.5, 0.5, text=f"{self.event.start_time.strftime('%H:%M %d.%m.%Y')} {self.event.get_duration_minutes()} min", border=borders, align='C', new_y="NEXT", new_x="LEFT")
-            pdf.cell(5.5, 0.5, text=f"{self.seat}", border=borders, align='C', new_y="NEXT", new_x="LEFT")
+            if self.event.display_seat_number:
+                pdf.cell(5.5, 0.5, text=f"{self.seat}", border=borders, align='C', new_y="NEXT", new_x="LEFT")
+            else:
+                pdf.cell(5.5, 0.5, text=_("Free Seating"), border=borders, align='C', new_y="NEXT", new_x="LEFT")
             pdf.cell(5.5, 0.5, text=f"{self.event.location.get_address()}", border=borders, align='C', new_y="NEXT", new_x="LEFT")
             
         finally:
@@ -206,15 +241,51 @@ class Event(models.Model):
     program_link = models.URLField(_("program link"), blank=True, null=True) # link to website with program
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False) # event id
+
+    is_active = models.BooleanField(_("is active"), default=True) # event is active
     
     # Optional field to customize the number of seats for this event
     custom_seats = models.PositiveIntegerField(_("custom seats"), null=True, blank=True)  # If None, use total_seats from location
 
+
     branding = get_active_branding()
-    if branding and branding.ticket_background:
-        ticket_background = models.ImageField(_("ticket background"), upload_to='event/images', null=True, blank=True, default=branding.ticket_background)
     
-    ticket_background = models.ImageField(_("ticket background"), upload_to='event/images', null=True, blank=True)  # Background image for tickets
+    ticket_background = models.ImageField(
+        _("ticket background"), 
+        upload_to='event/images', 
+        null=True, 
+        blank=True, 
+        default=branding.ticket_background if branding and branding.ticket_background else None
+    )
+
+    display_seat_number = models.BooleanField(
+        _("display seat number"),
+        default=branding.display_seat_number if branding and branding.display_seat_number else False
+    )
+    
+    event_background = models.ImageField(
+        _("event background"), 
+        upload_to='event/images', 
+        null=True, 
+        blank=True, 
+        default=branding.event_background if branding and branding.event_background else None
+    )
+    
+    allow_presale = models.BooleanField(
+        _("allow presale"), 
+        default=branding.allow_presale if branding and branding.allow_presale else True
+    )
+
+    presale_ends_before = models.IntegerField(
+        _("presale ends before and door (not presale) selling starts"), 
+        default=branding.presale_ends_before if branding and branding.presale_ends_before else 1
+    )
+    
+    allow_door_selling = models.BooleanField(
+        _("allow door selling"), 
+        default=branding.allow_door_selling if branding and branding.allow_door_selling else True
+    )
+
 
     def __str__(self):
         return self.name
@@ -224,23 +295,105 @@ class Event(models.Model):
         Return the duration of the event in minutes.
         """
         return self.duration.total_seconds() / 60
-
-    @property
-    def available_seats(self):
+    
+    def presale_end_time(self):
         """
-        Return the number of seats available for this event.
+        Returns time when presale ends. 
+        """
+        return self.start_time - timedelta(hours=self.presale_ends_before)
+    
+    def check_active(self):
+        """
+        Check if the event is active.
+        """
+        if self.start_time + self.duration < datetime.now(timezone.utc):
+            self.is_active = False
+            self.save()
+        return self.is_active
+
+    def calculate_statistics(self):
+        """
+        Calculate statistics for the event.
+        """
+        tickets = Ticket.objects.filter(event=self)
+        price_classes = self.price_classes.all()
+
+        total_stats = {
+            'waiting': tickets.filter(sold_as=SoldAsStatus.WAITING).count(),
+            'presale_online': tickets.filter(sold_as=SoldAsStatus.PRESALE_ONLINE).count(),
+            'presale_door': tickets.filter(sold_as=SoldAsStatus.PRESALE_DOOR).count(),
+            'door': tickets.filter(sold_as=SoldAsStatus.DOOR).count(),
+            'total_sold': tickets.exclude(sold_as=SoldAsStatus.WAITING).count(),
+            'total_count': tickets.all().count(),
+            'activated_presale_online': tickets.filter(sold_as=SoldAsStatus.PRESALE_ONLINE, activated=True).count(),
+            'activated_presale_door': tickets.filter(sold_as=SoldAsStatus.PRESALE_DOOR, activated=True).count(),
+            'activated_door': tickets.filter(sold_as=SoldAsStatus.DOOR, activated=True).count(),
+            'total_activated': tickets.filter(activated=True).count(),
+            'earned_presale_online': 0,
+            'earned_presale_door': 0,
+            'earned_door': 0,
+            'total_earned': 0
+        }
+        price_class_stats = {}
+
+        for price_class in price_classes:
+            waiting_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.WAITING).count()
+            presale_online_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_ONLINE).count()
+            presale_door_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_DOOR).count()
+            door_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.DOOR).count()
+            
+            activated_waiting_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.WAITING, activated=True).count()
+            activated_presale_online_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_ONLINE, activated=True).count()
+            activated_presale_door_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_DOOR, activated=True).count()
+            activated_door_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.DOOR, activated=True).count()
+            
+            earned_presale_online = presale_online_count * price_class.price
+            earned_presale_door = presale_door_count * price_class.price
+            earned_door = door_count * price_class.price
+            
+            total_stats['earned_presale_online'] += earned_presale_online
+            total_stats['earned_presale_door'] += earned_presale_door
+            total_stats['earned_door'] += earned_door
+            
+            earned = (presale_online_count + presale_door_count + door_count) * price_class.price
+            total_stats['total_earned'] += earned
+
+
+            price_class_stats[price_class] = {
+                'waiting': waiting_count,
+                'presale_online': presale_online_count,
+                'presale_door': presale_door_count,
+                'door': door_count,
+                'total_sold': presale_online_count + presale_door_count + door_count,
+                'total_count': waiting_count + presale_online_count + presale_door_count + door_count,
+                'activated_presale_online': activated_presale_online_count,
+                'activated_presale_door': activated_presale_door_count,
+                'activated_door': activated_door_count,
+                'total_activated': activated_waiting_count + activated_presale_online_count + activated_presale_door_count + activated_door_count,
+                'earned_presale_online': earned_presale_online,
+                'earned_presale_door': earned_presale_door,
+                'earned_door': earned_door,
+                'total_earned': earned,
+            }
+
+        return total_stats, price_class_stats
+    
+    @property
+    def remaining_seats(self):
+        """
+        Return the number of seats still available for this event.
         If custom_seats is set, use that; otherwise, fallback to the location's total_seats.
         """
         total_seats = self.custom_seats if self.custom_seats is not None else self.location.total_seats
-        sold_tickets = self.ticket_set.filter(sold=True).count()  # Count sold tickets for the event
+        sold_tickets = Ticket.objects.filter(event=self).all().count()  # Count sold tickets for the event
         return total_seats - sold_tickets  # Subtract sold tickets from total seats
-
+    
     @property
-    def sold_tickets_count(self):
+    def is_sold_out(self):
         """
-        Return the number of tickets that have been sold for this event.
+        Check if the event is sold out.
         """
-        return self.ticket_set.filter(sold=True).count()
+        return self.remaining_seats <= 0
 
     @property
     def total_seats(self):
