@@ -200,7 +200,6 @@ We welcome contributions to this project! To contribute:
 - [ ] Add user authentication for ticket buyers.
 - [ ] Add support for refunds or cancellations.
 - [ ] make custom print function for statistics
-- [ ] global show ticket seat number
 - [ ] global event picture generation from name
 - [ ] custom event picture per event
 - [ ] language toggle with redirect to current page
@@ -208,8 +207,11 @@ We welcome contributions to this project! To contribute:
 - [ ] Use shorter ids for urls and names
 - [ ] make setting upload with csv
 - [ ] fix issue of tickets that are not sold and not accociated with an order when session is closed (session checker)
-- [ ] ticket in pre sale at the door with mail
-- [ ] in check in show mail and name of buyer
+- [ ] location based ticket manager
+- [ ] admin stays logged in forever
+- [ ] free ticket option for door selling
+- [ ] pay ticket in advance payment option
+- [ ] event, location and price import
 
 ### 👨‍💼 Main Contributors
 
