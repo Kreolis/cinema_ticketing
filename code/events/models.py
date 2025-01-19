@@ -144,19 +144,31 @@ class Ticket(models.Model):
             pdf.cell(10.0, 0.6, text=f"{self.event.location.get_address()}", border=borders,  align='L')
             
             pdf.ln(0.75)  # Move to the next line
-            pdf.cell(4.0, 0.6, text=_("Seat Number:"), border=borders, align='L')
-            pdf.cell(2.0, 0.6, text=f"{self.seat}", border=borders,  align='L')
+            if self.event.display_seat_number:
+                pdf.cell(4.0, 0.6, text=_("Seat Number:"), border=borders, align='L')
+                pdf.cell(2.0, 0.6, text=f"{self.seat}", border=borders,  align='L')
+            else:
+                pdf.cell(4.0, 0.6, text=_("Free Seating"), border=borders, align='L')
+
 
             pdf.ln(1.25)  # Move to the next line
             pdf.cell(4.0, 0.6, text=_("Price Class:"), border=borders, align='L')
-            pdf.cell(4.0, 0.6, text=f"{self.price_class.name}", border=borders, align='L')        
-            pdf.ln(0.75)  # Move to the next line
+            pdf.cell(4.0, 0.6, text=f"{self.price_class.name}", border=borders, align='L') 
+            if self.price_class.notification_message:
+                pdf.ln(0.55)
+                pdf.set_font(font, size=10)
+                pdf.cell(4.0, 0.35, text="", border=borders, align='L')
+                pdf.multi_cell(10.0, 0.35, text=f"{self.price_class.notification_message}", border=borders, align='L')
+                pdf.set_font(font, size=15)
+                pdf.ln(0.1) 
+            else:
+                pdf.ln(0.75)  # Move to the next line
             pdf.cell(4.0, 0.6, text=_("Price:"), border=borders, align='L')
             pdf.cell(4.0, 0.6, text=f"{self.price_class.price} {settings.DEFAULT_CURRENCY}", border=borders, align='L')
 
             # render ticket footer
             pdf.set_font(font, size=10)
-            pdf.ln(2.25)  # Move to the next line
+            pdf.set_y(-0.75)  # Set position 2.5 cm from the bottom
             pdf.cell(9.0, 0.4, text=f"{self.id}", border=borders, align='L')
 
             # vertical line to divide ticket into two parts
@@ -170,7 +182,10 @@ class Ticket(models.Model):
             pdf.set_x(15.2)  # Set x position for ticket check side
             pdf.cell(5.5, 0.5, text=f"{self.event.name}", border=borders, align='C', new_y="NEXT", new_x="LEFT")
             pdf.cell(5.5, 0.5, text=f"{self.event.start_time.strftime('%H:%M %d.%m.%Y')} {self.event.get_duration_minutes()} min", border=borders, align='C', new_y="NEXT", new_x="LEFT")
-            pdf.cell(5.5, 0.5, text=f"{self.seat}", border=borders, align='C', new_y="NEXT", new_x="LEFT")
+            if self.event.display_seat_number:
+                pdf.cell(5.5, 0.5, text=f"{self.seat}", border=borders, align='C', new_y="NEXT", new_x="LEFT")
+            else:
+                pdf.cell(5.5, 0.5, text=_("Free Seating"), border=borders, align='C', new_y="NEXT", new_x="LEFT")
             pdf.cell(5.5, 0.5, text=f"{self.event.location.get_address()}", border=borders, align='C', new_y="NEXT", new_x="LEFT")
             
         finally:
@@ -232,6 +247,7 @@ class Event(models.Model):
     # Optional field to customize the number of seats for this event
     custom_seats = models.PositiveIntegerField(_("custom seats"), null=True, blank=True)  # If None, use total_seats from location
 
+
     branding = get_active_branding()
     
     ticket_background = models.ImageField(
@@ -240,6 +256,11 @@ class Event(models.Model):
         null=True, 
         blank=True, 
         default=branding.ticket_background if branding and branding.ticket_background else None
+    )
+
+    display_seat_number = models.BooleanField(
+        _("display seat number"),
+        default=branding.display_seat_number if branding and branding.display_seat_number else False
     )
     
     event_background = models.ImageField(
@@ -366,6 +387,13 @@ class Event(models.Model):
         total_seats = self.custom_seats if self.custom_seats is not None else self.location.total_seats
         sold_tickets = Ticket.objects.filter(event=self).all().count()  # Count sold tickets for the event
         return total_seats - sold_tickets  # Subtract sold tickets from total seats
+    
+    @property
+    def is_sold_out(self):
+        """
+        Check if the event is sold out.
+        """
+        return self.remaining_seats <= 0
 
     @property
     def total_seats(self):

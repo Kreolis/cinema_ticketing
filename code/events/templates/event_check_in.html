@@ -146,7 +146,9 @@
                 <tr>
                     <th>{% translate "Action" %}</th>
                     <th>{% translate "Has been activated" %}</th>
-                    <th>{% translate "Seat Number" %}</th>
+                    {% if event.display_seat_number %}
+                        <th>{% translate "Seat Number" %}</th>
+                    {% endif %}
                     <th>{% translate "Email" %}</th>
                     <th>{% translate "Name" %}</th>
                     <th>{% translate "Ticket ID" %}</th>
@@ -162,7 +164,9 @@
                             </button>
                         </td>
                         <td id="activated-cell-{{ ticket.id }}">{{ ticket.activated }}</td>
-                        <td>{{ ticket.seat }}</td>
+                        {% if event.display_seat_number %}
+                            <td>{{ ticket.seat }}</td>
+                        {% endif %}
                         <td>{{ ticket.email }}</td>
                         <td>{{ ticket.first_name }} {{ ticket.last_name }}</td>
                         <td>{{ ticket.id }}</td>

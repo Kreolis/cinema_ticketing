@@ -34,7 +34,11 @@
             {% for ticket in order.tickets.all %}
                 <tr>
                     <td>{{ ticket.event.name }}</td>
-                    <td>{{ ticket.seat }}</td>
+                    {% if ticket.event.display_seat_number %}
+                        <td>{{ ticket.seat }}</td>
+                    {% else %}
+                        <td>{% translate "Free seating" %}</td>
+                    {% endif %}
                     <td>{{ ticket.email }}</td>
                     <td>{{ ticket.price_class.price }}</td>
                     <td>{{ ticket.price_class.name }}</td>
@@ -46,16 +50,8 @@
     <h2>{% translate "Payment Details" %}</h2>
     <table class="table table-striped">
         <tr>
-            <th>{% translate "Payment Variant" %}</th>
-            <td>{{ order.variant }}</td>
-        </tr>
-        <tr>
             <th>{% translate "Payment Amount" %}</th>
-            <td>{{ order.total }}</td>
-        </tr>
-        <tr>
-            <th>{% translate "Payment Currency" %}</th>
-            <td>{{ order.currency }}</td>
+            <td>{{ order.total }} {{ order.currency }}</td>
         </tr>
         <tr>
             <th>{% translate "Billing First Name" %}</th>
