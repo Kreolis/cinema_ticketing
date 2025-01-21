@@ -106,7 +106,7 @@ pip install gunicorn
 
 Run Gunicorn to serve the application:
 ```bash
-gunicorn cinema_ticketing.wsgi:application --bind 0.0.0.0:8000
+gunicorn config.wsgi --bind 0.0.0.0:8000
 ```
 
 Gunicorn (short for "Green Unicorn") is a Python WSGI HTTP server designed to serve Python web applications, such as those built with Django or Flask. It acts as a middle layer between the web application and the web server (e.g., Nginx).
