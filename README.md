@@ -28,6 +28,8 @@ python -m venv event_venv
 source event_venv/bin/activate  # On Windows: event_venv\Scripts\activate
 ```
 
+Use for example (direnv)[https://direnv.net/] for automatic environment activation.
+
 ### 2. Clone the Repository
 ```bash
 cd event_venv
