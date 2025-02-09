@@ -81,10 +81,6 @@ class Order(BasePayment):
         """
         return self.success_url
 
-
-    #def __str__(self):
-    #    return f"Payment {self.id}"
-
     # set to branding order_timeout if available
     if get_active_branding() and get_active_branding().order_timeout:
         timeout = get_active_branding().order_timeout

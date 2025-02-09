@@ -173,8 +173,13 @@ class Ticket(models.Model):
             # render ticket footer
             pdf.set_font(font, size=10)
             pdf.set_y(-0.75)  # Set position 2.5 cm from the bottom
-            pdf.cell(9.0, 0.4, text=f"{self.id}", border=borders, align='L')
+            pdf.cell(7, 0.4, text=f"{self.id}", border=borders, align='L')
+            pdf.ln(-0.5)
+            pdf.cell(7.0, 0.4, text=f"{self.first_name} {self.last_name}", border=borders, align='L')
+            pdf.cell(7.0, 0.4, text=f"{self.email}", border=borders, align='L')
 
+
+            ## Ticket Check Side
             # vertical line to divide ticket into two parts
             pdf.line(14.75, 0.1, 14.75, 8.4)
 
