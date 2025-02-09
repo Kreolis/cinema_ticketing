@@ -213,7 +213,6 @@ Version 1:
 
 - [ ] make setting upload with csv
 - [ ] fix issue of tickets that are not sold and not accociated with an order when session is closed (session checker)
-- [ ] free ticket option for door selling
 - [ ] pay ticket in advance payment option
 - [ ] event, location and price import
 

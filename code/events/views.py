@@ -32,10 +32,11 @@ def event_list(request):
 def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
-    price_classes = event.price_classes.all()
+    # select all price classes for the event apart from secret ones
+    price_classes = event.price_classes.all().exclude(secret=True)
 
     presale_end_time = event.presale_end_time()
-    
+
     # Ensure the session is created
     if not request.session.session_key:
         request.session.create()
@@ -44,6 +45,10 @@ def event_detail(request, event_id):
         if (presale_end_time < datetime.now(timezone.utc)) or (not event.check_active()):
             # Presale has ended or is inactive
             return JsonResponse({"status": "error", "message": _("Presale has ended for this event.")})
+        
+        if event.presale_start > datetime.now(timezone.utc):
+            # Presale has not started yet
+            return JsonResponse({"status": "error", "message": _("Presale has not started yet.")})
         
         form = TicketSelectionForm(request.POST, price_classes=price_classes)
         if form.is_valid():
@@ -76,6 +81,7 @@ def event_detail(request, event_id):
         'form': form,
         'ticket_manager': ticket_manager,
         'presale_end_time': presale_end_time,
+        'presale_start_time': event.presale_start,
         'currency': settings.DEFAULT_CURRENCY,
     })
 
@@ -216,6 +222,7 @@ def event_door_selling(request, event_id):
         'event': event,
         'event_active': event.check_active(),
         'presale_end_time': presale_end_time,
+        'presale_start_time': event.presale_start,
         'price_classes': price_classes,
         'pre_sale_door_ticktes': Ticket.objects.filter(event=event).filter(sold_as=SoldAsStatus.PRESALE_DOOR),
         'form': form,

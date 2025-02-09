@@ -3,6 +3,7 @@ from django.conf import settings
 
 from django.core.mail import EmailMessage
 from django.utils.translation import gettext_lazy as _
+import django.utils.timezone
 
 from datetime import datetime, timedelta, timezone
 
@@ -55,6 +56,9 @@ class PriceClass(models.Model):
     name = models.CharField(_("name"), max_length=100)  # e.g., VIP, Regular
     price =  models.DecimalField(max_digits=9, decimal_places=2, default="0.0", help_text=_(f"Price in {settings.DEFAULT_CURRENCY}"))  # Price for the ticket
     notification_message = models.TextField(_("notification message"), blank=True, null=True)  # Optional message to display to the user
+
+    # optional field to make secret price classes, only shown to staff/door selling
+    secret = models.BooleanField(_("secret"), default=False)
 
     def __str__(self):
         return f"{self.name} - {self.price} {settings.DEFAULT_CURRENCY}"
@@ -274,6 +278,11 @@ class Event(models.Model):
     allow_presale = models.BooleanField(
         _("allow presale"), 
         default=branding.allow_presale if branding and branding.allow_presale else True
+    )
+
+    presale_start = models.DateTimeField(
+        _("presale start"),
+        default=branding.presale_start if branding and branding.presale_start else django.utils.timezone.now
     )
 
     presale_ends_before = models.IntegerField(
