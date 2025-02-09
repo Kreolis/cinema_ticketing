@@ -199,21 +199,28 @@ We welcome contributions to this project! To contribute:
 
 ### 📝 To-Do List
 
+Version 2:
+
 - [ ] Add user authentication for ticket buyers.
 - [ ] Add support for refunds or cancellations.
-- [ ] make custom print function for statistics
 - [ ] global event picture generation from name
 - [ ] custom event picture per event
 - [ ] language toggle with redirect to current page
 - [ ] Order ticket count shown in menu
 - [ ] Use shorter ids for urls and names
+
+Version 1:
+
 - [ ] make setting upload with csv
 - [ ] fix issue of tickets that are not sold and not accociated with an order when session is closed (session checker)
-- [ ] location based ticket manager
-- [ ] admin stays logged in forever
 - [ ] free ticket option for door selling
 - [ ] pay ticket in advance payment option
 - [ ] event, location and price import
+
+Nice to have:
+
+- [ ] location based ticket manager
+- [ ] admin stays logged in forever
 
 ### 👨‍💼 Main Contributors
 

@@ -11,7 +11,9 @@ from .views import (
     send_ticket_email,
     event_door_selling,
     event_statistics,
-    all_event_statistics
+    show_generated_statistics_pdf,
+    all_events_statistics,
+    show_generated_global_statistics_pdf
 )
 
 urlpatterns = [
@@ -26,5 +28,7 @@ urlpatterns = [
     path('ticket_<uuid:ticket_id>.pdf', show_generated_ticket_pdf, name='show_generated_ticket_pdf'),
     path('send_ticket_email/<uuid:ticket_id>/', send_ticket_email, name='send_ticket_email'),
     path('<uuid:event_id>/statistics/', event_statistics, name='event_statistics'),
-    path('overall-statistics/', all_event_statistics, name='all_event_statistics')
+    path('uuid:event_id/event_<uuid:event_id>.pdf', show_generated_statistics_pdf, name='show_generated_statistics_pdf'),
+    path('overall-statistics/', all_events_statistics, name='all_events_statistics'),
+    path('overall-statistics/events_overall.pdf', show_generated_global_statistics_pdf, name='show_generated_global_statistics_pdf')
 ]

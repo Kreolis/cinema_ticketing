@@ -8,6 +8,7 @@ from django.utils.translation import gettext as _
 
 import io
 from datetime import datetime, timezone
+from fpdf import FPDF
 
 from payments import get_payment_model
 
@@ -18,10 +19,14 @@ from .forms import TicketSelectionForm
 def event_list(request):
     # Retrieve all events, you can filter if they are active
     events = Event.objects.filter(is_active=True).order_by('start_time')
-    return render(request, 'event_list.html', 
-                  {'events': events,
-                   'currency': settings.DEFAULT_CURRENCY
-                   })
+
+    ticket_manager = user_in_ticket_managers_group_or_admin(request.user)
+
+    return render(request, 'event_list.html', {
+        'events': events,
+        'currency': settings.DEFAULT_CURRENCY,
+        'ticket_manager': ticket_manager
+    })
 
 # Event detail view with ticket selection
 def event_detail(request, event_id):
@@ -229,10 +234,24 @@ def event_statistics(request, event_id):
         'currency': settings.DEFAULT_CURRENCY
     })
 
-
 @login_required
 @user_passes_test(user_in_ticket_managers_group_or_admin)
-def all_event_statistics(request):
+def show_generated_statistics_pdf(request, event_id):
+    # Fetch the event by ID
+    event = Event.objects.get(pk=event_id)
+    
+    # Generate PDF for the selected ticket
+    pdf = event.generate_statistics_pdf()
+    # Create a BytesIO stream to hold the PDF data
+    file_stream = io.BytesIO(pdf.output())
+
+    # Create a FileResponse to send the PDF file
+    now = datetime.now().strftime("%Y-%m-%d")
+    response = FileResponse(file_stream, content_type='application/pdf', filename=f"event_{event.id}_{now}.pdf")
+    
+    return response
+
+def get_all_event_statistics():
     events = Event.objects.all().order_by('start_time')
     events_stats = []
 
@@ -254,6 +273,7 @@ def all_event_statistics(request):
     }
 
     for event in events:
+        print(type(event))
         total_stats, price_class_stats =  event.calculate_statistics()
         events_stats.append({
             'event': event,
@@ -276,8 +296,110 @@ def all_event_statistics(request):
         overall_total_stats['earned_door'] += total_stats['earned_door']
         overall_total_stats['total_earned'] += total_stats['total_earned']
 
+    return events_stats, overall_total_stats
+
+@login_required
+@user_passes_test(user_in_ticket_managers_group_or_admin)
+def all_events_statistics(request):
+    events_stats, overall_total_stats = get_all_event_statistics()
+
     return render(request, 'all_event_statistics.html', {
         'events_stats': events_stats,
         'overall_total_stats': overall_total_stats,
         'currency': settings.DEFAULT_CURRENCY
     })
+
+@login_required
+@user_passes_test(user_in_ticket_managers_group_or_admin)
+def show_generated_global_statistics_pdf(request):
+    # Generate statistics for all events
+    # Create the PDF
+    pdf = FPDF(unit="cm", format=(21.0, 29.7))  # A4 format
+    pdf.set_margins(1.0, 1.0)
+    pdf.set_auto_page_break(auto=True, margin=0.2)
+    pdf.add_page()
+    font = "Helvetica"
+    pdf.set_font(font, size=18, style='B')
+    pdf.cell(19.0, 1.0, text=f"All Events - Statistics", border=0, align='C')
+    pdf.ln(1.0)
+    # created at
+    pdf.set_font(font, size=10)
+    pdf.cell(19.0, 0.6, text=f"Created at: {datetime.now().strftime('%d.%m.%Y %H:%M')}", border=0, align='L')
+    pdf.ln(0.6)
+
+    # add global statistics
+    events_stats, overall_total_stats = get_all_event_statistics()
+
+    pdf.set_font(font, size=12, style='B')
+    pdf.cell(19.0, 0.8, text="Global Statistics", border=0, align='L')
+    pdf.ln(0.8)
+    pdf.set_font(font, size=10)
+
+    # Create table for global statistics
+    pdf.set_fill_color(200, 220, 255)
+    pdf.cell(9.0, 0.6, text="Statistic", border=1, align='C', fill=True)
+    pdf.cell(10.0, 0.6, text="Value", border=1, align='C', fill=True)
+    pdf.ln(0.6)
+    for key, value in overall_total_stats.items():
+        display_value = f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else value
+        pdf.cell(9.0, 0.6, text=f"{key.replace('_', ' ').title()}", border=1, align='L')
+        pdf.cell(10.0, 0.6, text=f"{display_value}", border=1, align='L')
+        pdf.ln(0.6)
+    
+
+    for event in Event.objects.all().order_by('start_time'):
+        # Add a new page for each event
+        pdf.add_page()
+
+        # Fetch statistics
+        total_stats, price_class_stats = event.calculate_statistics()
+
+        # Add event name
+        pdf.set_font(font, size=14, style='B')
+        pdf.cell(19.0, 0.8, text=f"{event.name} - Statistics", border=0, align='L')
+        pdf.ln(0.8)
+
+        # Add total statistics
+        pdf.set_font(font, size=12, style='B')
+        pdf.cell(19.0, 0.8, text="Total Statistics", border=0, align='L')
+        pdf.ln(0.8)
+        pdf.set_font(font, size=10)
+
+        # Create table for total statistics
+        pdf.set_fill_color(200, 220, 255)
+        pdf.cell(9.0, 0.6, text="Statistic", border=1, align='C', fill=True)
+        pdf.cell(10.0, 0.6, text="Value", border=1, align='C', fill=True)
+        pdf.ln(0.6)
+        for key, value in total_stats.items():
+            display_value = f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else value
+            pdf.cell(9.0, 0.6, text=f"{key.replace('_', ' ').title()}", border=1, align='L')
+            pdf.cell(10.0, 0.6, text=f"{display_value}", border=1, align='L')
+            pdf.ln(0.6)
+
+        pdf.ln(1.0)
+
+        # Add price class statistics
+        pdf.set_font(font, size=12, style='B')
+        pdf.cell(19.0, 0.8, text="Price Class Statistics", border=0, align='L')
+        pdf.ln(0.8)
+        pdf.set_font(font, size=10)
+
+        # Create table for price class statistics
+        pdf.set_fill_color(200, 220, 255)
+        pdf.cell(5.0, 0.6, text="Statistic", border=1, align='C', fill=True)
+        for price_class in price_class_stats.keys():
+            pdf.cell(4.0, 0.6, text=f"{price_class.name} - {price_class.price} {settings.DEFAULT_CURRENCY}", border=1, align='C', fill=True)
+        pdf.ln(0.6)
+        for key in next(iter(price_class_stats.values())).keys():
+            pdf.cell(5.0, 0.6, text=f"{key.replace('_', ' ').title()}", border=1, align='L')
+            for price_class, stats in price_class_stats.items():
+                display_value = f"{stats[key]} {settings.DEFAULT_CURRENCY}" if 'earned' in key else stats[key]
+                pdf.cell(4.0, 0.6, text=f"{display_value}", border=1, align='L')
+            pdf.ln(0.6)
+
+    file_stream = io.BytesIO(pdf.output())
+    # Create a FileResponse to send the PDF file
+    now = datetime.now().strftime("%Y-%m-%d")
+    response = FileResponse(file_stream, content_type='application/pdf', filename=f"all_events_{now}.pdf")
+
+    return response

@@ -378,6 +378,68 @@ class Event(models.Model):
 
         return total_stats, price_class_stats
     
+    def generate_statistics_pdf(self):
+        """
+        Generate a PDF with statistics for the event.
+        """
+        # Create the PDF
+        pdf = FPDF(unit="cm", format=(21.0, 29.7))  # A4 format
+        pdf.set_margins(1.0, 1.0)
+        pdf.set_auto_page_break(auto=True, margin=0.2)
+        pdf.add_page()
+        font = "Helvetica"
+        pdf.set_font(font, size=18, style='B')
+        pdf.cell(19.0, 1.0, text=f"{self.name} - Statistics", border=0, align='C')
+        pdf.ln(1.0)
+        # created at
+        pdf.set_font(font, size=10)
+        pdf.cell(19.0, 0.6, text=f"Created at: {datetime.now().strftime('%d.%m.%Y %H:%M')}", border=0, align='L')
+        pdf.ln(0.6)
+
+        # Fetch statistics
+        total_stats, price_class_stats = self.calculate_statistics()
+
+        # Add total statistics
+        pdf.set_font(font, size=12, style='B')
+        pdf.cell(19.0, 0.8, text="Total Statistics", border=0, align='L')
+        pdf.ln(0.8)
+        pdf.set_font(font, size=10)
+
+        # Create table for total statistics
+        pdf.set_fill_color(200, 220, 255)
+        pdf.cell(9.0, 0.6, text="Statistic", border=1, align='C', fill=True)
+        pdf.cell(10.0, 0.6, text="Value", border=1, align='C', fill=True)
+        pdf.ln(0.6)
+        for key, value in total_stats.items():
+            display_value = f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else value
+            pdf.cell(9.0, 0.6, text=f"{key.replace('_', ' ').title()}", border=1, align='L')
+            pdf.cell(10.0, 0.6, text=f"{display_value}", border=1, align='L')
+            pdf.ln(0.6)
+
+        pdf.ln(1.0)
+
+        # Add price class statistics
+        pdf.set_font(font, size=12, style='B')
+        pdf.cell(19.0, 0.8, text="Price Class Statistics", border=0, align='L')
+        pdf.ln(0.8)
+        pdf.set_font(font, size=10)
+
+
+        # Create table for price class statistics
+        pdf.set_fill_color(200, 220, 255)
+        pdf.cell(5.0, 0.6, text="Statistic", border=1, align='C', fill=True)
+        for price_class in price_class_stats.keys():
+            pdf.cell(4.0, 0.6, text=f"{price_class.name} - {price_class.price} {settings.DEFAULT_CURRENCY}", border=1, align='C', fill=True)
+        pdf.ln(0.6)
+        for key in next(iter(price_class_stats.values())).keys():
+            pdf.cell(5.0, 0.6, text=f"{key.replace('_', ' ').title()}", border=1, align='L')
+            for price_class, stats in price_class_stats.items():
+                display_value = f"{stats[key]} {settings.DEFAULT_CURRENCY}" if 'earned' in key else stats[key]
+                pdf.cell(4.0, 0.6, text=f"{display_value}", border=1, align='L')
+            pdf.ln(0.6)
+
+        return pdf
+
     @property
     def remaining_seats(self):
         """

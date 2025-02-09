@@ -14,6 +14,9 @@
     <h1>{% translate "Upcoming Events" %}</h1>
 
     <div class="event-list">
+        {% if ticket_manager %}
+            <a href="{% url 'all_events_statistics' %}" class="btn btn-secondary">{% translate "Go to Global Statistics" %}</a>
+        {% endif %}
         {% if events %}
             {% for event in events %}
                 <div class="event-item">

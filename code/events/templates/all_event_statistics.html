@@ -9,7 +9,10 @@
 
 {% block content %}
     <h1 class="mt-4">{% translate "Overall Statistics" %}</h1>
-    
+    <div class="mt-4">
+        <a href="{% url 'event_list' %}" class="btn btn-primary">{% translate "Go to Event List" %}</a>
+        <a href="{% url 'show_generated_global_statistics_pdf' %}" class="btn btn-secondary">{% translate "Print Global Statistics" %}</a>
+    </div>
     <!-- Include jQuery library via CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
