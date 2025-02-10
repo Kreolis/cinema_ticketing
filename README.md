@@ -208,13 +208,14 @@ Version 2:
 - [ ] language toggle with redirect to current page
 - [ ] Order ticket count shown in menu
 - [ ] Use shorter ids for urls and names
+- [ ] location and price import
+
 
 Version 1:
 
 - [ ] make setting upload with csv
 - [ ] fix issue of tickets that are not sold and not accociated with an order when session is closed (session checker)
 - [ ] pay ticket in advance payment option
-- [ ] event, location and price import
 
 Nice to have:
 
