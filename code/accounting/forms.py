@@ -1,6 +1,8 @@
 from django import forms
 from iso3166 import countries
 import locale
+
+from django.conf import settings
 from django.utils.translation import gettext as _
 
 class PaymentInfoForm(forms.Form):
@@ -52,6 +54,14 @@ class PaymentInfoForm(forms.Form):
         label=_('Email'),
         help_text=_('Enter the email address where billing information will be sent. If you have not set the send-to-email for each ticket this email will be used for all tickets.'),
         widget=forms.EmailInput(attrs={'required': True})
+    )
+
+    # enable user to select preferred payment method
+    payment_method = forms.ChoiceField(
+        label=_('Payment Method'),
+        help_text=_('Select the payment method you would like to use.'),
+        choices=[(key, key) for key in settings.PAYMENT_VARIANTS.keys()],
+        widget=forms.Select(attrs={'required': True})
     )
 
     def __init__(self, *args, **kwargs):

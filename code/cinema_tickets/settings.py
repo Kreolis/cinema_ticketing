@@ -225,8 +225,7 @@ STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
 # Named configuration for your payment provider(s).
 PAYMENT_VARIANTS = {
     # Settings for Development
-    'default': ('payments.dummy.DummyProvider', {'capture': False}),
-    'stripe': (
+    'Stripe (Credit Card)': (
         'payments.stripe.StripeProviderV3',
         {
             'api_key': STRIPE_SECRET_KEY,
@@ -235,7 +234,7 @@ PAYMENT_VARIANTS = {
             'endpoint_secret': config('STRIPE_WEBHOOK_SECRET', default='whsec_test_secret'),
         }
     ),
-    'paypal': (
+    'Paypal': (
         'payments.paypal.PaypalProvider',
         {
             'client_id': 'user@example.com',
@@ -247,7 +246,11 @@ PAYMENT_VARIANTS = {
 }
 
 if DEBUG:
-    PAYMENT_VARIANTS['stripe'][1]['secure_endpoint'] = False
-    PAYMENT_VARIANTS['paypal'][1]['endpoint'] = 'https://api.sandbox.paypal.com'
+    # enable test mode for Stripe and use insecure endpoint
+    PAYMENT_VARIANTS['Stripe (Credit Card)'][1]['secure_endpoint'] = False
+    PAYMENT_VARIANTS['Paypal'][1]['endpoint'] = 'https://api.sandbox.paypal.com'
 
-DEFAULT_PAYMENT_VARIANT = 'stripe'
+    # add dummy payment provider for testing
+    PAYMENT_VARIANTS['Dummy'] = ('payments.dummy.DummyProvider', {'capture': False})
+
+DEFAULT_PAYMENT_VARIANT = 'Stripe (Credit Card)'

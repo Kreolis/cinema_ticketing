@@ -209,11 +209,10 @@ Version 2:
 - [ ] Order ticket count shown in menu
 - [ ] Use shorter ids for urls and names
 - [ ] location and price import
-
+- [ ] make setting upload with csv
 
 Version 1:
 
-- [ ] make setting upload with csv
 - [ ] fix issue of tickets that are not sold and not accociated with an order when session is closed (session checker)
 - [ ] pay ticket in advance payment option
 

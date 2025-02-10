@@ -78,12 +78,16 @@ def payment_form(request):
             order.billing_country_area = form_fields["billing_country_area"]
             order.billing_email = form_fields["billing_email"]
 
+            # enable user to choose payment method
+            order.variant = form_fields["payment_method"]
+
+            # set the session_id to the current session
             order.session_id = request.session.session_key
             order.change_status(PaymentStatus.WAITING)
 
             # if the payment vairant is able to do a preauth, set the success and failure urls
             # check first if the name of the variant is matching with a variant that has the capture field set to False
-            if settings.PAYMENT_VARIANTS[order.variant][1].get('capture', True) == False:
+            if settings.PAYMENT_VARIANTS[order.variant][1].get('capture') == False:
                 order.failure_url = request.build_absolute_uri(reverse('payment_failed'))
                 order.success_url = request.build_absolute_uri(reverse('order_payment', args=[order.session_id]))
             
@@ -94,7 +98,8 @@ def payment_form(request):
                 if ticket.email == None:
                     ticket.email = order.billing_email
                     ticket.save()
-            if settings.PAYMENT_VARIANTS[order.variant][1].get('capture', True) == False:
+            
+            if settings.PAYMENT_VARIANTS[order.variant][1].get('capture') == False:
                 try:
                     order.change_status(PaymentStatus.PREAUTH)
                     gateway_form = order.get_form(request)
