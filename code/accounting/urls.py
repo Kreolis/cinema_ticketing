@@ -5,9 +5,11 @@ from .views import (
     payment_form,
     order_payment_overview,
     confirm_order,
+    admin_confirm_order,
     payment_failed,
     ticket_list,
     show_generated_invoice,
+    manage_orders
 )
 
 urlpatterns = [
@@ -18,7 +20,9 @@ urlpatterns = [
     path('confirm_order/<str:order_id>', confirm_order, name='confirm_order'), 
     path('payment_failed/', payment_failed, name='payment_failed'),
     path('ticket_list/<str:order_id>', ticket_list, name='ticket_list'),  
-    path('order_invoice_<str:order_id>.pdf', show_generated_invoice, name='show_generated_invoice'),  
+    path('order_invoice_<str:order_id>.pdf', show_generated_invoice, name='show_generated_invoice'),
+    path('manage_orders/', manage_orders, name='manage_orders'),
+    path('admin_confirm_order/<str:order_id>', admin_confirm_order, name='admin_confirm_order'),
 ]
 
 

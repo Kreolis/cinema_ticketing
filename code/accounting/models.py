@@ -35,6 +35,8 @@ class Order(BasePayment):
     failure_url = models.URLField(max_length=255, blank=True, null=True)
     success_url = models.URLField(max_length=255, blank=True, null=True)
 
+    is_confirmed = models.BooleanField(default=False)
+
     def get_purchased_items(self) -> Iterable[PurchasedItem]:
         """Return an iterable of purchased items.
 

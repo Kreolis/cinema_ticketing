@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
 
 import io
@@ -13,7 +14,8 @@ from payments.models import PaymentStatus
 from .forms import PaymentInfoForm  # Add this import
 from .forms import UpdateEmailsForm  # Add this import
 
-from events.models import SoldAsStatus 
+from events.models import SoldAsStatus
+from events.views import user_in_ticket_managers_group_or_admin
 
 def cart_view(request):
     if not request.session.session_key:
@@ -150,13 +152,15 @@ def order_payment_overview(request):
 
 def confirm_order(request, order_id):
     order = get_object_or_404(get_payment_model(), session_id=order_id)
+
     if order.status == PaymentStatus.PREAUTH:
+        # variant was preauthed therefore capture the payment
         try:
-            # make the payment with stripe
             # Capture the payment after review or fulfillment
             order.capture()
 
             order.change_status(PaymentStatus.CONFIRMED)
+            order.is_confirmed = True
             order.save()
 
             for ticket in order.tickets.all():
@@ -177,17 +181,32 @@ def confirm_order(request, order_id):
             return e.response
         
     elif order.status == PaymentStatus.WAITING:
-        # variant was not preauthed therefore initiate the payment
-        order.failure_url = request.build_absolute_uri(reverse('payment_failed'))
-        order.success_url = request.build_absolute_uri(reverse('ticket_list', args=[order_id]))
-    
-        order.save()
+        if not order.variant == settings.PAYMENT_VARIANTS['Advance Payment']:
+            # variant was not preauthed therefore initiate the payment
+            order.failure_url = request.build_absolute_uri(reverse('payment_failed'))
+            order.success_url = request.build_absolute_uri(reverse('ticket_list', args=[order_id]))
+        
+            order.save()
 
-        try:
-            order.change_status(PaymentStatus.INPUT)
-            gateway_form = order.get_form(request)
-        except RedirectNeeded as e:
-            return redirect(str(e))
+            try:
+                order.change_status(PaymentStatus.INPUT)
+                gateway_form = order.get_form(request)
+            except RedirectNeeded as e:
+                return redirect(str(e))
+        else:
+            # variant was advance payment therefore confirm the order
+            order.change_status(PaymentStatus.CONFIRMED)
+            order.save()
+
+            for ticket in order.tickets.all():
+                ticket.sold_as = SoldAsStatus.PRESALE_ONLINE
+                ticket.first_name = order.billing_first_name
+                ticket.last_name = order.billing_last_name
+                ticket.save()
+            
+            # order is reserved
+            # make sure the user can make a new order by creating a new session
+            request.session.cycle_key()
     else:
         return redirect('payment_form')
     return redirect('ticket_list', order_id=order_id)
@@ -197,16 +216,26 @@ def ticket_list(request, order_id):
 
     if order.status == PaymentStatus.INPUT:
         order.change_status(PaymentStatus.CONFIRMED)
+        if not order.variant == settings.PAYMENT_VARIANTS['Advance Payment']:
+            # order is paid fully and can be confirmed
+            order.is_confirmed = True
+            order.save()
+        # else: the order is not paid yet and will be confirmed later manually        
 
         for ticket in order.tickets.all():
                 ticket.sold_as = SoldAsStatus.PRESALE_ONLINE
                 ticket.first_name = order.billing_first_name
                 ticket.last_name = order.billing_last_name
-                ticket.send_to_email()
+                if order.is_confirmed:
+                    ticket.send_to_email()
                 ticket.save()
 
-        # Send confirmation and invoice email
-        order.send_confirmation_email()
+        if not order.is_confirmed:
+            # Send payment instructions email
+            order.send_payment_instructions_email()
+        else:
+            # Send confirmation and invoice email
+            order.send_confirmation_email()
 
         if request.session.session_key == None:
             print(f"Session key: {request.session.session_key}")
@@ -222,6 +251,7 @@ def ticket_list(request, order_id):
             request.session.cycle_key()
 
         print(f"Session key: {request.session.session_key}")
+
     # if order is payed show the tickets
     if order.status == PaymentStatus.CONFIRMED:
         return render(request, 'ticket_list.html', {'order': order,
@@ -243,3 +273,37 @@ def show_generated_invoice(request, order_id):
     response = FileResponse(file_stream, content_type='application/pdf', filename=f"order_invoice_{order_id}.pdf")
     
     return response
+
+@login_required
+@user_passes_test(user_in_ticket_managers_group_or_admin)
+def admin_confirm_order(request, order_id):
+    order = get_object_or_404(get_payment_model(), session_id=order_id)
+
+    if order.status == PaymentStatus.CONFIRMED:
+        order.is_confirmed = True
+        order.save()
+
+        for ticket in order.tickets.all():
+            ticket.send_to_email()
+        
+        # Send confirmation and invoice email
+        order.send_confirmation_email()
+
+    return redirect('manage_orders')
+
+@login_required
+@user_passes_test(user_in_ticket_managers_group_or_admin)
+def manage_orders(request):
+    # show all orders that require manual confirmation
+    # order must be set to PaymentStatus.CONFIRMED but is_confirmed must be False
+    manual_orders = get_payment_model().objects.filter(status=PaymentStatus.CONFIRMED, is_confirmed=False)
+    paid_orders = get_payment_model().objects.filter(status=PaymentStatus.CONFIRMED, is_confirmed=True)
+
+    all_orders = get_payment_model().objects.all()
+
+    return render(request, 'manage_orders.html', {
+        'manual_orders': manual_orders,
+        'paid_orders': paid_orders,
+        'all_orders': all_orders,
+        'currency': settings.DEFAULT_CURRENCY
+    })
