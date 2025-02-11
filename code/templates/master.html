@@ -22,9 +22,18 @@
     <li class="nav-item">
       <a class="nav-link link-light" href="{% url 'event_list' %}">{% translate "Events List" %}</a>
     </li>
-    <li class="nav-item">
-      <a class="nav-link link-light" href="{% url 'cart_view' %}">{% translate "Cart" %}</a>
-    </li>
+    {% if user.is_authenticated and user.is_staff %}
+      <li class="nav-item">
+        <a class="nav-link link-light" href="{% url 'all_events_statistics' %}">{% translate "Global Statistics" %}</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link link-light" href="{% url 'manage_orders' %}">{% translate "Manage Orders" %}</a>
+      </li>
+    {% else %}
+      <li class="nav-item">
+        <a class="nav-link link-light" href="{% url 'cart_view' %}">{% translate "Cart" %}</a>
+      </li>
+    {% endif %}
     <li class="nav-item dropdown"></li>
         <a class="nav-link dropdown-toggle link-light" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
           {% trans "Language" %}
@@ -42,7 +51,6 @@
           {% endfor %}
         </ul>
       </li>
-    
   </ul>
 
   {% block content %}
