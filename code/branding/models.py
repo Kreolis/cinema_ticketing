@@ -47,6 +47,14 @@ class Branding(models.Model):
     invoice_vat_id = models.CharField(max_length=20, null=True, blank=True, help_text=_("Enter your VAT number to appear on invoices"))
     invoice_tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text=_("Enter the tax rate to appear on invoices"))
 
+    advanced_payment_bank_account_name = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the bank account name for advanced payments"))
+    advanced_payment_bank_name = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the bank name for advanced payments"))
+    advanced_payment_iban = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the IBAN for advanced payments"))
+    advanced_payment_swift = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the SWIFT code for advanced payments"))
+    advanced_payment_reference = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the reference for advanced payments"))
+    advanced_payment_due_days = models.IntegerField(default=14, help_text=_("Enter the number of days until payment is due for advanced payments"))
+    advanced_payment_message = models.TextField(null=True, blank=True, help_text=_("Enter the message to appear on advanced payment emails"))
+
     is_active = models.BooleanField(default=False, help_text=_("Indicates if this branding is active"))
 
     def __str__(self):
