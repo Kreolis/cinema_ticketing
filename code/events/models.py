@@ -242,7 +242,7 @@ class Event(models.Model):
     """
     Global event model.
     """
-    name = models.CharField(_("name"), max_length=255, unique=True) # name of event, needs to be unique
+    name = models.CharField(_("name"), max_length=255) # name of event
     start_time = models.DateTimeField(_("start time")) # start time of event
     duration = models.DurationField(_("duration"), default='02:00:00')  # 2 hours
     location = models.ForeignKey(Location, verbose_name=_("location"), on_delete=models.CASCADE) # add location to event
