@@ -28,7 +28,8 @@ class Order(BasePayment):
 
     timeout = models.IntegerField(default=10)  # in minutes
 
-    variant = settings.DEFAULT_PAYMENT_VARIANT
+    # user choices for payment, limit choices to settings.PAYMENT_VARIANTS
+    variant = models.CharField(max_length=255, choices=[(key, key) for key in settings.PAYMENT_VARIANTS.keys()], default=settings.DEFAULT_PAYMENT_VARIANT)
 
     currency = models.CharField(max_length=10, default=settings.DEFAULT_CURRENCY)
 
@@ -137,7 +138,44 @@ class Order(BasePayment):
     def get_remaining_time(self):
         return self.timeout - (timezone.now() - self.modified).seconds // 60
     
-    def generate_pdf_invoice(self):
+    def get_payment_instructions(self):
+        branding = get_active_branding()
+        if branding:     
+            due_days = branding.advanced_payment_due_days
+            message = branding.advanced_payment_message
+            iban = branding.advanced_payment_iban
+            swift = branding.advanced_payment_swift
+            bank_name = branding.advanced_payment_bank_name
+            account_name = branding.advanced_payment_bank_account_name
+        else:
+            due_days = 14
+            message = _("Please transfer the total amount to the following bank account.")
+            iban = "CH93 0076 2011 6238 5295 7"
+            swift = "LFSACHZZXXX"
+            bank_name = "Bank Name"
+            account_name = "Account Name"
+
+        payment_instructions = _(
+            "{message}\n\n"
+            "Bank: {bank_name}\n"
+            "Account Name: {account_name}\n"
+            "IBAN: {iban}\n"
+            "SWIFT: {swift}\n\n"
+            "Please use the following reference for your payment: {session_id}\n"
+            "Payment is due within {due_days} days.\n\n"
+            "Thank you for your purchase!").format(
+                message=message,
+                bank_name=bank_name,
+                account_name=account_name,
+                iban=iban,
+                swift=swift,
+                session_id=self.session_id,
+                due_days=due_days
+        )
+
+        return payment_instructions
+    
+    def generate_pdf_invoice(self, payment_instructions=None):
         """
         Generate a PDF invoice for the order.
         """
@@ -252,6 +290,14 @@ class Order(BasePayment):
         pdf.cell(4, 0.6, f"{total:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
         pdf.ln()
 
+        # Add payment instructions
+        if payment_instructions:
+            pdf.ln(1)
+            pdf.set_font(font, size=12, style='B')
+            pdf.cell(0, 0.6, _("Payment Instructions:"), ln=1)
+            pdf.set_font(font, size=12)
+            pdf.multi_cell(0, 0.6, payment_instructions)
+
         return pdf
 
     def send_confirmation_email(self):
@@ -288,6 +334,25 @@ class Order(BasePayment):
             )
             email.attach(f"order_invoice_{self.session_id}.pdf", pdf_output, 'application/pdf')
             email.send()
+
+    def send_payment_instructions_email(self):
+        payment_instructions = self.get_payment_instructions()
+
+        subject = _("Payment Instructions for Your Order")
+        email = EmailMessage(
+            subject,
+            payment_instructions,
+            settings.DEFAULT_FROM_EMAIL,
+            [self.billing_email]
+        )
+        
+        # attach invoice
+        pdf = self.generate_pdf_invoice(payment_instructions=payment_instructions)
+        pdf_output = pdf.output(dest='S')
+        email.attach(f"order_invoice_{self.session_id}.pdf", pdf_output, 'application/pdf')
+        email.send()
+
+
 
     # delete order and associated tickets
     def delete(self, *args, **kwargs):

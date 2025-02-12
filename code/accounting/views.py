@@ -122,6 +122,7 @@ def payment_form(request):
                 'billing_country_code': order.billing_country_code,
                 'billing_country_area': order.billing_country_area,
                 'billing_email': order.billing_email,
+                'payment_method': order.variant
             })
         else:
             form = PaymentInfoForm()
@@ -181,7 +182,9 @@ def confirm_order(request, order_id):
             return e.response
         
     elif order.status == PaymentStatus.WAITING:
-        if not order.variant == settings.PAYMENT_VARIANTS['Advance Payment']:
+        print(f"Payment method3: {order.variant}")
+
+        if not order.variant == 'Advance Payment':
             # variant was not preauthed therefore initiate the payment
             order.failure_url = request.build_absolute_uri(reverse('payment_failed'))
             order.success_url = request.build_absolute_uri(reverse('ticket_list', args=[order_id]))
@@ -194,6 +197,8 @@ def confirm_order(request, order_id):
             except RedirectNeeded as e:
                 return redirect(str(e))
         else:
+            print(f"Payment method4: {order.variant}")
+
             # variant was advance payment therefore confirm the order
             order.change_status(PaymentStatus.CONFIRMED)
             order.save()
@@ -216,7 +221,7 @@ def ticket_list(request, order_id):
 
     if order.status == PaymentStatus.INPUT:
         order.change_status(PaymentStatus.CONFIRMED)
-        if not order.variant == settings.PAYMENT_VARIANTS['Advance Payment']:
+        if not order.variant == 'Advance Payment':
             # order is paid fully and can be confirmed
             order.is_confirmed = True
             order.save()
@@ -254,8 +259,11 @@ def ticket_list(request, order_id):
 
     # if order is payed show the tickets
     if order.status == PaymentStatus.CONFIRMED:
-        return render(request, 'ticket_list.html', {'order': order,
-        'currency': settings.DEFAULT_CURRENCY})
+        return render(request, 'ticket_list.html', {
+            'order': order,
+            'currency': settings.DEFAULT_CURRENCY,
+            'payment_instructions': order.get_payment_instructions()
+        })
     else:
         return redirect('payment_form')
     

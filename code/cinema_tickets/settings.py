@@ -242,8 +242,16 @@ PAYMENT_VARIANTS = {
             'endpoint': 'https://api.paypal.com', # for production
             'capture': False,
         }
-    )
+    ),
+    'Advance Payment': (
+        'accounting.custom_advance_payment_provider.AdvancePaymentProvider',
+        {
+            'capture': True,
+        }
+    ),
 }
+
+advanced_payment_name = _('Advance Payment')
 
 if DEBUG:
     # enable test mode for Stripe and use insecure endpoint
