@@ -1,7 +1,6 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import FileResponse, JsonResponse
-from django.shortcuts import get_object_or_404
 from django.conf import settings
 
 from django.utils.translation import gettext as _
@@ -100,7 +99,8 @@ def delete_ticket(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
     order = get_object_or_404(get_payment_model(), session_id=request.session.session_key)
     order.delete_ticket(ticket)
-    return JsonResponse({"status": "success"})
+    return redirect('cart_view')
+    #return JsonResponse({"status": "success"})
 
 def show_generated_ticket_pdf(request, ticket_id):
     # Fetch the ticket by ID
