@@ -86,12 +86,25 @@ WSGI_APPLICATION = 'cinema_tickets.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if config('USE_POSTGRES', default=False, cast=bool):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('POSTGRES_DB'),
+            'USER': config('POSTGRES_USER'),
+            'PASSWORD': config('POSTGRES_PASSWORD'),
+            'HOST': config('POSTGRES_HOST'),
+            'PORT': config('POSTGRES_PORT'),
+        }
     }
-}
+
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -152,14 +165,14 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Session survives browser close, allow
 # Save session on every user request
 SESSION_SAVE_EVERY_REQUEST = True  # Refresh session expiration on activity
 
-
 # Recaptcha settings if available, if not defined package will use test keys
-RECAPTCHA_REQUIRED_SCORE = 0.85
-if not DEBUG:
-    RECAPTCHA_PUBLIC_KEY = config('RECAPTCHA_PUBLIC_KEY')
-    RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY')
-else:
-    SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
+if config('USE_RECAPTCHA', default=False, cast=bool):
+    RECAPTCHA_REQUIRED_SCORE = 0.85
+    if not DEBUG:
+        RECAPTCHA_PUBLIC_KEY = config('RECAPTCHA_PUBLIC_KEY')
+        RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY')
+    else:
+        SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 
 # Media files settings
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -195,6 +208,7 @@ else:
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+    
 EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 EMAIL_PORT = config('EMAIL_PORT', default=587)  # Typically 587 for TLS, 465 for SSL
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)  # Use TLS (True) or SSL (False)
@@ -223,9 +237,10 @@ STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
 STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
 
 # Named configuration for your payment provider(s).
-PAYMENT_VARIANTS = {
-    # Settings for Development
-    'Stripe (Credit Card)': (
+PAYMENT_VARIANTS = {}
+
+if config('USE_STRIPE', default=False, cast=bool):
+    PAYMENT_VARIANTS['stripe'] = (
         'payments.stripe.StripeProviderV3',
         {
             'api_key': STRIPE_SECRET_KEY,
@@ -233,32 +248,43 @@ PAYMENT_VARIANTS = {
             'secure_endpoint': True,
             'endpoint_secret': config('STRIPE_WEBHOOK_SECRET', default='whsec_test_secret'),
         }
-    ),
-    'Paypal': (
+    )
+
+if config('USE_PAYPAL', default=False, cast=bool):
+    PAYMENT_VARIANTS['paypal'] = (
         'payments.paypal.PaypalProvider',
         {
-            'client_id': 'user@example.com',
-            'secret': 'iseedeadpeople',
+            'client_id': config('PAYPAL_CLIENT_ID'),
+            'secret': config('PAYPAL_SECRET'),
             'endpoint': 'https://api.paypal.com', # for production
             'capture': False,
         }
-    ),
-    'Advance Payment': (
+    )
+if config('USE_ADVANCE_PAYMENT', default=False, cast=bool):
+    PAYMENT_VARIANTS['advance_payment'] = (
         'accounting.custom_advance_payment_provider.AdvancePaymentProvider',
         {
             'capture': True,
         }
-    ),
-}
-
-advanced_payment_name = _('Advance Payment')
+    )
 
 if DEBUG:
-    # enable test mode for Stripe and use insecure endpoint
-    PAYMENT_VARIANTS['Stripe (Credit Card)'][1]['secure_endpoint'] = False
-    PAYMENT_VARIANTS['Paypal'][1]['endpoint'] = 'https://api.sandbox.paypal.com'
+    if config('USE_STRIPE', default=False, cast=bool):
+        # enable test mode for Stripe and use insecure endpoint
+        PAYMENT_VARIANTS['Stripe (Credit Card)'][1]['secure_endpoint'] = False
+    
+    if config('USE_PAYPAL', default=False, cast=bool):
+        # use sandbox endpoint for testing
+        PAYMENT_VARIANTS['Paypal'][1]['endpoint'] = 'https://api.sandbox.paypal.com'
 
     # add dummy payment provider for testing
     PAYMENT_VARIANTS['Dummy'] = ('payments.dummy.DummyProvider', {'capture': False})
 
-DEFAULT_PAYMENT_VARIANT = 'Stripe (Credit Card)'
+if config('DEFAULT_GATEWAY', default='stripe') in PAYMENT_VARIANTS:
+    DEFAULT_PAYMENT_VARIANT = config('DEFAULT_GATEWAY')
+
+HUMANIZED_PAYMENT_METHODS = {
+    'stripe': _('Stripe (Credit Card)'),
+    'paypal': _('Paypal'),
+    'advance_payment': _('Advance Payment'),
+}

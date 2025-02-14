@@ -56,11 +56,11 @@ class PaymentInfoForm(forms.Form):
         widget=forms.EmailInput(attrs={'required': True})
     )
 
-    # enable user to select preferred payment method
+    # enable user to select preferred payment method in settings.PAYMENT_VARIANTS (keys), get human readable names from HUMANIZED_PAYMENT_METHODS (values) 
     payment_method = forms.ChoiceField(
         label=_('Payment Method'),
         help_text=_('Select the payment method you would like to use.'),
-        choices=[(key, key) for key in settings.PAYMENT_VARIANTS.keys()],
+        choices=[(key, settings.HUMANIZED_PAYMENT_METHODS[key]) for key in settings.PAYMENT_VARIANTS.keys()],
         widget=forms.Select(attrs={'required': True})
     )
 
