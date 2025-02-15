@@ -226,11 +226,9 @@ Version 2:
 - [ ] Use shorter ids for urls and names
 - [ ] location and price import
 - [ ] make setting upload with csv
+- [ ] Branding Logo
+- [ ] Branding Page Name
 
-Version 1:
-
-- [ ] fix issue of tickets that are not sold and not accociated with an order when session is closed (session checker)
-- [ ] pay ticket in advance payment option
 
 Nice to have:
 

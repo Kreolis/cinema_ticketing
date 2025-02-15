@@ -1,6 +1,7 @@
 python-decouple # For handling environment variables
 
 django # Django framework
+celery # For handling asynchronous tasks
 
 psycopg2  # For PostgreSQL
 

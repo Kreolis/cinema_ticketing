@@ -312,3 +312,22 @@ def manage_orders(request):
         'all_orders': all_orders,
         'currency': settings.DEFAULT_CURRENCY
     })
+
+# Example of how to run the management command periodically using Celery
+from celery import shared_task
+from django.core.management import call_command
+
+@shared_task
+def delete_timed_out_orders():
+    call_command('delete_timed_out_orders')
+
+# Schedule the task in your Celery beat schedule
+# In your Celery configuration file (e.g., celery.py or settings.py)
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'delete-timed-out-orders-every-10-minutes': {
+        'task': 'accounting.views.delete_timed_out_orders',
+        'schedule': crontab(minute='*/10'),  # Adjust the schedule as needed
+    },
+}
