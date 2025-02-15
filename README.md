@@ -116,7 +116,7 @@ python manage.py runserver
 
 To deploy this project with Nginx, follow these steps:
 
-#### 1. Set Up uWSGI
+#### Set Up uWSGI
 Install [uWSGI](https://wiki.archlinux.org/title/UWSGI) and create a folder named `vassals` under `/etc/uwsgi`.
 Create a file called `cinema_ticketing.ini` inside the `vassals` folder.
 
@@ -148,7 +148,20 @@ systemctl enable emperor.uwsgi.service
 systemctl start emperor.uwsgi.service
 ```
 
-#### 2. Configure Nginx
+#### Manage Translation and Static
+If you want to translate your application to a different language or want to modify the strings used in this website you have to generate a new translation locale with rosetta. Run this in your `cinema_ticketing` application folder.
+
+```bash
+django-admin makemessages -l <language_code>
+```
+
+Make sure to collect your static files like .css so that your website is properly styled. Run this in your `cinema_ticketing` application folder.
+
+```bash
+python manage.py collectstatic
+```
+
+#### Configure Nginx
 Install Nginx and create a new configuration file for your project in `/etc/nginx/sites-available/` named `cinema_ticketing`.
 
 ```nginx
@@ -184,7 +197,7 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-#### 5. Test the Deployment
+#### Test the Deployment
 Visit your server's IP address or domain in your browser to ensure the application is running correctly.
 
 ---
