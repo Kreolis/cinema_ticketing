@@ -9,6 +9,7 @@ from django.urls import path
 from django import forms
 from django.http import HttpResponse
 from datetime import datetime, timedelta
+from django.utils import timezone
 
 class CSVImportForm(forms.Form):
     csv_file = forms.FileField(label='CSV file')
@@ -91,12 +92,12 @@ class EventAdmin(admin.ModelAdmin):
 
                     event_data = dict(zip(headers, row))
                     
-                    start_time = datetime.strptime(event_data["start_time"], time_format)
+                    start_time = timezone.make_aware(datetime.strptime(event_data["start_time"], time_format))
                     
                     duration_parts = event_data["duration"].split(':')
                     duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]))
                     
-                    presale_start = datetime.strptime(event_data["presale_start"], time_format) if event_data.get("presale_start") else None
+                    presale_start = timezone.make_aware(datetime.strptime(event_data["presale_start"], time_format)) if event_data.get("presale_start") else None
                     
                     location = Location.objects.get_or_create(name=event_data["location"])[0]
      
@@ -118,8 +119,8 @@ class EventAdmin(admin.ModelAdmin):
                     if event_data.get("program_link"):
                         event.program_link = event_data["program_link"]
                     
-                    if event_data.get("is_active"):
-                        event.is_active = event_data["is_active"] == 'True'
+                    if event_data.get("is_active") == 'TRUE':
+                        event.is_active = event_data["is_active"] == 'TRUE'
 
                     if event_data.get("custom_seats"):
                         event.custom_seats = int(event_data["custom_seats"])
@@ -133,8 +134,8 @@ class EventAdmin(admin.ModelAdmin):
                     if event_data.get("event_background"):
                         event.event_background = event_data["event_background"]
 
-                    if event_data.get("allow_presale"):
-                        event.allow_presale = event_data["allow_presale"] == 'True'
+                    if event_data.get("allow_presale") == 'TRUE':
+                        event.allow_presale = event_data["allow_presale"] == 'TRUE'
 
                     if presale_start:
                         event.presale_start = presale_start
@@ -142,8 +143,8 @@ class EventAdmin(admin.ModelAdmin):
                     if event_data.get("presale_ends_before"):
                         event.presale_ends_before = int(event_data["presale_ends_before"])
 
-                    if event_data.get("allow_door_selling"):
-                        event.allow_door_selling = event_data["allow_door_selling"] == 'True'
+                    if event_data.get("allow_door_selling") == 'TRUE':
+                        event.allow_door_selling = event_data["allow_door_selling"] == 'TRUE'
 
                     event.save()
                     print("Event saved:", event)
