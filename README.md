@@ -138,7 +138,7 @@ chown-socket = www-data:www-data # or nginx (the user that governs your websites
 chmod-socket = 660
 vacuum = true
 
-logto = /var/log/uwsgi/%(project).log
+daemonize = /var/log/uwsgi/%(project).log
 ```
 
 Enable and start the uWSGI emperor service to start serving the side.
@@ -153,6 +153,11 @@ If you want to translate your application to a different language or want to mod
 
 ```bash
 django-admin makemessages -l <language_code>
+```
+
+Do not forget to compile your translations:
+```bash
+python manage.py compilemessages
 ```
 
 Make sure to collect your static files like .css so that your website is properly styled. Run this in your `cinema_ticketing` application folder.

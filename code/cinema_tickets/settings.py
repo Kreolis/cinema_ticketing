@@ -103,7 +103,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
 
@@ -130,14 +130,18 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'UTC'
 
-USE_L10N = True # needed for localization support of django-money
+# Activate internationalization
 USE_I18N = True
+USE_L10N = True
 
 USE_TZ = True
+
+# Automatically compile .po files to .mo files
+ROSETTA_AUTO_COMPILE=True
 
 from django.utils.translation import gettext_lazy as _
 
@@ -147,7 +151,7 @@ LANGUAGES = (
 )
 
 LOCALE_PATHS = [
-    BASE_DIR / 'locale/',
+    os.path.join(BASE_DIR, 'locale'),
 ]
 
 # Session settings
