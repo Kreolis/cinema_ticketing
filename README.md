@@ -116,68 +116,70 @@ python manage.py runserver
 
 To deploy this project with Nginx, follow these steps:
 
-#### 1. Set Up Gunicorn
-Install Gunicorn:
-```bash
-pip install gunicorn
+#### 1. Set Up uWSGI
+Install [uWSGI](https://wiki.archlinux.org/title/UWSGI) and create a folder named `vassals` under `/etc/uwsgi`.
+Create a file called `cinema_ticketing.ini` inside the `vassals` folder.
+
+```ini
+[uwsgi]
+project = cinema_ticketing
+uid = www-data # or nginx (the user that governs your websites)
+base = /path/to/your/cinema_ticketing_folder
+
+chdir = %(base)/%(project)
+home = %(base)/event_venv
+module = %(project).wsgi:application
+
+master = true
+processes = 5
+
+socket = /run/uwsgi/%(project).sock
+chown-socket = www-data:www-data # or nginx (the user that governs your websites)
+chmod-socket = 660
+vacuum = true
+
+logto = /var/log/uwsgi/%(project).log
 ```
 
-Run Gunicorn to serve the application:
+Enable and start the uWSGI emperor service to start serving the side.
+
 ```bash
-gunicorn cinema_tickets.wsgi --bind 0.0.0.0:8880
+systemctl enable emperor.uwsgi.service
+systemctl start emperor.uwsgi.service
 ```
 
-Gunicorn (short for "Green Unicorn") is a Python WSGI HTTP server designed to serve Python web applications, such as those built with Django or Flask. It acts as a middle layer between the web application and the web server (e.g., Nginx).
+#### 2. Configure Nginx
+Install Nginx and create a new configuration file for your project in `/etc/nginx/sites-available/` named `cinema_ticketing`.
 
-#### 2. Install and Configure Nginx
-Install Nginx:
-```bash
-sudo apt update
-sudo apt install nginx
-```
-
-Edit the Nginx configuration file for your site:
-```bash
-sudo nano /etc/nginx/sites-available/cinema_ticketing
-```
-Add the following configuration:
 ```nginx
 server {
     listen 80;
-    server_name yourdomain.com;
+    server_name your_domain_or_IP;
 
     location = /favicon.ico { access_log off; log_not_found off; }
     location /static/ {
-        root /path/to/your/project;
+        root /path/to/your/cinema_ticketing_folder;
     }
 
     location / {
-        proxy_pass http://127.0.0.1:8880;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        include         uwsgi_params;
+        uwsgi_pass      unix:/run/uwsgi/cinema_ticketing.sock;
     }
+
+    error_log /var/log/nginx/cinema_ticketing_error.log;
+    access_log /var/log/nginx/cinema_ticketing_access.log;
 }
 ```
-Replace `/path/to/your/project` with the actual path to your Django project and `yourdomain.com` with your domain name.
 
-#### 3. Obtain an SSL Certificate
-Install Certbot for Nginx:
-```bash
-sudo apt install certbot python3-certbot-nginx
-```
+Enable the configuration by creating a symbolic link to it in the `/etc/nginx/sites-enabled/` directory.
 
-Obtain and configure the SSL certificate:
-```bash
-sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
-```
-
-Certbot will automatically configure your Nginx to redirect HTTP traffic to HTTPS.
-
-#### 4. Enable the Site and Restart Nginx
-Link the configuration file and restart Nginx:
 ```bash
 sudo ln -s /etc/nginx/sites-available/cinema_ticketing /etc/nginx/sites-enabled
+```
+
+Test the Nginx configuration and restart the service.
+
+```bash
 sudo nginx -t
 sudo systemctl restart nginx
 ```
