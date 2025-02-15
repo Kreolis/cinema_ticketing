@@ -283,7 +283,6 @@ def get_all_event_statistics():
     }
 
     for event in events:
-        print(type(event))
         total_stats, price_class_stats =  event.calculate_statistics()
         events_stats.append({
             'event': event,

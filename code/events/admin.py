@@ -80,7 +80,7 @@ class EventAdmin(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
-    def import_csv(self, request):
+    def import_csv(self, request):        
         if request.method == "POST":
             csv_file = request.FILES["csv_file"]
             try:
@@ -90,37 +90,73 @@ class EventAdmin(admin.ModelAdmin):
                     time_format = '%Y-%m-%d %H:%M:%S'
 
                     event_data = dict(zip(headers, row))
+                    
                     start_time = datetime.strptime(event_data["start_time"], time_format)
+                    
                     duration_parts = event_data["duration"].split(':')
                     duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]))
+                    
                     presale_start = datetime.strptime(event_data["presale_start"], time_format) if event_data.get("presale_start") else None
+                    
+                    location = Location.objects.get_or_create(name=event_data["location"])[0]
+     
                     event = Event.objects.create(
                         name=event_data["name"],
                         start_time=start_time,
                         duration=duration,
-                        location=Location.objects.get(name=event_data["location"]),
-                        program_link=event_data.get("program_link"),
-                        is_active=event_data.get("is_active") == 'True',
-                        custom_seats=int(event_data.get("custom_seats")),
-                        ticket_background=event_data.get("ticket_background"),
-                        display_seat_number=event_data.get("display_seat_number") == 'True',
-                        event_background=event_data.get("event_background"),
-                        allow_presale=event_data.get("allow_presale") == 'True',
-                        presale_start=presale_start,
-                        presale_ends_before=int(event_data.get("presale_ends_before")),
-                        allow_door_selling=event_data.get("allow_door_selling") == 'True'
+                        location=location,
                     )
-                    price_classes = event_data.get("price_classes").split(',')
-                    for price_class_name in price_classes:
-                        price_class = PriceClass.objects.get(name=price_class_name.strip())
-                        event.price_classes.add(price_class)
+                    print("Created event:", event)
+                    
+                    if event_data.get("price_classes"):
+                        price_classes = event_data["price_classes"].split(',')
+                        for price_class in price_classes:
+                            price_class = price_class.strip()
+                            # try to find from existing price classes
+                            event.price_classes.add(PriceClass.objects.get_or_create(name=price_class, defaults={'price': 0})[0])
+                    
+                    if event_data.get("program_link"):
+                        event.program_link = event_data["program_link"]
+                    
+                    if event_data.get("is_active"):
+                        event.is_active = event_data["is_active"] == 'True'
+
+                    if event_data.get("custom_seats"):
+                        event.custom_seats = int(event_data["custom_seats"])
+
+                    if event_data.get("ticket_background"):
+                        event.ticket_background = event_data["ticket_background"]
+
+                    if event_data.get("display_seat_number"):
+                        event.display_seat_number = event_data["display_seat_number"]
+                    
+                    if event_data.get("event_background"):
+                        event.event_background = event_data["event_background"]
+
+                    if event_data.get("allow_presale"):
+                        event.allow_presale = event_data["allow_presale"] == 'True'
+
+                    if presale_start:
+                        event.presale_start = presale_start
+
+                    if event_data.get("presale_ends_before"):
+                        event.presale_ends_before = int(event_data["presale_ends_before"])
+
+                    if event_data.get("allow_door_selling"):
+                        event.allow_door_selling = event_data["allow_door_selling"] == 'True'
+
+                    event.save()
+                    print("Event saved:", event)
+
                 self.message_user(request, "Events imported successfully.")
                 return redirect("..")
             except Exception as e:
                 error_message = f"Error importing CSV file: {str(e)}"
                 form = CSVImportForm()
                 payload = {"form": form, "error_message": error_message}
+                print(error_message)
                 return render(request, "events_import_csv_form.html", payload)
+            
         form = CSVImportForm()
         payload = {"form": form}
         return render(request, "events_import_csv_form.html", payload)
