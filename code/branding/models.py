@@ -34,6 +34,7 @@ class Branding(models.Model):
     allow_door_selling = models.BooleanField(default=True, help_text=_("Indicates if selling tickets at the door is allowed"))
 
     # invoice settings
+    display_invoice_info = models.BooleanField(default=True, help_text=_("Indicates if invoice information is displayed on auto generated invoices"))
     invoice_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global invoice background image"))
     invoice_logo = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the logo image for invoices"))
     invoice_company_name = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter your name to appear on invoices"))
@@ -45,15 +46,20 @@ class Branding(models.Model):
     invoice_email = models.EmailField(null=True, blank=True, help_text=_("Enter your email address to appear on invoices"))
     invoice_phone = models.CharField(max_length=20, null=True, blank=True, help_text=_("Enter your phone number to appear on invoices"))
     invoice_vat_id = models.CharField(max_length=20, null=True, blank=True, help_text=_("Enter your VAT number to appear on invoices"))
-    invoice_tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text=_("Enter the tax rate to appear on invoices"))
-
+    invoice_tax_rate = models.DecimalField(max_digits=3, decimal_places=2, default=0, help_text=_("Enter the tax rate in percent to appear on invoices"))
+    
+    invoice_padding_top = models.IntegerField(default=1, help_text=_("Enter the padding in cm for the top of the invoice"))
+    invoice_padding_left = models.IntegerField(default=1, help_text=_("Enter the padding in cm for the left of the invoice"))
+    invoice_padding_right = models.IntegerField(default=1, help_text=_("Enter the padding in cm for the right of the invoice"))
+    invoice_padding_bottom = models.IntegerField(default=1, help_text=_("Enter the padding in cm for the bottom of the invoice"))
+    
     advanced_payment_bank_account_name = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the bank account name for advanced payments"))
     advanced_payment_bank_name = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the bank name for advanced payments"))
     advanced_payment_iban = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the IBAN for advanced payments"))
     advanced_payment_swift = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the SWIFT code for advanced payments"))
-    advanced_payment_reference = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the reference for advanced payments"))
+    advanced_payment_reference = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the reference for advanced payments. This is also used as invoice number."))
     advanced_payment_due_days = models.IntegerField(default=14, help_text=_("Enter the number of days until payment is due for advanced payments"))
-    advanced_payment_message = models.TextField(null=True, blank=True, help_text=_("Enter the message to appear on advanced payment emails"))
+    advanced_payment_message = models.TextField(default="Please transfer the total amount to the following bank account.", null=True, blank=True, help_text=_("Enter the message to appear on advanced payment emails"))
 
     is_active = models.BooleanField(default=False, help_text=_("Indicates if this branding is active"))
 

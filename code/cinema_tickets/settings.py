@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = []
 
@@ -166,13 +166,12 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Session survives browser close, allow
 SESSION_SAVE_EVERY_REQUEST = True  # Refresh session expiration on activity
 
 # Recaptcha settings if available, if not defined package will use test keys
+RECAPTCHA_REQUIRED_SCORE = 0.85
 if config('USE_RECAPTCHA', default=False, cast=bool):
-    RECAPTCHA_REQUIRED_SCORE = 0.85
-    if not DEBUG:
-        RECAPTCHA_PUBLIC_KEY = config('RECAPTCHA_PUBLIC_KEY')
-        RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY')
-    else:
-        SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
+    RECAPTCHA_PUBLIC_KEY = config('RECAPTCHA_PUBLIC_KEY')
+    RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY')
+else:
+    SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 
 # Media files settings
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -271,20 +270,25 @@ if config('USE_ADVANCE_PAYMENT', default=False, cast=bool):
 if DEBUG:
     if config('USE_STRIPE', default=False, cast=bool):
         # enable test mode for Stripe and use insecure endpoint
-        PAYMENT_VARIANTS['Stripe (Credit Card)'][1]['secure_endpoint'] = False
+        PAYMENT_VARIANTS['stripe'][1]['secure_endpoint'] = False
     
     if config('USE_PAYPAL', default=False, cast=bool):
         # use sandbox endpoint for testing
-        PAYMENT_VARIANTS['Paypal'][1]['endpoint'] = 'https://api.sandbox.paypal.com'
+        PAYMENT_VARIANTS['paypal'][1]['endpoint'] = 'https://api.sandbox.paypal.com'
 
     # add dummy payment provider for testing
-    PAYMENT_VARIANTS['Dummy'] = ('payments.dummy.DummyProvider', {'capture': False})
+    PAYMENT_VARIANTS['dummy'] = ('payments.dummy.DummyProvider', {'capture': False})
 
-if config('DEFAULT_GATEWAY', default='stripe') in PAYMENT_VARIANTS:
-    DEFAULT_PAYMENT_VARIANT = config('DEFAULT_GATEWAY')
+DEFAULT_PAYMENT_VARIANT = config('DEFAULT_GATEWAY')
+if DEFAULT_PAYMENT_VARIANT not in PAYMENT_VARIANTS:
+    print(f"Default payment variant {DEFAULT_PAYMENT_VARIANT} not found in PAYMENT_VARIANTS")
+    print("Available payment variants:")
+    for key in PAYMENT_VARIANTS:
+        print(f"  {key}")
 
-HUMANIZED_PAYMENT_METHODS = {
+HUMANIZED_PAYMENT_VARIANT = {
     'stripe': _('Stripe (Credit Card)'),
     'paypal': _('Paypal'),
     'advance_payment': _('Advance Payment'),
+    'dummy': _('Dummy Payment'),
 }

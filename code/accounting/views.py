@@ -146,7 +146,7 @@ def order_payment(request, order_id):
     
     time_remaining = order.get_remaining_time()
     return render(request, 'order_payment_overview.html', {'order': order, 'time_remaining': time_remaining,
-        'currency': settings.DEFAULT_CURRENCY})
+        'currency': settings.DEFAULT_CURRENCY, 'humanzied_payment_variant': settings.HUMANIZED_PAYMENT_VARIANT[order.variant]})
 
 def order_payment_overview(request):
     return order_payment(request, request.session.session_key)
@@ -183,7 +183,7 @@ def confirm_order(request, order_id):
         
     elif order.status == PaymentStatus.WAITING:
 
-        if not order.variant == 'Advance Payment':
+        if not order.variant == 'advance_payment':
             # variant was not preauthed therefore initiate the payment
             order.failure_url = request.build_absolute_uri(reverse('payment_failed'))
             order.success_url = request.build_absolute_uri(reverse('ticket_list', args=[order_id]))
@@ -218,7 +218,7 @@ def ticket_list(request, order_id):
 
     if order.status == PaymentStatus.INPUT:
         order.change_status(PaymentStatus.CONFIRMED)
-        if not order.variant == 'Advance Payment':
+        if not order.variant == 'advance_payment':
             # order is paid fully and can be confirmed
             order.is_confirmed = True
             order.save()

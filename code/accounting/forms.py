@@ -60,7 +60,7 @@ class PaymentInfoForm(forms.Form):
     payment_method = forms.ChoiceField(
         label=_('Payment Method'),
         help_text=_('Select the payment method you would like to use.'),
-        choices=[(key, settings.HUMANIZED_PAYMENT_METHODS[key]) for key in settings.PAYMENT_VARIANTS.keys()],
+        choices=[(key, settings.HUMANIZED_PAYMENT_VARIANT[key]) for key in settings.PAYMENT_VARIANTS.keys()],
         widget=forms.Select(attrs={'required': True})
     )
 
