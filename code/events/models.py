@@ -234,7 +234,13 @@ class Ticket(models.Model):
                 [self.email]
             )
             email.attach(f"ticket_{self.id}.pdf", pdf_output, 'application/pdf')
-            email.send()
+            
+            try:
+                email.send()
+            except Exception as e:
+                # Log the error or handle it as needed
+                print(f"Error sending email: {e}")
+                raise e
         else:
             raise ValueError(_("No email address associated with this ticket."))
 

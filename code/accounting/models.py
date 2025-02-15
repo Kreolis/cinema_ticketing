@@ -376,7 +376,11 @@ class Order(BasePayment):
                 [self.billing_email]
             )
             email.attach(f"order_invoice_{self.session_id}.pdf", pdf_output, 'application/pdf')
-            email.send()
+            try:
+                email.send()
+            except Exception as e:
+                print(f"Error sending confirmation email: {e}")
+                raise e
 
     def send_payment_instructions_email(self):
         payment_instructions = self.get_payment_instructions()
@@ -393,7 +397,11 @@ class Order(BasePayment):
         pdf = self.generate_pdf_invoice(payment_instructions=payment_instructions)
         pdf_output = pdf.output(dest='S')
         email.attach(f"order_invoice_{self.session_id}.pdf", pdf_output, 'application/pdf')
-        email.send()
+        try:
+            email.send()
+        except Exception as e:
+            print(f"Error sending confirmation email: {e}")
+            raise e
 
 
 

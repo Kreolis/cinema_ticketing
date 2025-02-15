@@ -119,9 +119,12 @@ def show_generated_ticket_pdf(request, ticket_id):
 def send_ticket_email(request, ticket_id):
     ticket = get_object_or_404(Ticket, pk=ticket_id)
     if ticket.email:
-        ticket.send_to_email()
-        return JsonResponse({"status": "success", "message": "Email sent to " + ticket.email})
-    return JsonResponse({"status": "error", "message": "No email address provided."})
+        try:
+            ticket.send_to_email()
+            return JsonResponse({'status': 'success', 'message': _('Email sent successfully.')})
+        except:
+            return JsonResponse({'status': 'error', 'message': _('An error occurred while sending the Email.')}, status=500)
+    return JsonResponse({"status": "error", "message": _("No email address provided.")})
 
 
 # ticket scanning
