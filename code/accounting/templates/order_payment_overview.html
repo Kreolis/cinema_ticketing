@@ -54,6 +54,9 @@
             <td>{{ order.total }} {{ order.currency }}</td>
         </tr>
         <tr>
+            <th>{% translate "Payment Method" %}</th>
+            <td>{{ humanzied_payment_variant }}</td>
+        <tr>
             <th>{% translate "Billing First Name" %}</th>
             <td>{{ order.billing_first_name }}</td>
         </tr>
@@ -94,7 +97,7 @@
     <p>{% translate "Your order is valid for another" %} <span id="timeout-time-remaining">{{ time_remaining }}:00</span> {% translate "minutes" %}.</p>
     
     <div class="mt-3">
-        <a href="{% url 'confirm_order' order.session_id %}" class="btn btn-primary">{% translate "Confirm Order and pay now" %}</a>
+        <a href="{% url 'confirm_order' order.session_id %}" class="btn btn-primary">{% translate "Confirm order order with payment obligation" %}</a>
     </div>
 
     <script>

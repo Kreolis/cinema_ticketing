@@ -47,20 +47,36 @@ pip install -r requirements.txt
 cd code
 ```
 
-Create a `.env` file in the project root and add the following environment variables:
+Create a `.env` file in the `code/cinema_tickets` folder by copying the `template.env` and add at least replace `YourDjangoSecretKey` with a secret key for Django.
 
-```plaintext
-DJANGO_SECRET_KEY = YourDjangoSecretKey
-
-STRIPE_PUBLIC_KEY = YourStripePublicKey
-STRIPE_SECRET_KEY = YourStripeSecretKey
-
-RECAPTCHA_PUBLIC_KEY = 'YourMyRecaptchaKey'
-RECAPTCHA_PRIVATE_KEY = 'YourRecaptchaPrivateKey'
+To be able to send emails add
+```bash
+  EMAIL_HOST=localhost
+  EMAIL_PORT=587
+  EMAIL_USE_TLS=True
+  EMAIL_HOST_USER=your-email@example.com
+  EMAIL_HOST_PASSWORD=your-email-password
+  DEFAULT_FROM_EMAIL=your-email@example.com
 ```
 
-> Replace `YourDjangoSecretKey` with a secret key for Django and `YourStripePublicKey` / `YourStripeSecretKey` with your Stripe API keys.
-> For ReCAPTCHA support add `YourMyRecaptchaKey` / `YourRecaptchaPrivateKey`. 
+If you want to use the Stripe payment gateway, add your Stripe keys:
+```bash
+  USE_STRIPE=True
+  STRIPE_SECRET_KEY=your-stripe-secret-key
+  STRIPE_PUBLIC_KEY=your-stripe-public-key
+  STRIPE_WEBHOOK_SECRET=whsec_test_secret
+```
+
+For ReCAPTCHA support add `YourMyRecaptchaKey` / `YourRecaptchaPrivateKey`. 
+
+If you want to use a postgres database set `USE_POSTGRES` to `True` and add the following variables:
+```bash
+  POSTGRES_DB=your-db-name
+  POSTGRES_USER=your-db-user
+  POSTGRES_PASSWORD=your-db-password
+  POSTGRES_HOST=your-db-host
+  POSTGRES_PORT=your-db-port
+```
 
 ### 5. Apply Migrations
 ```bash
@@ -208,13 +224,13 @@ Version 2:
 - [ ] language toggle with redirect to current page
 - [ ] Order ticket count shown in menu
 - [ ] Use shorter ids for urls and names
+- [ ] location and price import
+- [ ] make setting upload with csv
 
 Version 1:
 
-- [ ] make setting upload with csv
 - [ ] fix issue of tickets that are not sold and not accociated with an order when session is closed (session checker)
 - [ ] pay ticket in advance payment option
-- [ ] event, location and price import
 
 Nice to have:
 

@@ -28,12 +28,15 @@ class Order(BasePayment):
 
     timeout = models.IntegerField(default=10)  # in minutes
 
-    variant = settings.DEFAULT_PAYMENT_VARIANT
+    # user choices for payment, limit choices to settings.PAYMENT_VARIANTS
+    variant = models.CharField(max_length=255, choices=[(key, key) for key in settings.PAYMENT_VARIANTS.keys()], default=settings.DEFAULT_PAYMENT_VARIANT)
 
     currency = models.CharField(max_length=10, default=settings.DEFAULT_CURRENCY)
 
     failure_url = models.URLField(max_length=255, blank=True, null=True)
     success_url = models.URLField(max_length=255, blank=True, null=True)
+
+    is_confirmed = models.BooleanField(default=False)
 
     def get_purchased_items(self) -> Iterable[PurchasedItem]:
         """Return an iterable of purchased items.
@@ -135,6 +138,63 @@ class Order(BasePayment):
     def get_remaining_time(self):
         return self.timeout - (timezone.now() - self.modified).seconds // 60
     
+    def get_payment_instructions(self, html=True):
+        branding = get_active_branding()
+        if branding:     
+            due_days = branding.advanced_payment_due_days
+            message = branding.advanced_payment_message
+            iban = branding.advanced_payment_iban
+            swift = branding.advanced_payment_swift
+            bank_name = branding.advanced_payment_bank_name
+            account_name = branding.advanced_payment_bank_account_name
+            reference = branding.advanced_payment_reference
+        else:
+            due_days = 14
+            message = _("Please transfer the total amount to the following bank account.")
+            iban = "CH93 0076 2011 6238 5295 7"
+            swift = "LFSACHZZXXX"
+            bank_name = "Bank Name"
+            account_name = "Account Name"
+            reference = "cinema-ticketing-order"
+        if html:
+            payment_instructions = _(
+                "<p>{message}</p>"
+                "<p>Bank: <strong>{bank_name}</strong><br>"
+                "Account Name: <strong>{account_name}</strong><br>"
+                "IBAN: <strong>{iban}</strong><br>"
+                "SWIFT: <strong>{swift}</strong></p>"
+                "<p>Please use the following reference for your payment: <strong>{reference}</strong><br>"
+                "Payment is due within <strong>{due_days}</strong> days.</p>"
+                "<p>Thank you for your purchase!</p>").format(
+                    message=message,
+                    bank_name=bank_name,
+                    account_name=account_name,
+                    iban=iban,
+                    swift=swift,
+                    reference=f"{reference}-{self.id}",
+                    due_days=due_days
+            )
+        else:
+            payment_instructions = _(
+                "{message}\n"
+                "Bank: {bank_name}\n"
+                "Account Name: {account_name}\n"
+                "IBAN: {iban}\n"
+                "SWIFT: {swift}\n"
+                "Please use the following reference for your payment: {reference}\n"
+                "Payment is due within {due_days} days.\n"
+                "Thank you for your purchase!").format(
+                    message=message,
+                    bank_name=bank_name,
+                    account_name=account_name,
+                    iban=iban,
+                    swift=swift,
+                    reference=f"{reference}-{self.id}",
+                    due_days=due_days
+            )
+
+        return payment_instructions
+    
     def generate_pdf_invoice(self):
         """
         Generate a PDF invoice for the order.
@@ -142,6 +202,7 @@ class Order(BasePayment):
         branding = get_active_branding()
         # if branding has these, otherwise blank
         if branding:
+            display_invoice_info = branding.display_invoice_info
             company_name = branding.invoice_company_name
             company_address_1 = branding.invoice_address_1
             company_address_2 = branding.invoice_address_2
@@ -151,7 +212,13 @@ class Order(BasePayment):
             company_vat = branding.invoice_vat_id
             company_phone = branding.invoice_phone
             company_email = branding.invoice_email
+            invoice_padding_top = branding.invoice_padding_top
+            invoice_padding_left = branding.invoice_padding_left
+            invoice_padding_right = branding.invoice_padding_right
+            invoice_padding_bottom = branding.invoice_padding_bottom
+            reference = branding.advanced_payment_reference
         else:
+            display_invoice_info = True
             company_name = _("Company Name")
             company_address_1 = _("Company Address")
             company_address_2 = ""
@@ -161,8 +228,13 @@ class Order(BasePayment):
             company_vat = _("VAT Number")
             company_phone = _("Phone Number")
             company_email = _("Email Address")
+            invoice_padding_top = 1
+            invoice_padding_left = 1
+            invoice_padding_right = 1
+            invoice_padding_bottom = 1
+            reference = _("INV")
 
-        invoice_number = _("INV-{invoice_id}").format(invoice_id=self.id)
+        invoice_number = f"{reference}-{self.id}"  # Use the order ID as the invoice number
         date = datetime.today().strftime('%Y-%m-%d')
         due_date = (self.created + timedelta(days=30)).strftime('%Y-%m-%d')
         bill_to = (
@@ -175,7 +247,7 @@ class Order(BasePayment):
             f"{self.billing_country_area}"
         )
         if branding and branding.invoice_tax_rate:
-            tax_rate = branding.invoice_tax_rate
+            tax_rate = branding.invoice_tax_rate/Decimal(100.0)
         else:
             tax_rate = Decimal(0.0)
 
@@ -188,8 +260,8 @@ class Order(BasePayment):
 
         # Create the PDF
         pdf = FPDF(unit="cm", format="A4")
-        pdf.set_margins(1, 1)
-        pdf.set_auto_page_break(auto=True, margin=1)
+        pdf.set_margins(left=invoice_padding_left, top=invoice_padding_top, right=invoice_padding_right)
+        pdf.set_auto_page_break(auto=True, margin=invoice_padding_bottom)
 
         # If a template is provided, use it as the canvas
         if branding and branding.invoice_background:
@@ -206,49 +278,66 @@ class Order(BasePayment):
         font = "Helvetica"
         pdf.set_font(font)
 
-        # Add company details
-        pdf.set_font(font, size=12)
-        pdf.multi_cell(0, 0.6, f"{company_name}\n{company_address_1}\n{company_address_2}\n{company_address_city}\n{company_address_postcode}\n{company_address_country}\n\n{_('Invoice #:')} {invoice_number}\n{_('Date:')} {date}\n{_('Due Date:')} {due_date}")
-
+        if display_invoice_info:
+            # Add company logo
+            if branding and branding.invoice_logo:
+                if os.path.exists(branding.invoice_logo.path):
+                    pdf.image(branding.invoice_logo.path, x=invoice_padding_left, y=invoice_padding_top, w=3)
+                else:
+                    print("Logo file not found. Proceeding without it.")
+            pdf.ln(3)
+            # Add company details
+            pdf.set_font(font, size=10)
+            pdf.multi_cell(0, 0.5, f"{company_name}\n{company_address_1}\n{company_address_2}\n{company_address_city}\n{company_address_postcode}\n{company_address_country}\n\n{_('Invoice #:')} {invoice_number}\n{_('Date:')} {date}\n{_('Due Date:')} {due_date}")
 
         # Add "Bill To" section
-        pdf.ln(1)
-        pdf.set_font(font, size=14, style='B')
-        pdf.cell(0, 0.6, _("Invoice To:"), ln=1)
-        pdf.set_font(font, size=12)
-        pdf.multi_cell(0, 0.6, bill_to)
+        pdf.ln(0.5)
+        pdf.set_font(font, size=12, style='B')
+        pdf.cell(0, 0.5, _("Invoice To:"), ln=1)
+        pdf.set_font(font, size=10)
+        pdf.multi_cell(0, 0.5, bill_to)
 
         # Add table header
-        pdf.ln(1)
+        pdf.ln(0.5)
         pdf.set_font(font, size=12, style='B')
-        pdf.cell(8, 0.6, _("Description"), border=1)
-        pdf.cell(3, 0.6, _("Quantity"), border=1, align="C")
-        pdf.cell(4, 0.6, _("Unit Price"), border=1, align="C")
-        pdf.cell(4, 0.6, _("Total"), border=1, align="C")
+        pdf.cell(10 - invoice_padding_left - invoice_padding_right, 0.6, _("Description"), border=1)
+        pdf.cell(2.5, 0.6, _("Quantity"), border=1, align="C")
+        pdf.cell(2.5, 0.6, _("Unit Price"), border=1, align="C")
+        pdf.cell(2.5, 0.6, _("Total"), border=1, align="C")
         pdf.ln()
 
         # Add table rows
-        pdf.set_font(font, size=12)
+        pdf.set_font(font, size=10)
         for item in items:
-            pdf.cell(8, 0.6, item["description"], border=1)
-            pdf.cell(3, 0.6, str(item["qty"]), border=1, align="C")
-            pdf.cell(4, 0.6, f"{item['unit_price']:.2f}  {settings.DEFAULT_CURRENCY}", border=1, align="C")
-            pdf.cell(4, 0.6, f"{item['qty'] * item['unit_price']:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
+            pdf.cell(10 - invoice_padding_left - invoice_padding_right, 0.6, item["description"], border=1)
+            pdf.cell(2.5, 0.6, str(item["qty"]), border=1, align="C")
+            pdf.cell(2.5, 0.6, f"{item['unit_price']:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
+            pdf.cell(2.5, 0.6, f"{item['qty'] * item['unit_price']:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
             pdf.ln()
 
         # Add totals
         pdf.set_font(font, size=12, style='B')
-        pdf.cell(15, 0.6, _("Subtotal"), border=1)
-        pdf.cell(4, 0.6, f"{subtotal:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
+        pdf.cell(15 - invoice_padding_left - invoice_padding_right, 0.6, _("Subtotal"), border=1)
+        pdf.cell(2.5, 0.6, f"{subtotal:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
         pdf.ln()
 
-        pdf.cell(15, 0.6, _("Tax ({tax_rate}%)").format(tax_rate=tax_rate * 100), border=1)
-        pdf.cell(4, 0.6, f"{tax:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
+        pdf.cell(15 - invoice_padding_left - invoice_padding_right, 0.6, _("Tax ({tax_rate}%)").format(tax_rate=tax_rate * 100), border=1)
+        pdf.cell(2.5, 0.6, f"{tax:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
         pdf.ln()
 
-        pdf.cell(15, 0.6, _("Total"), border=1)
-        pdf.cell(4, 0.6, f"{total:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
+        pdf.cell(15 - invoice_padding_left - invoice_padding_right, 0.6, _("Total"), border=1)
+        pdf.cell(2.5, 0.6, f"{total:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
         pdf.ln()
+
+        # Add payment instructions
+        if self.variant == "advance_payment":
+            payment_instructions = self.get_payment_instructions(html=False)
+
+            pdf.ln(1)
+            pdf.set_font(font, size=12, style='B')
+            pdf.cell(0, 0.6, _("Payment Instructions:"), ln=1)
+            pdf.set_font(font, size=10)
+            pdf.multi_cell(0, 0.5, payment_instructions)
 
         return pdf
 
@@ -286,6 +375,25 @@ class Order(BasePayment):
             )
             email.attach(f"order_invoice_{self.session_id}.pdf", pdf_output, 'application/pdf')
             email.send()
+
+    def send_payment_instructions_email(self):
+        payment_instructions = self.get_payment_instructions()
+
+        subject = _("Payment Instructions for Your Order")
+        email = EmailMessage(
+            subject,
+            payment_instructions,
+            settings.DEFAULT_FROM_EMAIL,
+            [self.billing_email]
+        )
+        
+        # attach invoice
+        pdf = self.generate_pdf_invoice(payment_instructions=payment_instructions)
+        pdf_output = pdf.output(dest='S')
+        email.attach(f"order_invoice_{self.session_id}.pdf", pdf_output, 'application/pdf')
+        email.send()
+
+
 
     # delete order and associated tickets
     def delete(self, *args, **kwargs):

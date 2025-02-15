@@ -22,6 +22,7 @@
 
     <div id="message-container"></div>
 
+    
     <table id="tickets-table" class="table table-striped mt-3">
         <thead>
             <tr>
@@ -30,7 +31,9 @@
                 <th>{% translate "Email" %}</th>
                 <th>{% translate "Price" %}</th>
                 <th>{% translate "Price Class" %}</th>
-                <th>{% translate "Actions" %}</th>
+                {% if order.is_confirmed %}
+                    <th>{% translate "Actions" %}</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -51,18 +54,24 @@
                     </td>
                     <td>{{ ticket.price_class.price }} {{ currency }}</td>
                     <td>{{ ticket.price_class.name }}</td>
-                    <td>
-                        <a href="{% url 'show_generated_ticket_pdf' ticket.id %}" class="btn btn-primary" target="_blank">
-                            {% translate "Show Ticket" %}
-                        </a>
-                        <a href="{% url 'send_ticket_email' ticket.id %}" class="btn btn-secondary send-email-btn" data-ticket-id="{{ ticket.id }}">
-                            {% translate "Send ticket to Email" %}
-                        </a>
-                    </td>
+                    {% if order.is_confirmed %}
+                        <td>
+                            <a href="{% url 'show_generated_ticket_pdf' ticket.id %}" class="btn btn-primary" target="_blank">
+                                {% translate "Show Ticket" %}
+                            </a>
+                            <a href="{% url 'send_ticket_email' ticket.id %}" class="btn btn-secondary send-email-btn" data-ticket-id="{{ ticket.id }}">
+                                {% translate "Send ticket to Email" %}
+                            </a>
+                        </td>
+                    {% endif %}
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+    {% if not order.is_confirmed %}
+        <h2 class="text-danger">{% translate "This order is not confirmed yet. See payment instructions below or in your invoice." %}</h2>
+        <p>{{ payment_instructions|safe }}</p>
+    {% endif %}
 
     <h2>{% translate "Payment Details" %}</h2>
     <table class="table table-striped">

@@ -23,15 +23,17 @@
     {% endif %}
 
     {% if not event.is_sold_out %}
+        <div id="status_message"></div>
         {% if event.allow_presale %}
-            <p>{% translate "Presale starts at " %} {{ presale_start_time }} {% translate "Presale ends at " %} {{ presale_end_time }}</p>
+            <div id="presale_text" style="display: none;">
+                <p>{% translate "Presale starts at " %} <strong>{{ presale_start_time }}</strong> {% translate "Presale ends at " %} <strong>{{ presale_end_time }}</strong></p>
+            </div>
         {% endif %}
         {% if event.allow_door_selling %}
-            <p>{% translate "Tickets are sold at the door. Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} {{ event.start_time }}</p>
-        {% endif %}
-
-        <div id="presale-status">
+        <div id="door_selling_text" style="display: none;">
+            <p>{% translate "Tickets are sold at the door. Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} <strong>{{ event.start_time }}</strong></p>
         </div>
+        {% endif %}
 
     {% else %}
         <p>{% translate "This event is sold out." %}</p>
@@ -79,21 +81,29 @@
     <script>
         const presaleStartTime = new Date("{{ presale_start_time|date:'c' }}");
         const presaleEndTime = new Date("{{ presale_end_time|date:'c' }}");
-        const presaleStatusElement = document.getElementById('presale-status');
+        const presaleStatusElement = document.getElementById('status_message');
+        const presaleTextElement = document.getElementById('presale_text');
+        const doorSellingElement = document.getElementById('door_selling_text');
         const ticketForm = document.getElementById('ticket-form');
 
 
         function updatePresaleStatus() {
             const now = new Date();
             if (now >= presaleStartTime && now < presaleEndTime) {
-                presaleStatusElement.innerHTML = '{% translate "Presale is active." %}';
+                presaleStatusElement.innerHTML = '';
                 ticketForm.style.display = 'block';
+                presaleTextElement.style.display = 'block';
+                doorSellingElement.style.display = 'block';
             } else if (now < presaleStartTime) {
                 presaleStatusElement.innerHTML = '{% translate "Presale will become active later." %}';
                 ticketForm.style.display = 'none';
+                presaleTextElement.style.display = 'block';
+                doorSellingElement.style.display = 'block';
             } else {
                 presaleStatusElement.innerHTML = '{% translate "Presale has ended." %}';
                 ticketForm.style.display = 'none';
+                presaleTextElement.style.display = 'none';
+                doorSellingElement.style.display = 'none';
             }
         }
         // Update the status immediately and then every minute
