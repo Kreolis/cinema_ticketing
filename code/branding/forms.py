@@ -24,6 +24,6 @@ class ContactForm(forms.Form):
         help_text=_("Select an event to which your message is related (optional).")
     )
     captcha = ReCaptchaField(
-        label=_(""),
+        label="",
         required=True
     )

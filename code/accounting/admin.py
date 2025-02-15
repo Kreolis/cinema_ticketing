@@ -38,7 +38,7 @@ class OrderAdmin(admin.ModelAdmin):
             if obj.delete(request):
                 messages.success(request, "")
             else:
-                messages.error(request, _(""))
+                messages.error(request, "")
     custom_delete_selected.short_description = _("Delete selected orders")
 
     def get_actions(self, request):
