@@ -91,14 +91,16 @@ class Order(BasePayment):
     def __str__(self):
         return _("Order {id} for session {session_id}").format(id=self.id, session_id=self.session_id)
 
+    @property
+    def has_timed_out(self) -> bool:
+        return timezone.now() - self.modified > timedelta(minutes=self.timeout)
+
     def is_valid(self) -> bool:
         if self.status == PaymentStatus.CONFIRMED:
             return True
-        if self.created is None:
+        if self.created is None or self.modified is None:
             return False
-        if self.modified is None:
-            return False
-        return timezone.now() - self.modified <= timedelta(minutes=self.timeout)
+        return not self.has_timed_out
 
     def save(self, *args, **kwargs):
         if not self.pk and Order.objects.filter(session_id=self.session_id).exists():
@@ -396,16 +398,17 @@ class Order(BasePayment):
 
 
     # delete order and associated tickets
-    def delete(self, *args, **kwargs):
+    def delete(self, request, *args, **kwargs):
+
         if self.status == PaymentStatus.CONFIRMED:
             if settings.CONFIRM_DELETE_PAID_ORDER:
-                messages.warning(None, _("Cannot delete a paid order."))
-                return None
-            else:
-                messages.warning(None, _("You are about to delete a paid order. All associated tickets will also be deleted."))
+                messages.error(request, _("Cannot delete a paid order."))
+                return False
         
+        # Properly delete associated tickets
         for ticket in self.tickets.all():
-            ticket.delete()
+            ticket_to_delete = Ticket.objects.get(id=ticket.id)
+            ticket_to_delete.delete()
 
         super().delete(*args, **kwargs)
 
