@@ -16,9 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+
+from django.conf.urls import handler404, handler500
 from django.conf.urls.i18n import i18n_patterns
 from django.conf import settings
 from django.conf.urls.static import static
+
+# custom error handlers
+from django.shortcuts import render
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)
+
+def custom_500(request):
+    return render(request, '500.html', status=500)
 
 urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
@@ -27,6 +37,9 @@ urlpatterns = i18n_patterns(
     path('pay/', include('accounting.urls')),
     path('', include('branding.urls')),
 )
+
+handler404 = custom_404
+handler500 = custom_500
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
