@@ -8,85 +8,86 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-15 17:47+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2025-02-17 21:49+0200\n"
+"PO-Revision-Date: 2025-02-17 21:56+0000\n"
+"Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Translated-Using: django-rosetta 0.10.1\n"
 
 #: .\accounting\admin.py:42
 msgid "Delete selected orders"
 msgstr "Delete selected orders"
 
-#: .\accounting\forms.py:10 .\events\forms.py:35
+#: .\accounting\forms.py:12 .\events\forms.py:35
 msgid "First Name"
 msgstr "First Name"
 
-#: .\accounting\forms.py:11
+#: .\accounting\forms.py:13
 msgid "Enter the first name as it appears on the billing statement."
 msgstr "Enter the first name as it appears on the billing statement."
 
-#: .\accounting\forms.py:15 .\events\forms.py:42
+#: .\accounting\forms.py:17 .\events\forms.py:42
 msgid "Last Name"
 msgstr "Last Name"
 
-#: .\accounting\forms.py:16
+#: .\accounting\forms.py:18
 msgid "Enter the last name as it appears on the billing statement."
 msgstr "Enter the last name as it appears on the billing statement."
 
-#: .\accounting\forms.py:20
+#: .\accounting\forms.py:22
 msgid "Address Line 1"
 msgstr "Address Line 1"
 
-#: .\accounting\forms.py:21
+#: .\accounting\forms.py:23
 msgid "Enter the primary address for billing purposes."
 msgstr "Enter the primary address for billing purposes."
 
-#: .\accounting\forms.py:25
+#: .\accounting\forms.py:27
 msgid "Address Line 2"
 msgstr "Address Line 2"
 
-#: .\accounting\forms.py:26
+#: .\accounting\forms.py:28
 msgid "Optional: Enter the secondary address for billing purposes, if any."
 msgstr "Optional: Enter the secondary address for billing purposes, if any."
 
-#: .\accounting\forms.py:31 .\accounting\models.py:227
+#: .\accounting\forms.py:33 .\accounting\models.py:227
 msgid "City"
 msgstr "City"
 
-#: .\accounting\forms.py:32
+#: .\accounting\forms.py:34
 msgid "Enter the city for the billing address."
 msgstr "Enter the city for the billing address."
 
-#: .\accounting\forms.py:36 .\accounting\models.py:228
+#: .\accounting\forms.py:38 .\accounting\models.py:228
 msgid "Postcode"
 msgstr "Postcode"
 
-#: .\accounting\forms.py:37
+#: .\accounting\forms.py:39
 msgid "Enter the postcode for the billing address."
 msgstr "Enter the postcode for the billing address."
 
-#: .\accounting\forms.py:41 .\accounting\models.py:229
+#: .\accounting\forms.py:43 .\accounting\models.py:229
 msgid "Country"
 msgstr "Country"
 
-#: .\accounting\forms.py:42
+#: .\accounting\forms.py:44
 msgid "Optional: Enter the country for the billing address."
 msgstr "Optional: Enter the country for the billing address."
 
-#: .\accounting\forms.py:48
+#: .\accounting\forms.py:50
 msgid "State/Province"
 msgstr "State/Province"
 
-#: .\accounting\forms.py:49
+#: .\accounting\forms.py:51
 msgid "Enter the state or province for the billing address."
 msgstr "Enter the state or province for the billing address."
 
-#: .\accounting\forms.py:54 .\accounting\forms.py:73
+#: .\accounting\forms.py:56 .\accounting\forms.py:82
 #: .\accounting\templates\cart.html:47
 #: .\accounting\templates\order_payment_overview.html:28
 #: .\accounting\templates\ticket_list.html:31 .\events\forms.py:28
@@ -95,7 +96,7 @@ msgstr "Enter the state or province for the billing address."
 msgid "Email"
 msgstr "Email"
 
-#: .\accounting\forms.py:55
+#: .\accounting\forms.py:57
 msgid ""
 "Enter the email address where billing information will be sent. If you have "
 "not set the send-to-email for each ticket this email will be used for all "
@@ -105,16 +106,20 @@ msgstr ""
 "not set the send-to-email for each ticket this email will be used for all "
 "tickets."
 
-#: .\accounting\forms.py:61
+#: .\accounting\forms.py:63
 #: .\accounting\templates\order_payment_overview.html:57
 msgid "Payment Method"
 msgstr "Payment Method"
 
-#: .\accounting\forms.py:62
+#: .\accounting\forms.py:64
 msgid "Select the payment method you would like to use."
 msgstr "Select the payment method you would like to use."
 
-#: .\accounting\forms.py:74
+#: .\accounting\forms.py:72
+msgid "Please prove you are human."
+msgstr "Please prove you are human."
+
+#: .\accounting\forms.py:83
 msgid "Enter the email address where all tickets will be sent to."
 msgstr "Enter the email address where all tickets will be sent to."
 
@@ -243,8 +248,7 @@ msgstr "Payment Instructions:"
 msgid ""
 "Dear Customer,\n"
 "\n"
-"Thank you for your purchase! You can find the invoice of your ticket "
-"purchase attached.\n"
+"Thank you for your purchase! You can find the invoice of your ticket purchase attached.\n"
 "\n"
 "Please find your tickets and purchase details under the following link:\n"
 "\n"
@@ -257,8 +261,7 @@ msgid ""
 msgstr ""
 "Dear Customer,\n"
 "\n"
-"Thank you for your purchase! You can find the invoice of your ticket "
-"purchase attached.\n"
+"Thank you for your purchase! You can find the invoice of your ticket purchase attached.\n"
 "\n"
 "Please find your tickets and purchase details under the following link:\n"
 "\n"
@@ -269,11 +272,51 @@ msgstr ""
 "Best regards,\n"
 "The Event Team"
 
-#: .\accounting\models.py:384
+#: .\accounting\models.py:388
 msgid "Payment Instructions for Your Order"
 msgstr "Payment Instructions for Your Order"
 
-#: .\accounting\models.py:405
+#: .\accounting\models.py:390
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "Dear Customer,\n"
+#| "\n"
+#| "Thank you for your purchase! You can find the invoice of your ticket purchase attached.\n"
+#| "\n"
+#| "Please find your tickets and purchase details under the following link:\n"
+#| "\n"
+#| "{order_link}\n"
+#| "\n"
+#| "We look forward to seeing you at the event.\n"
+#| "\n"
+#| "Best regards,\n"
+#| "The Event Team"
+msgid ""
+"Dear Customer,\n"
+"\n"
+"Thank you for your purchase! Please find the payment instructions for your order below.\n"
+"\n"
+"{payment_instructions}\n"
+"\n"
+"We look forward to seeing you at the event.\n"
+"\n"
+"Best regards,\n"
+"The Event Team"
+msgstr ""
+"Dear Customer,\n"
+"\n"
+"Thank you for your purchase! You can find the invoice of your ticket purchase attached.\n"
+"\n"
+"Please find your tickets and purchase details under the following link:\n"
+"\n"
+"{order_link}\n"
+"\n"
+"We look forward to seeing you at the event.\n"
+"\n"
+"Best regards,\n"
+"The Event Team"
+
+#: .\accounting\models.py:423
 msgid "Cannot delete a paid order."
 msgstr "Cannot delete a paid order."
 
@@ -366,16 +409,21 @@ msgstr "Update"
 msgid "Delete"
 msgstr "Delete"
 
-#: .\accounting\templates\cart.html:168
+#: .\accounting\templates\cart.html:169
 msgid "Proceed to Payment"
 msgstr "Proceed to Payment"
 
-#: .\accounting\templates\cart.html:170
+#: .\accounting\templates\cart.html:171
 msgid "Continue ticket selection"
 msgstr "Continue ticket selection"
 
+#: .\accounting\templates\login.html:9 .\accounting\templates\login.html:13
+#: .\accounting\templates\login.html:17 .\templates\master.html:62
+msgid "Login"
+msgstr "Login"
+
 #: .\accounting\templates\manage_orders.html:9
-#: .\accounting\templates\manage_orders.html:12 .\templates\master.html:30
+#: .\accounting\templates\manage_orders.html:12 .\templates\master.html:35
 msgid "Manage Orders"
 msgstr "Manage Orders"
 
@@ -527,8 +575,10 @@ msgid "Proceed to Checkout"
 msgstr "Proceed to Checkout"
 
 #: .\accounting\templates\payment_form.html:37
-msgid "You will be redirected to the payment gateway to complete your payment."
-msgstr "You will be redirected to the payment gateway to complete your payment."
+msgid ""
+"You will be redirected to the payment gateway to complete your payment."
+msgstr ""
+"You will be redirected to the payment gateway to complete your payment."
 
 #: .\accounting\templates\payment_form.html:42
 msgid "Complete Payment"
@@ -763,7 +813,7 @@ msgid "Favicon size should not exceed 64x64 pixels."
 msgstr "Favicon size should not exceed 64x64 pixels."
 
 #: .\branding\templates\contact.html:9 .\branding\templates\contact.html:13
-#: .\templates\master.html:64
+#: .\templates\master.html:76
 msgid "Contact Us"
 msgstr "Contact Us"
 
@@ -771,31 +821,35 @@ msgstr "Contact Us"
 msgid "For any questions or concerns, please contact us at:"
 msgstr "For any questions or concerns, please contact us at:"
 
-#: .\branding\templates\contact.html:29
+#: .\branding\templates\contact.html:30
 msgid "Submit"
 msgstr "Submit"
 
-#: .\cinema_tickets\settings.py:145
+#: .\branding\views.py:38
+msgid "Message sent successfully!"
+msgstr "Message sent successfully!"
+
+#: .\cinema_tickets\settings.py:149
 msgid "English"
 msgstr "English"
 
-#: .\cinema_tickets\settings.py:146
+#: .\cinema_tickets\settings.py:150
 msgid "German"
 msgstr "German"
 
-#: .\cinema_tickets\settings.py:291
+#: .\cinema_tickets\settings.py:288
 msgid "Stripe (Credit Card)"
 msgstr "Stripe (Credit Card)"
 
-#: .\cinema_tickets\settings.py:292
+#: .\cinema_tickets\settings.py:289
 msgid "Paypal"
 msgstr "Paypal"
 
-#: .\cinema_tickets\settings.py:293
+#: .\cinema_tickets\settings.py:290
 msgid "Advance Payment"
 msgstr "Advance Payment"
 
-#: .\cinema_tickets\settings.py:294
+#: .\cinema_tickets\settings.py:291
 msgid "Dummy Payment"
 msgstr "Dummy Payment"
 
@@ -839,7 +893,7 @@ msgstr "Ticket was sold at the door"
 msgid "Ticket refunded"
 msgstr "Ticket refunded"
 
-#: .\events\models.py:37 .\events\models.py:56 .\events\models.py:245
+#: .\events\models.py:37 .\events\models.py:56 .\events\models.py:251
 msgid "name"
 msgstr "name"
 
@@ -965,63 +1019,63 @@ msgstr ""
 "Best regards,\n"
 "Event Team"
 
-#: .\events\models.py:239
+#: .\events\models.py:245
 msgid "No email address associated with this ticket."
 msgstr "No email address associated with this ticket."
 
-#: .\events\models.py:246
+#: .\events\models.py:252
 msgid "start time"
 msgstr "start time"
 
-#: .\events\models.py:247
+#: .\events\models.py:253
 msgid "duration"
 msgstr "duration"
 
-#: .\events\models.py:248
+#: .\events\models.py:254
 msgid "location"
 msgstr "location"
 
-#: .\events\models.py:249
+#: .\events\models.py:255
 msgid "price classes"
 msgstr "price classes"
 
-#: .\events\models.py:250
+#: .\events\models.py:256
 msgid "program link"
 msgstr "program link"
 
-#: .\events\models.py:254
+#: .\events\models.py:260
 msgid "is active"
 msgstr "is active"
 
-#: .\events\models.py:257
+#: .\events\models.py:263
 msgid "custom seats"
 msgstr "custom seats"
 
-#: .\events\models.py:263
+#: .\events\models.py:269
 msgid "ticket background"
 msgstr "ticket background"
 
-#: .\events\models.py:271
+#: .\events\models.py:277
 msgid "display seat number"
 msgstr "display seat number"
 
-#: .\events\models.py:276
+#: .\events\models.py:282
 msgid "event background"
 msgstr "event background"
 
-#: .\events\models.py:284
+#: .\events\models.py:290
 msgid "allow presale"
 msgstr "allow presale"
 
-#: .\events\models.py:289
+#: .\events\models.py:295
 msgid "presale start"
 msgstr "presale start"
 
-#: .\events\models.py:294
+#: .\events\models.py:300
 msgid "presale ends before and door (not presale) selling starts"
 msgstr "presale ends before and door (not presale) selling starts"
 
-#: .\events\models.py:299
+#: .\events\models.py:305
 msgid "allow door selling"
 msgstr "allow door selling"
 
@@ -1193,22 +1247,21 @@ msgid "Event is not active or is in the past."
 msgstr "Event is not active or is in the past."
 
 #: .\events\templates\event_details.html:18
-#: .\events\templates\event_list.html:24
+#: .\events\templates\event_list.html:26
 msgid "Start Time"
 msgstr "Start Time"
 
 #: .\events\templates\event_details.html:19
-#: .\events\templates\event_list.html:25
+#: .\events\templates\event_list.html:27
 msgid "Location"
 msgstr "Location"
 
 #: .\events\templates\event_details.html:20
-#: .\events\templates\event_list.html:26
+#: .\events\templates\event_list.html:28
 msgid "Duration"
 msgstr "Duration"
 
 #: .\events\templates\event_details.html:22
-#: .\events\templates\event_list.html:35
 msgid "View Program"
 msgstr "View Program"
 
@@ -1224,7 +1277,8 @@ msgstr "Presale ends at "
 
 #: .\events\templates\event_details.html:34
 #: .\events\templates\event_door_selling.html:28
-msgid "Tickets are sold at the door. Tickets at the door will be available for"
+msgid ""
+"Tickets are sold at the door. Tickets at the door will be available for"
 msgstr ""
 "Tickets are sold at the door. Tickets at the door will be available for"
 
@@ -1305,13 +1359,25 @@ msgstr "Upcoming Events"
 msgid "Go to Global Statistics"
 msgstr "Go to Global Statistics"
 
-#: .\events\templates\event_list.html:27
+#: .\events\templates\event_list.html:29
 msgid "Price Classes"
 msgstr "Price Classes"
 
+#: .\events\templates\event_list.html:38
+#, fuzzy
+#| msgid "View Program"
+msgid "View program"
+msgstr "View Program"
+
 #: .\events\templates\event_list.html:40
+#, fuzzy
+#| msgid "Tickets"
+msgid "Buy tickets"
+msgstr "Tickets"
+
+#: .\events\templates\event_list.html:46
 msgid "Currently there are no events available for purchase."
-msgstr "Currently there are no events available for purchase."
+msgstr "Currently, there are no events available for purchase."
 
 #: .\events\templates\event_statistics.html:8
 #: .\events\templates\event_statistics.html:11
@@ -1338,11 +1404,24 @@ msgstr "Presale has ended for this event."
 msgid "Presale has not started yet."
 msgstr "Presale has not started yet."
 
-#: .\events\views.py:202
+#: .\events\views.py:124
+msgid "Email sent successfully."
+msgstr "Email sent successfully."
+
+#: .\events\views.py:126
+msgid "An error occurred while sending the Email."
+msgstr "An error occurred while sending the Email."
+
+#: .\events\views.py:127
+#| msgid "No email address associated with this ticket."
+msgid "No email address provided."
+msgstr "No email address provided."
+
+#: .\events\views.py:205
 msgid "Door selling is not allowed for this event."
 msgstr "Door selling is not allowed for this event."
 
-#: .\events\views.py:217
+#: .\events\views.py:220
 msgid "Event is not active."
 msgstr "Event is not active."
 
@@ -1370,18 +1449,22 @@ msgstr "500 - Server Error"
 msgid "Sorry, something went wrong on our end. Please try again later."
 msgstr "Sorry, something went wrong on our end. Please try again later."
 
-#: .\templates\master.html:23
+#: .\templates\master.html:28
 msgid "Events List"
 msgstr "Events List"
 
-#: .\templates\master.html:27
+#: .\templates\master.html:32
 msgid "Global Statistics"
 msgstr "Global Statistics"
 
-#: .\templates\master.html:34
+#: .\templates\master.html:39
 msgid "Cart"
 msgstr "Cart"
 
-#: .\templates\master.html:39
+#: .\templates\master.html:46
 msgid "Language"
 msgstr "Language"
+
+#: .\templates\master.html:60
+msgid "Logout"
+msgstr "Logout"

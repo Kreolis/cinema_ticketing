@@ -383,12 +383,22 @@ class Order(BasePayment):
                 raise e
 
     def send_payment_instructions_email(self):
-        payment_instructions = self.get_payment_instructions()
+        payment_instructions = self.get_payment_instructions(html=False)
 
         subject = _("Payment Instructions for Your Order")
+
+        message = _("Dear Customer,\n\n"
+                    "Thank you for your purchase! "
+                    "Please find the payment instructions for your order below.\n\n"
+                    "{payment_instructions}\n\n"
+                    "We look forward to seeing you at the event.\n\n"
+                    "Best regards,\nThe Event Team").format(
+                        payment_instructions=payment_instructions
+                    )
+        
         email = EmailMessage(
             subject,
-            payment_instructions,
+            message,
             settings.DEFAULT_FROM_EMAIL,
             [self.billing_email]
         )
