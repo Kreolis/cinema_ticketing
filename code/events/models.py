@@ -208,8 +208,17 @@ class Ticket(models.Model):
         """
         Send the ticket to the email address associated with the ticket.
         """
+        branding = get_active_branding()
+
         if self.email:
             subject = _("Your Ticket for {event_name}").format(event_name=self.event.name)
+
+            if branding and branding.display_seat_number:
+                seat = self.seat
+            else:
+                seat = _("Free Seating")
+
+
             message = _("Dear Customer,\n\nHere is your ticket for {event_name}.\n\n"
                         "Event: {event_name}\n"
                         "Date and Time: {start_time} Duration: {duration}\n"
@@ -219,7 +228,7 @@ class Ticket(models.Model):
                             event_name=self.event.name,
                             start_time=self.event.start_time,
                             duration=self.event.duration,
-                            seat=self.seat
+                            seat=seat
                         )
             
             # Generate PDF ticket
