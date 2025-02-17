@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-02-17 21:49+0200\n"
-"PO-Revision-Date: 2025-02-17 21:56+0000\n"
+"PO-Revision-Date: 2025-02-17 22:03+0000\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -277,7 +277,7 @@ msgid "Payment Instructions for Your Order"
 msgstr "Payment Instructions for Your Order"
 
 #: .\accounting\models.py:390
-#, fuzzy, python-brace-format
+#, python-brace-format
 #| msgid ""
 #| "Dear Customer,\n"
 #| "\n"
@@ -305,11 +305,9 @@ msgid ""
 msgstr ""
 "Dear Customer,\n"
 "\n"
-"Thank you for your purchase! You can find the invoice of your ticket purchase attached.\n"
+"Thank you for your purchase! Please find the payment instructions for your order below.\n"
 "\n"
-"Please find your tickets and purchase details under the following link:\n"
-"\n"
-"{order_link}\n"
+"{payment_instructions}\n"
 "\n"
 "We look forward to seeing you at the event.\n"
 "\n"
@@ -1364,16 +1362,14 @@ msgid "Price Classes"
 msgstr "Price Classes"
 
 #: .\events\templates\event_list.html:38
-#, fuzzy
 #| msgid "View Program"
 msgid "View program"
 msgstr "View Program"
 
 #: .\events\templates\event_list.html:40
-#, fuzzy
 #| msgid "Tickets"
 msgid "Buy tickets"
-msgstr "Tickets"
+msgstr "Buy Tickets"
 
 #: .\events\templates\event_list.html:46
 msgid "Currently there are no events available for purchase."
