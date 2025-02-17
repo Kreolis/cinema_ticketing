@@ -208,6 +208,13 @@ def confirm_order(request, order_id):
                 ticket.first_name = order.billing_first_name
                 ticket.last_name = order.billing_last_name
                 ticket.save()
+
+            if not order.is_confirmed:
+                # Send payment instructions email
+                order.send_payment_instructions_email()
+            else:
+                # Send confirmation and invoice email
+                order.send_confirmation_email()
             
             # order is reserved
             # make sure the user can make a new order by creating a new session
@@ -219,6 +226,7 @@ def confirm_order(request, order_id):
 def ticket_list(request, order_id):
     order = get_object_or_404(get_payment_model(), session_id=order_id)
 
+    # order is in INPUT status, basically coming back from the payment provider
     if order.status == PaymentStatus.INPUT:
         order.change_status(PaymentStatus.CONFIRMED)
         if not order.variant == 'advance_payment':
