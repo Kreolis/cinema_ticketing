@@ -5,6 +5,8 @@ import locale
 from django.conf import settings
 from django.utils.translation import gettext as _
 
+from captcha.fields import CaptchaField
+
 class PaymentInfoForm(forms.Form):
     billing_first_name = forms.CharField(
         label=_('First Name'),
@@ -63,6 +65,13 @@ class PaymentInfoForm(forms.Form):
         choices=[(key, settings.HUMANIZED_PAYMENT_VARIANT[key]) for key in settings.PAYMENT_VARIANTS.keys()],
         widget=forms.Select(attrs={'required': True})
     )
+
+    captcha = CaptchaField(
+        label='',
+        required=True,
+        help_text=_('Please prove you are human.'),
+        
+    )    
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

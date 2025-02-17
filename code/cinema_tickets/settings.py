@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'payments',     # payment handling
     'bootstrap5',   # bootstrap5 support
     'rosetta',      # translation management
-    'django_recaptcha', # recaptcha support
+    'captcha',      # captcha support
     
     # custom apps
     'branding',     # branding management
@@ -169,14 +169,6 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Session survives browser close, allow
 
 # Save session on every user request
 SESSION_SAVE_EVERY_REQUEST = True  # Refresh session expiration on activity
-
-# Recaptcha settings if available, if not defined package will use test keys
-RECAPTCHA_REQUIRED_SCORE = 0.85
-if config('USE_RECAPTCHA', default=False, cast=bool):
-    RECAPTCHA_PUBLIC_KEY = config('RECAPTCHA_PUBLIC_KEY')
-    RECAPTCHA_PRIVATE_KEY = config('RECAPTCHA_PRIVATE_KEY')
-else:
-    SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 
 # Media files settings
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

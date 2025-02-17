@@ -1,6 +1,6 @@
 from django import forms
 from events.models import Event  
-from django_recaptcha.fields import ReCaptchaField
+from captcha.fields import CaptchaField
 from django.utils.translation import gettext as _
 
 class ContactForm(forms.Form):
@@ -23,7 +23,7 @@ class ContactForm(forms.Form):
         required=False,
         help_text=_("Select an event to which your message is related (optional).")
     )
-    captcha = ReCaptchaField(
+    captcha = CaptchaField(
         label="",
         required=True
     )

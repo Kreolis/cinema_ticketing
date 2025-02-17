@@ -36,6 +36,7 @@ urlpatterns = i18n_patterns(
     path('', include('events.urls')),
     path('pay/', include('accounting.urls')),
     path('', include('branding.urls')),
+    path('captcha/', include('captcha.urls')),
 )
 
 handler404 = custom_404
