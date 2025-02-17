@@ -5,7 +5,7 @@ celery # For handling asynchronous tasks
 
 psycopg2  # For PostgreSQL
 
-django-recaptcha # For using Google reCAPTCHA
+django-simple-captcha # For captcha
 
 django-rosetta # translation managment
 django-payments # For handling payments
