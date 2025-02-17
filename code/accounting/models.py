@@ -352,7 +352,7 @@ class Order(BasePayment):
             if branding and branding.invoice_tax_rate:
                 site_name = branding.site_name
             else:
-                site_name = ""
+                site_name = "Cinema Ticketing"
 
             subject = _(f"Your Invoice for {site_name}")
             message = _("Dear Customer,\n\nThank you for your purchase! "
@@ -361,7 +361,7 @@ class Order(BasePayment):
                         "{order_link}\n\n"
                         "We look forward to seeing you at the event.\n\n"
                         "Best regards,\nThe Event Team").format(
-                            order_link=redirect('ticket_list', order_id=self.session_id)
+                            order_link=redirect('ticket_list', order_id=self.session_id).url
                         )
             
             # Generate PDF ticket
@@ -385,7 +385,13 @@ class Order(BasePayment):
     def send_payment_instructions_email(self):
         payment_instructions = self.get_payment_instructions(html=False)
 
-        subject = _("Payment Instructions for Your Order")
+        branding = get_active_branding()
+        if branding and branding.invoice_tax_rate:
+            site_name = branding.site_name
+        else:
+            site_name = "Cinema Ticketing"
+
+        subject = _("Payment Instructions for Your Order {order_id} on {site_name}").format(order_id=self.id, site_name=site_name)
 
         message = _("Dear Customer,\n\n"
                     "Thank you for your purchase! "

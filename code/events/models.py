@@ -211,13 +211,17 @@ class Ticket(models.Model):
         branding = get_active_branding()
 
         if self.email:
-            subject = _("Your Ticket for {event_name}").format(event_name=self.event.name)
+            if branding and branding.invoice_tax_rate:
+                site_name = branding.site_name
+            else:
+                site_name = "Cinema Ticketing"
+
+            subject = _("Your Ticket for {event_name} - {site_name}").format(event_name=self.event.name, site_name=site_name)
 
             if branding and branding.display_seat_number:
                 seat = self.seat
             else:
                 seat = _("Free Seating")
-
 
             message = _("Dear Customer,\n\nHere is your ticket for {event_name}.\n\n"
                         "Event: {event_name}\n"

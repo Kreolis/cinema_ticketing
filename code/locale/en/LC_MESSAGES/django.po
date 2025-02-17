@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-17 21:49+0200\n"
-"PO-Revision-Date: 2025-02-17 22:03+0000\n"
+"POT-Creation-Date: 2025-02-17 22:16+0200\n"
+"PO-Revision-Date: 2025-02-17 22:17+0000\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -272,25 +272,14 @@ msgstr ""
 "Best regards,\n"
 "The Event Team"
 
-#: .\accounting\models.py:388
-msgid "Payment Instructions for Your Order"
-msgstr "Payment Instructions for Your Order"
-
-#: .\accounting\models.py:390
+#: .\accounting\models.py:394
 #, python-brace-format
-#| msgid ""
-#| "Dear Customer,\n"
-#| "\n"
-#| "Thank you for your purchase! You can find the invoice of your ticket purchase attached.\n"
-#| "\n"
-#| "Please find your tickets and purchase details under the following link:\n"
-#| "\n"
-#| "{order_link}\n"
-#| "\n"
-#| "We look forward to seeing you at the event.\n"
-#| "\n"
-#| "Best regards,\n"
-#| "The Event Team"
+#| msgid "Payment Instructions for Your Order"
+msgid "Payment Instructions for Your Order {order_id} on {site_name}"
+msgstr "Payment Instructions for Your Order {order_id} on {site_name}"
+
+#: .\accounting\models.py:396
+#, python-brace-format
 msgid ""
 "Dear Customer,\n"
 "\n"
@@ -314,7 +303,7 @@ msgstr ""
 "Best regards,\n"
 "The Event Team"
 
-#: .\accounting\models.py:423
+#: .\accounting\models.py:429
 msgid "Cannot delete a paid order."
 msgstr "Cannot delete a paid order."
 
@@ -891,7 +880,7 @@ msgstr "Ticket was sold at the door"
 msgid "Ticket refunded"
 msgstr "Ticket refunded"
 
-#: .\events\models.py:37 .\events\models.py:56 .\events\models.py:251
+#: .\events\models.py:37 .\events\models.py:56 .\events\models.py:264
 msgid "name"
 msgstr "name"
 
@@ -971,7 +960,7 @@ msgstr "Venue:"
 msgid "Seat Number:"
 msgstr "Seat Number:"
 
-#: .\events\models.py:155 .\events\models.py:197
+#: .\events\models.py:155 .\events\models.py:197 .\events\models.py:224
 msgid "Free Seating"
 msgstr "Free Seating"
 
@@ -983,12 +972,13 @@ msgstr "Price Class:"
 msgid "Price:"
 msgstr "Price:"
 
-#: .\events\models.py:212
+#: .\events\models.py:219
 #, python-brace-format
-msgid "Your Ticket for {event_name}"
-msgstr "Your Ticket for {event_name}"
+#| msgid "Your Ticket for {event_name}"
+msgid "Your Ticket for {event_name} - {site_name}"
+msgstr "Your Ticket for {event_name} - {site_name}"
 
-#: .\events\models.py:213
+#: .\events\models.py:226
 #, python-brace-format
 msgid ""
 "Dear Customer,\n"
@@ -1017,63 +1007,63 @@ msgstr ""
 "Best regards,\n"
 "Event Team"
 
-#: .\events\models.py:245
+#: .\events\models.py:258
 msgid "No email address associated with this ticket."
 msgstr "No email address associated with this ticket."
 
-#: .\events\models.py:252
+#: .\events\models.py:265
 msgid "start time"
 msgstr "start time"
 
-#: .\events\models.py:253
+#: .\events\models.py:266
 msgid "duration"
 msgstr "duration"
 
-#: .\events\models.py:254
+#: .\events\models.py:267
 msgid "location"
 msgstr "location"
 
-#: .\events\models.py:255
+#: .\events\models.py:268
 msgid "price classes"
 msgstr "price classes"
 
-#: .\events\models.py:256
+#: .\events\models.py:269
 msgid "program link"
 msgstr "program link"
 
-#: .\events\models.py:260
+#: .\events\models.py:273
 msgid "is active"
 msgstr "is active"
 
-#: .\events\models.py:263
+#: .\events\models.py:276
 msgid "custom seats"
 msgstr "custom seats"
 
-#: .\events\models.py:269
+#: .\events\models.py:282
 msgid "ticket background"
 msgstr "ticket background"
 
-#: .\events\models.py:277
+#: .\events\models.py:290
 msgid "display seat number"
 msgstr "display seat number"
 
-#: .\events\models.py:282
+#: .\events\models.py:295
 msgid "event background"
 msgstr "event background"
 
-#: .\events\models.py:290
+#: .\events\models.py:303
 msgid "allow presale"
 msgstr "allow presale"
 
-#: .\events\models.py:295
+#: .\events\models.py:308
 msgid "presale start"
 msgstr "presale start"
 
-#: .\events\models.py:300
+#: .\events\models.py:313
 msgid "presale ends before and door (not presale) selling starts"
 msgstr "presale ends before and door (not presale) selling starts"
 
-#: .\events\models.py:305
+#: .\events\models.py:318
 msgid "allow door selling"
 msgstr "allow door selling"
 
@@ -1362,12 +1352,10 @@ msgid "Price Classes"
 msgstr "Price Classes"
 
 #: .\events\templates\event_list.html:38
-#| msgid "View Program"
 msgid "View program"
 msgstr "View Program"
 
 #: .\events\templates\event_list.html:40
-#| msgid "Tickets"
 msgid "Buy tickets"
 msgstr "Buy Tickets"
 
@@ -1409,7 +1397,6 @@ msgid "An error occurred while sending the Email."
 msgstr "An error occurred while sending the Email."
 
 #: .\events\views.py:127
-#| msgid "No email address associated with this ticket."
 msgid "No email address provided."
 msgstr "No email address provided."
 
