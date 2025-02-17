@@ -14,13 +14,14 @@
 
     <p>{% translate "For any questions or concerns, please contact us at:" %}</p>
     
-    {# Check for form errors and display them #}
     {% if form.non_field_errors %}
         <div class="alert alert-danger">
             {{ form.non_field_errors }}
         </div>
     {% endif %}
 
+    <div id="message-container"></div>
+    
     <form method="post" action="">
         {% csrf_token %}
 
@@ -29,4 +30,33 @@
         {% bootstrap_button _("Submit") button_type="submit" button_class="btn-primary" %}
     </form>
     
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(form);
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const messageContainer = document.getElementById('message-container');
+                    messageContainer.innerHTML = '';
+                    if (data.status === 'success') {
+                        messageContainer.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                    } else {
+                        messageContainer.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
 {% endblock %}
