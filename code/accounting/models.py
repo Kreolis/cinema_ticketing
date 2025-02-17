@@ -394,7 +394,7 @@ class Order(BasePayment):
         )
         
         # attach invoice
-        pdf = self.generate_pdf_invoice(payment_instructions=payment_instructions)
+        pdf = self.generate_pdf_invoice()
         pdf_output = pdf.output(dest='S')
         email.attach(f"order_invoice_{self.session_id}.pdf", pdf_output, 'application/pdf')
         try:
