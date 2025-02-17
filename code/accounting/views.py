@@ -1,6 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login as auth_login 
+from django.contrib.auth import logout as auth_logout 
 
 import io
 
@@ -11,8 +14,8 @@ from django.http import FileResponse
 from payments import get_payment_model, RedirectNeeded
 from payments.models import PaymentStatus
 
-from .forms import PaymentInfoForm  # Add this import
-from .forms import UpdateEmailsForm  # Add this import
+from .forms import PaymentInfoForm
+from .forms import UpdateEmailsForm 
 
 from events.models import SoldAsStatus
 from events.views import user_in_ticket_managers_group_or_admin
@@ -331,3 +334,20 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(minute='*/10'),  # Adjust the schedule as needed
     },
 }
+
+# create login page
+def login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            auth_login(request, user)
+            return redirect('event_list') 
+    else:
+        form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})
+
+def logout(request):
+    # Log out the user
+    auth_logout(request)
+    return redirect('event_list')

@@ -9,7 +9,9 @@ from .views import (
     payment_failed,
     ticket_list,
     show_generated_invoice,
-    manage_orders
+    manage_orders,
+    login,
+    logout
 )
 
 urlpatterns = [
@@ -23,6 +25,8 @@ urlpatterns = [
     path('order_invoice_<str:order_id>.pdf', show_generated_invoice, name='show_generated_invoice'),
     path('manage_orders/', manage_orders, name='manage_orders'),
     path('admin_confirm_order/<str:order_id>', admin_confirm_order, name='admin_confirm_order'),
+    path('login/', login, name='login'),
+    path('logout/', logout, name='logout')
 ]
 
 

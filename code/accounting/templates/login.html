@@ -1,0 +1,20 @@
+{% extends "master.html" %}
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% load i18n %}
+
+{% block title %}
+    {% translate "Login" %}
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <h2>{% translate "Login" %}</h2>
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            {% bootstrap_form form layout='horizontal' %}
+            <button type="submit" class="btn btn-primary">{% translate "Login" %}</button>
+        </form>
+    </div>
+{% endblock %}
