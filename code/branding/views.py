@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 
 from django.utils.translation import gettext as _
 
@@ -22,13 +22,18 @@ def contact_form(request):
             
             message = f'Name: {name}\nEmail: {email}\nEvent: {event}\n\n{message}'
 
-            send_mail(
-                f'Contact Form Submission from {name}',
-                message,
-                email,
-                recipient_list,
-                fail_silently=False,
+            email = EmailMessage(
+                subject=f'Contact Form Submission from {name}',
+                body=message,
+                from_email=email,
+                to=recipient_list,
             )
+
+            try:
+                email.send()
+            except Exception as e:
+                print(f"Error sending confirmation email: {e}")
+                raise e
             
             return JsonResponse({"status": "success", 'message': _('Message sent successfully!')})
     else:
