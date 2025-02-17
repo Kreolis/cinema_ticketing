@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-17 22:16+0200\n"
-"PO-Revision-Date: 2025-02-17 22:17+0000\n"
+"POT-Creation-Date: 2025-02-17 22:35+0200\n"
+"PO-Revision-Date: 2025-02-17 22:36+0000\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -57,7 +57,7 @@ msgstr ""
 "Optional: Geben Sie die sekundäre Adresse für Abrechnungszwecke ein, falls "
 "vorhanden."
 
-#: .\accounting\forms.py:33 .\accounting\models.py:227
+#: .\accounting\forms.py:33 .\accounting\models.py:229
 msgid "City"
 msgstr "Stadt"
 
@@ -65,7 +65,7 @@ msgstr "Stadt"
 msgid "Enter the city for the billing address."
 msgstr "Geben Sie die Stadt für die Rechnungsadresse ein."
 
-#: .\accounting\forms.py:38 .\accounting\models.py:228
+#: .\accounting\forms.py:38 .\accounting\models.py:230
 msgid "Postcode"
 msgstr "Postleitzahl"
 
@@ -73,7 +73,7 @@ msgstr "Postleitzahl"
 msgid "Enter the postcode for the billing address."
 msgstr "Geben Sie die Postleitzahl für die Rechnungsadresse ein."
 
-#: .\accounting\forms.py:43 .\accounting\models.py:229
+#: .\accounting\forms.py:43 .\accounting\models.py:231
 msgid "Country"
 msgstr "Land"
 
@@ -127,16 +127,16 @@ msgid "Enter the email address where all tickets will be sent to."
 msgstr ""
 "Geben Sie die E-Mail-Adresse ein, an die alle Tickets gesendet werden."
 
-#: .\accounting\models.py:92
+#: .\accounting\models.py:94
 #, python-brace-format
 msgid "Order {id} for session {session_id}"
 msgstr "Bestellung {id} für Sitzung {session_id}"
 
-#: .\accounting\models.py:155
+#: .\accounting\models.py:157
 msgid "Please transfer the total amount to the following bank account."
 msgstr "Bitte überweisen Sie den Gesamtbetrag auf das folgende Bankkonto."
 
-#: .\accounting\models.py:163
+#: .\accounting\models.py:165
 #, python-brace-format
 msgid ""
 "<p>{message}</p><p>Bank: <strong>{bank_name}</strong><br>Account Name: "
@@ -152,7 +152,7 @@ msgstr ""
 "Zahlung ist innerhalb von <strong>{due_days}</strong> Tagen "
 "fällig.</p><p>Vielen Dank für Ihren Einkauf!</p>"
 
-#: .\accounting\models.py:181
+#: .\accounting\models.py:183
 #, python-brace-format
 msgid ""
 "{message}\n"
@@ -173,59 +173,59 @@ msgstr ""
 "Die Zahlung ist innerhalb von {due_days} Tagen fällig.\n"
 "Vielen Dank für Ihren Einkauf!"
 
-#: .\accounting\models.py:224
+#: .\accounting\models.py:226
 msgid "Company Name"
 msgstr "Firmenname"
 
-#: .\accounting\models.py:225
+#: .\accounting\models.py:227
 msgid "Company Address"
 msgstr "Firmenadresse"
 
-#: .\accounting\models.py:230
+#: .\accounting\models.py:232
 msgid "VAT Number"
 msgstr "Umsatzsteuer-Identifikationsnummer"
 
-#: .\accounting\models.py:231
+#: .\accounting\models.py:233
 msgid "Phone Number"
 msgstr "Telefonnummer"
 
-#: .\accounting\models.py:232
+#: .\accounting\models.py:234
 msgid "Email Address"
 msgstr "E-Mail-Adresse"
 
-#: .\accounting\models.py:237
+#: .\accounting\models.py:239
 msgid "INV"
 msgstr "RECH"
 
-#: .\accounting\models.py:293
+#: .\accounting\models.py:295
 msgid "Invoice #:"
 msgstr "Rechnungsnummer:"
 
-#: .\accounting\models.py:293
+#: .\accounting\models.py:295
 msgid "Date:"
 msgstr "Datum:"
 
-#: .\accounting\models.py:293
+#: .\accounting\models.py:295
 msgid "Due Date:"
 msgstr "Fälligkeitsdatum:"
 
-#: .\accounting\models.py:298
+#: .\accounting\models.py:300
 msgid "Invoice To:"
 msgstr "Rechnung an:"
 
-#: .\accounting\models.py:305
+#: .\accounting\models.py:307
 msgid "Description"
 msgstr "Beschreibung"
 
-#: .\accounting\models.py:306
+#: .\accounting\models.py:308
 msgid "Quantity"
 msgstr "Menge"
 
-#: .\accounting\models.py:307
+#: .\accounting\models.py:309
 msgid "Unit Price"
 msgstr "Stückpreis"
 
-#: .\accounting\models.py:308 .\accounting\models.py:330
+#: .\accounting\models.py:310 .\accounting\models.py:332
 #: .\accounting\templates\cart.html:84
 #: .\events\templates\all_event_statistics.html:32
 #: .\events\templates\all_event_statistics.html:72
@@ -235,21 +235,34 @@ msgstr "Stückpreis"
 msgid "Total"
 msgstr "Gesamt"
 
-#: .\accounting\models.py:322
+#: .\accounting\models.py:324
 msgid "Subtotal"
 msgstr "Zwischensumme"
 
-#: .\accounting\models.py:326
+#: .\accounting\models.py:328
 #, python-brace-format
 msgid "Tax ({tax_rate}%)"
 msgstr "Steuer ({tax_rate}%)"
 
-#: .\accounting\models.py:340
+#: .\accounting\models.py:342
 msgid "Payment Instructions:"
 msgstr "Zahlungsanweisungen:"
 
-#: .\accounting\models.py:358
+#: .\accounting\models.py:363
 #, python-brace-format
+#| msgid ""
+#| "Dear Customer,\n"
+#| "\n"
+#| "Thank you for your purchase! You can find the invoice of your ticket purchase attached.\n"
+#| "\n"
+#| "Please find your tickets and purchase details under the following link:\n"
+#| "\n"
+#| "{order_link}\n"
+#| "\n"
+#| "We look forward to seeing you at the event.\n"
+#| "\n"
+#| "Best regards,\n"
+#| "The Event Team"
 msgid ""
 "Dear Customer,\n"
 "\n"
@@ -274,23 +287,35 @@ msgstr ""
 "\n"
 "Wir freuen uns darauf, Sie bei der Veranstaltung zu sehen.\n"
 "\n"
-"Mit freundlichen Grüßen,\n"
+"Mit freundlichen Grüßen\n"
 "Das Event-Team"
 
-#: .\accounting\models.py:394
+#: .\accounting\models.py:402
 #, python-brace-format
-#| msgid "Payment Instructions for Your Order"
 msgid "Payment Instructions for Your Order {order_id} on {site_name}"
 msgstr "Zahlungsanweisungen für Ihre Bestellung {order_id} auf {site_name}"
 
-#: .\accounting\models.py:396
+#: .\accounting\models.py:404
 #, python-brace-format
+#| msgid ""
+#| "Dear Customer,\n"
+#| "\n"
+#| "Thank you for your purchase! Please find the payment instructions for your order below.\n"
+#| "\n"
+#| "{payment_instructions}\n"
+#| "\n"
+#| "We look forward to seeing you at the event.\n"
+#| "\n"
+#| "Best regards,\n"
+#| "The Event Team"
 msgid ""
 "Dear Customer,\n"
 "\n"
 "Thank you for your purchase! Please find the payment instructions for your order below.\n"
 "\n"
 "{payment_instructions}\n"
+"\n"
+"You can view your order details here: {order_link}\n"
 "\n"
 "We look forward to seeing you at the event.\n"
 "\n"
@@ -303,12 +328,14 @@ msgstr ""
 "\n"
 "{payment_instructions}\n"
 "\n"
+"Sie können Ihre Bestelldetails hier ansehen: {order_link}\n"
+"\n"
 "Wir freuen uns, Sie auf der Veranstaltung begrüßen zu dürfen.\n"
 "\n"
 "Viele Grüße,\n"
 "Das Event-Team"
 
-#: .\accounting\models.py:429
+#: .\accounting\models.py:439
 msgid "Cannot delete a paid order."
 msgstr "Eine bezahlte Bestellung kann nicht gelöscht werden."
 
@@ -832,27 +859,27 @@ msgstr "Absenden"
 msgid "Message sent successfully!"
 msgstr "Nachricht erfolgreich gesendet!"
 
-#: .\cinema_tickets\settings.py:149
+#: .\cinema_tickets\settings.py:151
 msgid "English"
 msgstr "Englisch"
 
-#: .\cinema_tickets\settings.py:150
+#: .\cinema_tickets\settings.py:152
 msgid "German"
 msgstr "Deutsch"
 
-#: .\cinema_tickets\settings.py:288
+#: .\cinema_tickets\settings.py:290
 msgid "Stripe (Credit Card)"
 msgstr "Stripe (Kreditkarte)"
 
-#: .\cinema_tickets\settings.py:289
+#: .\cinema_tickets\settings.py:291
 msgid "Paypal"
 msgstr "Paypal"
 
-#: .\cinema_tickets\settings.py:290
+#: .\cinema_tickets\settings.py:292
 msgid "Advance Payment"
 msgstr "Vorauszahlung"
 
-#: .\cinema_tickets\settings.py:291
+#: .\cinema_tickets\settings.py:293
 msgid "Dummy Payment"
 msgstr "Dummy-Zahlung"
 
@@ -990,7 +1017,6 @@ msgstr "Preis:"
 
 #: .\events\models.py:219
 #, python-brace-format
-#| msgid "Your Ticket for {event_name}"
 msgid "Your Ticket for {event_name} - {site_name}"
 msgstr "Ihr Ticket für {event_name} - {site_name}"
 

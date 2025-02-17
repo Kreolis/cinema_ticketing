@@ -12,6 +12,8 @@ from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect
+from django.urls import reverse
+from django.contrib.sites.models import Site
 
 from decimal import Decimal
 from fpdf import FPDF
@@ -354,6 +356,9 @@ class Order(BasePayment):
             else:
                 site_name = "Cinema Ticketing"
 
+            current_site = Site.objects.get_current()
+            order_link = f"https://{current_site.domain}{reverse('ticket_list', args=[self.session_id])}"
+
             subject = _(f"Your Invoice for {site_name}")
             message = _("Dear Customer,\n\nThank you for your purchase! "
                         "You can find the invoice of your ticket purchase attached.\n\n"
@@ -361,7 +366,7 @@ class Order(BasePayment):
                         "{order_link}\n\n"
                         "We look forward to seeing you at the event.\n\n"
                         "Best regards,\nThe Event Team").format(
-                            order_link=redirect('ticket_list', order_id=self.session_id).url
+                            order_link=order_link
                         )
             
             # Generate PDF ticket
@@ -391,15 +396,20 @@ class Order(BasePayment):
         else:
             site_name = "Cinema Ticketing"
 
+        current_site = Site.objects.get_current()
+        order_link = f"https://{current_site.domain}{reverse('ticket_list', args=[self.session_id])}"
+
         subject = _("Payment Instructions for Your Order {order_id} on {site_name}").format(order_id=self.id, site_name=site_name)
 
         message = _("Dear Customer,\n\n"
                     "Thank you for your purchase! "
                     "Please find the payment instructions for your order below.\n\n"
                     "{payment_instructions}\n\n"
+                    "You can view your order details here: {order_link}\n\n"
                     "We look forward to seeing you at the event.\n\n"
                     "Best regards,\nThe Event Team").format(
-                        payment_instructions=payment_instructions
+                        payment_instructions=payment_instructions,
+                        order_link=order_link
                     )
         
         email = EmailMessage(
