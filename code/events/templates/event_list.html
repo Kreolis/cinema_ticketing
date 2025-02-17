@@ -13,27 +13,33 @@
 {% block content %}
     <h1>{% translate "Upcoming Events" %}</h1>
 
-    <div class="event-list">
+    <div class="event-list row">
         {% if ticket_manager %}
             <a href="{% url 'all_events_statistics' %}" class="btn btn-secondary">{% translate "Go to Global Statistics" %}</a>
         {% endif %}
         {% if events %}
             {% for event in events %}
-                <div class="event-item">
-                    <h2><a href="{% url 'event_details' event.id %}">{{ event.name }}</a></h2>
-                    <p><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
-                    <p><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
-                    <p><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
-                    <p><strong>{% translate "Price Classes" %}:</strong>
-                        {% for price_class in event.price_classes.all %}
-                            {% if not price_class.secret %}
-                                {{ price_class.name }} ({{ price_class.price }} {{ currency }})
-                            {% endif %}        
-                        {% endfor %}
-                    </p>
-                    {% if event.program_link %}
-                        <p><a href="{{ event.program_link }}">{% translate "View Program" %}</a></p>
-                    {% endif %}
+                <div class="event-item col-md-4">
+                    <a href="{% url 'event_details' event.id %}" class="card mb-4 text-decoration-none text-dark" style="border: none; margin-bottom: 0;">
+                        <div class="card-body">
+                            <h2 class="card-title">{{ event.name }}</h2>
+                            <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
+                            <p class="card-text"><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
+                            <p class="card-text"><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
+                            <p class="card-text"><strong>{% translate "Price Classes" %}:</strong>
+                                {% for price_class in event.price_classes.all %}
+                                    {% if not price_class.secret %}
+                                        {{ price_class.name }} ({{ price_class.price }} {{ currency }})
+                                    {% endif %}        
+                                {% endfor %}
+                            </p>
+                        </a>
+                        {% if event.program_link %}
+                            <a href="{{ event.program_link }}" class="btn btn-secondary" target="_blank">{% translate "View program" %}</a>
+                        {% endif %}
+                        <a href="{% url 'event_details' event.id %}" class="btn btn-primary">{% translate "Buy tickets" %}</a>
+                    </div>
+                    
                 </div>
             {% endfor %}
         {% else %}
@@ -41,4 +47,3 @@
         {% endif %}
     </div>
 {% endblock %}
-        

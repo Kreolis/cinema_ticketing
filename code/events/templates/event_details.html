@@ -19,7 +19,7 @@
     <p><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
     <p><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
     {% if event.program_link %}
-        <p><a href="{{ event.program_link }}">{% translate "View Program" %}</a></p>
+        <p><a href="{{ event.program_link }}" target="_blank">{% translate "View Program" %}</a></p>
     {% endif %}
 
     {% if not event.is_sold_out %}
