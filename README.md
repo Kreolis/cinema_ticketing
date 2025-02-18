@@ -222,6 +222,7 @@ Visit your server's IP address or domain in your browser to ensure the applicati
   python manage.py makemigrations events
   python manage.py migrate events
   ```
+- **Branding object makemigrations OperationalError**: Make sure the branding object is_active is set to FALSE and try again
 
 ---
 
