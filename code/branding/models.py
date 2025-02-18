@@ -19,6 +19,7 @@ class Contact(models.Model):
 class Branding(models.Model):
     name = models.CharField(max_length=100, help_text=_("Enter the name of your branding"))
     site_name = models.CharField(max_length=100, null=True, blank=True, help_text=_("Enter the name of your site. This will be used as the title of the site and in communcations."))
+    site_url = models.URLField(null=True, blank=True, help_text=_("Enter the URL of your site. This will be used in communcations."))
     logo = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the logo image"))
     favicon = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the favicon image (max 64x64 pixels)"))
     order_timeout = models.IntegerField(default=10, help_text=_("Timeout in minutes until user needs to start fresh with their order"))

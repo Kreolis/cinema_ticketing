@@ -30,8 +30,6 @@ DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 if config('ALLOWED_HOSTS', default=None):
     ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
 
-SITE_ID = 1  # Add this line to specify the default site ID
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
 
     'payments',     # payment handling
     'bootstrap5',   # bootstrap5 support

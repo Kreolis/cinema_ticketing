@@ -11,9 +11,7 @@ from django.core.mail import EmailMessage
 from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.sites.models import Site
 
 from decimal import Decimal
 from fpdf import FPDF
@@ -356,8 +354,10 @@ class Order(BasePayment):
             else:
                 site_name = "Cinema Ticketing"
 
-            current_site = Site.objects.get_current()
-            order_link = f"https://{current_site.domain}{reverse('ticket_list', args=[self.session_id])}"
+            if branding and branding.site_url:
+                order_link = f"{branding.site_url}{reverse('ticket_list', args=[self.session_id])}"
+            else:
+                order_link = f"https://example.com/{reverse('ticket_list', args=[self.session_id])}"
 
             subject = _(f"Your Invoice for {site_name}")
             message = _("Dear Customer,\n\nThank you for your purchase! "
@@ -396,8 +396,10 @@ class Order(BasePayment):
         else:
             site_name = "Cinema Ticketing"
 
-        current_site = Site.objects.get_current()
-        order_link = f"https://{current_site.domain}{reverse('ticket_list', args=[self.session_id])}"
+        if branding and branding.site_url:
+            order_link = f"{branding.site_url}{reverse('ticket_list', args=[self.session_id])}"
+        else:
+            order_link = f"https://example.com/{reverse('ticket_list', args=[self.session_id])}"
 
         subject = _("Payment Instructions for Your Order {order_id} on {site_name}").format(order_id=self.id, site_name=site_name)
 
