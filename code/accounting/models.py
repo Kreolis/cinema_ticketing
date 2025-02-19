@@ -359,7 +359,7 @@ class Order(BasePayment):
             else:
                 order_link = f"https://example.com/{reverse('ticket_list', args=[self.session_id])}"
 
-            subject = _(f"Your Invoice for {site_name}")
+            subject = _("Your Invoice for Order {order_id} - {site_name}").format(order_id=self.id, site_name=site_name)
             message = _("Dear Customer,\n\nThank you for your purchase! "
                         "You can find the invoice of your ticket purchase attached.\n\n"
                         "Please find your tickets and purchase details under the following link:\n\n"
