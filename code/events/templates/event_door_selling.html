@@ -54,49 +54,51 @@
 
         <!-- Tickets table -->
         <h2 class="mt-4">{% translate "Event Tickets" %}</h2>
-        <table id="tickets-table" class="table table-striped mt-3">
-            <thead>
-                <tr>
-                    {% if event.display_seat_number %}
-                        <th>{% translate "Seat Number" %}</th>
-                    {% endif %}
-                    <th>{% translate "Email" %}</th>
-                    <th>{% translate "Name" %}</th>
-                    <th>{% translate "Ticket ID" %}</th>
-                    <th>{% translate "Price" %}</th>
-                    <th>{% translate "Price Class" %}</th>
-                    <th>{% translate "Action" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ticket in pre_sale_door_ticktes %}
-                    <tr id="row-{{ ticket.id }}">
+        <div class="table-responsive">
+            <table id="tickets-table" class="table table-striped mt-3">
+                <thead>
+                    <tr>
                         {% if event.display_seat_number %}
-                            <td>{{ ticket.seat }}</td>
+                            <th>{% translate "Seat Number" %}</th>
                         {% endif %}
-                        <td>
-                            <form action="{% url 'update_ticket_email' ticket.id %}" method="post" class="update-email-form" style="display:inline-flex;">
-                                {% csrf_token %}
-                                <input type="email" name="email" value="{{ ticket.email }}" class="form-control form-control-sm" required style="margin-right: 5px;">
-                                {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
-                            </form>
-                        </td>
-                        <td>{{ ticket.first_name }} {{ ticket.last_name }}</td>
-                        <td>{{ ticket.id }}</td>
-                        <td>{{ ticket.price_class.price }} {{ currency }}</td>
-                        <td>{{ ticket.price_class.name }}</td>
-                        <td>
-                            <a href="{% url 'show_generated_ticket_pdf' ticket.id %}" class="btn btn-primary" target="_blank">
-                                {% translate "Show Ticket" %}
-                            </a>
-                            <a href="{% url 'send_ticket_email' ticket.id %}" class="btn btn-secondary send-email-btn" data-ticket-id="{{ ticket.id }}">
-                                {% translate "Send ticket to Email" %}
-                            </a>
-                        </td>
+                        <th>{% translate "Email" %}</th>
+                        <th>{% translate "Name" %}</th>
+                        <th>{% translate "Ticket ID" %}</th>
+                        <th>{% translate "Price" %}</th>
+                        <th>{% translate "Price Class" %}</th>
+                        <th>{% translate "Action" %}</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for ticket in pre_sale_door_ticktes %}
+                        <tr id="row-{{ ticket.id }}">
+                            {% if event.display_seat_number %}
+                                <td>{{ ticket.seat }}</td>
+                            {% endif %}
+                            <td>
+                                <form action="{% url 'update_ticket_email' ticket.id %}" method="post" class="update-email-form" style="display:inline-flex;">
+                                    {% csrf_token %}
+                                    <input type="email" name="email" value="{{ ticket.email }}" class="form-control form-control-sm" required style="margin-right: 5px;">
+                                    {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
+                                </form>
+                            </td>
+                            <td>{{ ticket.first_name }} {{ ticket.last_name }}</td>
+                            <td>{{ ticket.id }}</td>
+                            <td>{{ ticket.price_class.price }} {{ currency }}</td>
+                            <td>{{ ticket.price_class.name }}</td>
+                            <td>
+                                <a href="{% url 'show_generated_ticket_pdf' ticket.id %}" class="btn btn-primary" target="_blank">
+                                    {% translate "Show Ticket" %}
+                                </a>
+                                <a href="{% url 'send_ticket_email' ticket.id %}" class="btn btn-secondary send-email-btn" data-ticket-id="{{ ticket.id }}">
+                                    {% translate "Send ticket to Email" %}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
         
 

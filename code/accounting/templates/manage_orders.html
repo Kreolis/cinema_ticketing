@@ -19,90 +19,96 @@
     <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
 
     <h2>{% translate "Manual Orders" %}</h2>
-    <table id="manual-orders-table" class="table table-striped mt-3">
-        <thead>
-            <tr>
-                <th>{% translate "Order ID" %}</th>
-                <th>{% translate "Customer Email" %}</th>
-                <th>{% translate "Customer First Name" %}</th>
-                <th>{% translate "Customer Last Name" %}</th>
-                <th>{% translate "Total Amount" %}</th>
-                <th>{% translate "Actions" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in manual_orders %}
+    <div class="table-responsive">
+        <table id="manual-orders-table" class="table table-striped mt-3">
+            <thead>
                 <tr>
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.billing_email }}</td>
-                    <td>{{ order.billing_first_name }}</td>
-                    <td>{{ order.billing_last_name }}</td>
-                    <td>{{ order.total }} {{ currency }}</td>
-                    <td>
-                        <a href="{% url 'admin_confirm_order' order.session_id %}" class="btn btn-primary">
-                            {% translate "Confirm Order" %}
-                        </a>
-                    </td>
+                    <th>{% translate "Order ID" %}</th>
+                    <th>{% translate "Customer Email" %}</th>
+                    <th>{% translate "Customer First Name" %}</th>
+                    <th>{% translate "Customer Last Name" %}</th>
+                    <th>{% translate "Total Amount" %}</th>
+                    <th>{% translate "Actions" %}</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for order in manual_orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.billing_email }}</td>
+                        <td>{{ order.billing_first_name }}</td>
+                        <td>{{ order.billing_last_name }}</td>
+                        <td>{{ order.total }} {{ currency }}</td>
+                        <td>
+                            <a href="{% url 'admin_confirm_order' order.session_id %}" class="btn btn-primary">
+                                {% translate "Confirm Order" %}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <h2>{% translate "Paid Orders" %}</h2>
-    <table id="paid-orders-table" class="table table-striped mt-3">
-        <thead>
-            <tr>
-                <th>{% translate "Order ID" %}</th>
-                <th>{% translate "Customer Email" %}</th>
-                <th>{% translate "Customer First Name" %}</th>
-                <th>{% translate "Customer Last Name" %}</th>
-                <th>{% translate "Total Amount" %}</th>
-                <th>{% translate "Actions" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in paid_orders %}
+    <div class="table-responsive">
+        <table id="paid-orders-table" class="table table-striped mt-3">
+            <thead>
                 <tr>
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.billing_email }}</td>
-                    <td>{{ order.billing_first_name }}</td>
-                    <td>{{ order.billing_last_name }}</td>
-                    <td>{{ order.total }} {{ currency }}</td>
-                    <td>
-                        <a href="{% url 'ticket_list' order.session_id %}" class="btn btn-primary">
-                            {% translate "View Tickets" %}
-                        </a>
-                    </td>
+                    <th>{% translate "Order ID" %}</th>
+                    <th>{% translate "Customer Email" %}</th>
+                    <th>{% translate "Customer First Name" %}</th>
+                    <th>{% translate "Customer Last Name" %}</th>
+                    <th>{% translate "Total Amount" %}</th>
+                    <th>{% translate "Actions" %}</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for order in paid_orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.billing_email }}</td>
+                        <td>{{ order.billing_first_name }}</td>
+                        <td>{{ order.billing_last_name }}</td>
+                        <td>{{ order.total }} {{ currency }}</td>
+                        <td>
+                            <a href="{% url 'ticket_list' order.session_id %}" class="btn btn-primary">
+                                {% translate "View Tickets" %}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <h2>{% translate "All Orders" %}</h2>
-    <table id="all-orders-table" class="table table-striped mt-3">
-        <thead>
-            <tr>
-                <th>{% translate "Order ID" %}</th>
-                <th>{% translate "Customer Email" %}</th>
-                <th>{% translate "Customer First Name" %}</th>
-                <th>{% translate "Customer Last Name" %}</th>
-                <th>{% translate "Total Amount" %}</th>
-                <th>{% translate "Status" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in all_orders %}
+    <div class="table-responsive">
+        <table id="all-orders-table" class="table table-striped mt-3">
+            <thead>
                 <tr>
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.billing_email }}</td>
-                    <td>{{ order.billing_first_name }}</td>
-                    <td>{{ order.billing_last_name }}</td>
-                    <td>{{ order.total }} {{ currency }}</td>
-                    <td>{{ order.status }}</td>
+                    <th>{% translate "Order ID" %}</th>
+                    <th>{% translate "Customer Email" %}</th>
+                    <th>{% translate "Customer First Name" %}</th>
+                    <th>{% translate "Customer Last Name" %}</th>
+                    <th>{% translate "Total Amount" %}</th>
+                    <th>{% translate "Status" %}</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for order in all_orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.billing_email }}</td>
+                        <td>{{ order.billing_first_name }}</td>
+                        <td>{{ order.billing_last_name }}</td>
+                        <td>{{ order.total }} {{ currency }}</td>
+                        <td>{{ order.status }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <script>
         $(document).ready(function() {

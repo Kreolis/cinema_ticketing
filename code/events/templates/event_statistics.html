@@ -25,124 +25,126 @@
     </div>
 
     <h2 class="mt-4">{% translate "Per Price Class Statistics" %}</h2>
-    <table id="statistics-table" class="table table-striped mt-3">
-        <thead>
-            <tr>
-                <th>{% translate "Statistic" %}</th>
-                {% for price_class in price_class_stats.keys %}
-                <th>{{ price_class.name }}</th>
-                {% endfor %}
-                <th>{% translate "Total" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{% translate "Waiting" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.waiting }}</td>
-                {% endfor %}
-                <td>{{ total_stats.waiting }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Presale Online" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.presale_online }}</td>
-                {% endfor %}
-                <td>{{ total_stats.presale_online }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Presale Door" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.presale_door }}</td>
-                {% endfor %}
-                <td>{{ total_stats.presale_door }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Door" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.door }}</td>
-                {% endfor %}
-                <td>{{ total_stats.door }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Total Sold" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.total_sold }}</td>
-                {% endfor %}
-                <td>{{ total_stats.total_sold }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Total" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.total_count }}</td>
-                {% endfor %}
-                <td>{{ total_stats.total_count }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Activated Presale Online" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.activated_presale_online }}</td>
-                {% endfor %}
-                <td>{{ total_stats.activated_presale_online }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Activated Presale Door" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.activated_presale_door }}</td>
-                {% endfor %}
-                <td>{{ total_stats.activated_presale_door }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Activated Door" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.activated_door }}</td>
-                {% endfor %}
-                <td>{{ total_stats.activated_door }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Total Sold Activated" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.total_activated }}</td>
-                {% endfor %}
-                <td>{{ total_stats.total_activated }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Ticket Price" %}</td>
-                {% for price_class in price_class_stats.keys %}
-                <td>{{ price_class.price }} {{ currency }}</td>
-                {% endfor %}
-                <td></td>
-            </tr>
-            <tr>
-                <td>{% translate "Total Earned Presale Online" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.earned_presale_online }} {{ currency }}</td>
-                {% endfor %}
-                <td>{{ total_stats.earned_presale_online }} {{ currency }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Total Earned Presale Door" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.earned_presale_door }} {{ currency }}</td>
-                {% endfor %}
-                <td>{{ total_stats.earned_presale_door }} {{ currency }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Total Earned Door" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.earned_door }} {{ currency }}</td>
-                {% endfor %}
-                <td>{{ total_stats.earned_door }} {{ currency }}</td>
-            </tr>
-            <tr>
-                <td>{% translate "Total Earned" %}</td>
-                {% for stats in price_class_stats.values %}
-                <td>{{ stats.total_earned }} {{ currency }}</td>
-                {% endfor %}
-                <td>{{ total_stats.total_earned }} {{ currency }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table id="statistics-table" class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>{% translate "Statistic" %}</th>
+                    {% for price_class in price_class_stats.keys %}
+                    <th>{{ price_class.name }}</th>
+                    {% endfor %}
+                    <th>{% translate "Total" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{% translate "Waiting" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.waiting }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.waiting }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Presale Online" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.presale_online }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.presale_online }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Presale Door" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.presale_door }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.presale_door }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Door" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.door }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.door }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Total Sold" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.total_sold }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.total_sold }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Total" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.total_count }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.total_count }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Activated Presale Online" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.activated_presale_online }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.activated_presale_online }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Activated Presale Door" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.activated_presale_door }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.activated_presale_door }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Activated Door" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.activated_door }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.activated_door }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Total Sold Activated" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.total_activated }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.total_activated }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Ticket Price" %}</td>
+                    {% for price_class in price_class_stats.keys %}
+                    <td>{{ price_class.price }} {{ currency }}</td>
+                    {% endfor %}
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>{% translate "Total Earned Presale Online" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.earned_presale_online }} {{ currency }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.earned_presale_online }} {{ currency }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Total Earned Presale Door" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.earned_presale_door }} {{ currency }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.earned_presale_door }} {{ currency }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Total Earned Door" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.earned_door }} {{ currency }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.earned_door }} {{ currency }}</td>
+                </tr>
+                <tr>
+                    <td>{% translate "Total Earned" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.total_earned }} {{ currency }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.total_earned }} {{ currency }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <script>
         $(document).ready(function() {

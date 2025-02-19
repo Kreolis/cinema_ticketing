@@ -141,40 +141,42 @@
         
         <!-- Tickets table -->
         <h2 class="mt-4">{% translate "Event Tickets" %}</h2>
-        <table id="tickets-table" class="table table-striped mt-3">
-            <thead>
-                <tr>
-                    <th>{% translate "Action" %}</th>
-                    <th>{% translate "Has been activated" %}</th>
-                    {% if event.display_seat_number %}
-                        <th>{% translate "Seat Number" %}</th>
-                    {% endif %}
-                    <th>{% translate "Email" %}</th>
-                    <th>{% translate "Name" %}</th>
-                    <th>{% translate "Ticket ID" %}</th>
-                    <th>{% translate "Sold as" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ticket in tickets %}
-                    <tr id="row-{{ ticket.id }}">
-                        <td>
-                            <button id="toggle-btn-{{ ticket.id }}" class="btn {% if ticket.activated %}btn-danger{% else %}btn-success{% endif %}" onclick="toggleActivation('{{ ticket.id }}')">
-                                {% if ticket.activated %}{% translate 'Deactivate' %}{% else %}{% translate 'Activate' %}{% endif %}
-                            </button>
-                        </td>
-                        <td id="activated-cell-{{ ticket.id }}">{{ ticket.activated }}</td>
+        <div class="table-responsive">
+            <table id="tickets-table" class="table table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>{% translate "Action" %}</th>
+                        <th>{% translate "Has been activated" %}</th>
                         {% if event.display_seat_number %}
-                            <td>{{ ticket.seat }}</td>
+                            <th>{% translate "Seat Number" %}</th>
                         {% endif %}
-                        <td>{{ ticket.email }}</td>
-                        <td>{{ ticket.first_name }} {{ ticket.last_name }}</td>
-                        <td>{{ ticket.id }}</td>
-                        <td>{{ ticket.sold_as }}</td>
+                        <th>{% translate "Email" %}</th>
+                        <th>{% translate "Name" %}</th>
+                        <th>{% translate "Ticket ID" %}</th>
+                        <th>{% translate "Sold as" %}</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                        <tr id="row-{{ ticket.id }}">
+                            <td>
+                                <button id="toggle-btn-{{ ticket.id }}" class="btn {% if ticket.activated %}btn-danger{% else %}btn-success{% endif %}" onclick="toggleActivation('{{ ticket.id }}')">
+                                    {% if ticket.activated %}{% translate 'Deactivate' %}{% else %}{% translate 'Activate' %}{% endif %}
+                                </button>
+                            </td>
+                            <td id="activated-cell-{{ ticket.id }}">{{ ticket.activated }}</td>
+                            {% if event.display_seat_number %}
+                                <td>{{ ticket.seat }}</td>
+                            {% endif %}
+                            <td>{{ ticket.email }}</td>
+                            <td>{{ ticket.first_name }} {{ ticket.last_name }}</td>
+                            <td>{{ ticket.id }}</td>
+                            <td>{{ ticket.sold_as }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
         <script>
             $(document).ready(function() {

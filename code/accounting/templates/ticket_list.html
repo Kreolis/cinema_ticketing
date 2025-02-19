@@ -22,100 +22,107 @@
 
     <div id="message-container"></div>
 
-    
-    <table id="tickets-table" class="table table-striped mt-3">
-        <thead>
-            <tr>
-                <th>{% translate "Event Name" %}</th>
-                <th>{% translate "Seat Number" %}</th>
-                <th>{% translate "Email" %}</th>
-                <th>{% translate "Price" %}</th>
-                <th>{% translate "Price Class" %}</th>
-                {% if order.is_confirmed %}
-                    <th>{% translate "Actions" %}</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for ticket in order.tickets.all %}
+    <div class="table-responsive">
+        <table id="tickets-table" class="table table-striped mt-3">
+            <thead>
                 <tr>
-                    <td>{{ ticket.event.name }}</td>
-                    {% if ticket.event.display_seat_number %}
-                        <td>{{ ticket.seat }}</td>
-                    {% else %}
-                        <td>{% translate "Free seating" %}</td>
-                    {% endif %}
-                    <td>
-                        <form action="{% url 'update_ticket_email' ticket.id %}" method="post" class="update-email-form" style="display:inline-flex;">
-                            {% csrf_token %}
-                            <input type="email" name="email" value="{{ ticket.email }}" class="form-control form-control-sm" required style="margin-right: 5px;">
-                            {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
-                        </form>
-                    </td>
-                    <td>{{ ticket.price_class.price }} {{ currency }}</td>
-                    <td>{{ ticket.price_class.name }}</td>
+                    <th>{% translate "Event Name" %}</th>
+                    <th>{% translate "Seat Number" %}</th>
+                    <th>{% translate "Email" %}</th>
+                    <th>{% translate "Price" %}</th>
+                    <th>{% translate "Price Class" %}</th>
                     {% if order.is_confirmed %}
-                        <td>
-                            <a href="{% url 'show_generated_ticket_pdf' ticket.id %}" class="btn btn-primary" target="_blank">
-                                {% translate "Show Ticket" %}
-                            </a>
-                            <a href="{% url 'send_ticket_email' ticket.id %}" class="btn btn-secondary send-email-btn" data-ticket-id="{{ ticket.id }}">
-                                {% translate "Send ticket to Email" %}
-                            </a>
-                        </td>
+                        <th>{% translate "Actions" %}</th>
                     {% endif %}
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for ticket in order.tickets.all %}
+                    <tr>
+                        <td>{{ ticket.event.name }}</td>
+                        {% if ticket.event.display_seat_number %}
+                            <td>{{ ticket.seat }}</td>
+                        {% else %}
+                            <td>{% translate "Free seating" %}</td>
+                        {% endif %}
+                        <td>
+                            <form action="{% url 'update_ticket_email' ticket.id %}" method="post" class="update-email-form" style="display:inline-flex;">
+                                {% csrf_token %}
+                                <input type="email" name="email" value="{{ ticket.email }}" class="form-control form-control-sm" required style="margin-right: 5px;">
+                                {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
+                            </form>
+                        </td>
+                        <td>{{ ticket.price_class.price }} {{ currency }}</td>
+                        <td>{{ ticket.price_class.name }}</td>
+                        {% if order.is_confirmed %}
+                            <td>
+                                <a href="{% url 'show_generated_ticket_pdf' ticket.id %}" class="btn btn-primary" target="_blank">
+                                    {% translate "Show Ticket" %}
+                                </a>
+                                <a href="{% url 'send_ticket_email' ticket.id %}" class="btn btn-secondary send-email-btn" data-ticket-id="{{ ticket.id }}">
+                                    {% translate "Send ticket to Email" %}
+                                </a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% if not order.is_confirmed %}
         <h2 class="text-danger">{% translate "This order is not confirmed yet. See payment instructions below or in your invoice." %}</h2>
         <p>{{ payment_instructions|safe }}</p>
     {% endif %}
 
     <h2>{% translate "Payment Details" %}</h2>
-    <table class="table table-striped">
-        <tr>
-            <th>{% translate "Payment Amount" %}</th>
-            <td>{{ order.total }} {{ order.currency }}</td>
-        </tr>
-        <tr>
-            <th>{% translate "Billing First Name" %}</th>
-            <td>{{ order.billing_first_name }}</td>
-        </tr>
-        <tr>
-            <th>{% translate "Billing Last Name" %}</th>
-            <td>{{ order.billing_last_name }}</td>
-        </tr>
-        <tr>
-            <th>{% translate "Billing Address Line 1" %}</th>
-            <td>{{ order.billing_address_1 }}</td>
-        </tr>
-        <tr>
-            <th>{% translate "Billing Address Line 2" %}</th>
-            <td>{{ order.billing_address_2 }}</td>
-        </tr>
-        <tr>
-            <th>{% translate "Billing City" %}</th>
-            <td>{{ order.billing_city }}</td>
-        </tr>
-        <tr>
-            <th>{% translate "Billing Postcode" %}</th>
-            <td>{{ order.billing_postcode }}</td>
-        </tr>
-        <tr>
-            <th>{% translate "Billing Country" %}</th>
-            <td>{{ order.billing_country_code }}</td>
-        </tr>
-        <tr>
-            <th>{% translate "Billing Country Area" %}</th>
-            <td>{{ order.billing_country_area }}</td>
-        </tr>
-        <tr>
-            <th>{% translate "Billing Email" %}</th>
-            <td>{{ order.billing_email }}</td>
-        </tr>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <th>{% translate "Payment Method" %}</th>
+                <td>{{ order.payment_method }}</td>
+            </tr>
+            <tr>
+                <th>{% translate "Payment Amount" %}</th>
+                <td>{{ order.total }} {{ order.currency }}</td>
+            </tr>
+            <tr>
+                <th>{% translate "Billing First Name" %}</th>
+                <td>{{ order.billing_first_name }}</td>
+            </tr>
+            <tr>
+                <th>{% translate "Billing Last Name" %}</th>
+                <td>{{ order.billing_last_name }}</td>
+            </tr>
+            <tr>
+                <th>{% translate "Billing Address Line 1" %}</th>
+                <td>{{ order.billing_address_1 }}</td>
+            </tr>
+            <tr>
+                <th>{% translate "Billing Address Line 2" %}</th>
+                <td>{{ order.billing_address_2 }}</td>
+            </tr>
+            <tr>
+                <th>{% translate "Billing City" %}</th>
+                <td>{{ order.billing_city }}</td>
+            </tr>
+            <tr>
+                <th>{% translate "Billing Postcode" %}</th>
+                <td>{{ order.billing_postcode }}</td>
+            </tr>
+            <tr>
+                <th>{% translate "Billing Country" %}</th>
+                <td>{{ order.billing_country_code }}</td>
+            </tr>
+            <tr>
+                <th>{% translate "Billing Country Area" %}</th>
+                <td>{{ order.billing_country_area }}</td>
+            </tr>
+            <tr>
+                <th>{% translate "Billing Email" %}</th>
+                <td>{{ order.billing_email }}</td>
+            </tr>
+        </table>
+    </div>
 
     <a href="{% url 'show_generated_invoice' order.session_id %}" class="btn btn-primary" target="_blank">
         {% translate "Show Invoice" %}

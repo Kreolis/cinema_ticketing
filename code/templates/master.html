@@ -12,6 +12,7 @@
 <html lang="{{ CURRENT_LANGUAGE }}">
   
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   {% if get_active_favicon == None %}
     <link rel="icon" href="{% get_active_favicon %}" type="image/x-icon">
   {% else %}
@@ -22,7 +23,7 @@
 <body>
 
 <div class="container">
-  <ul class="nav bg-info justify-content-between position-sticky top-0">
+  <nav class="nav bg-info justify-content-between position-sticky top-0" style='z-index: 1030;'>
     <div class="d-flex">
       <li class="nav-item">
         <a class="nav-link link-light" href="{% url 'event_list' %}">{% translate "Events List" %}</a>
@@ -63,7 +64,7 @@
         {% endif %}
       </li>
     </div>
-  </ul>
+  </nav>
 
   {% block content %}
   {% endblock %}

@@ -39,52 +39,56 @@
 
     <!-- Tickets table -->
     <h2>{% translate "Tickets" %}</h2>
-    <table id="tickets-table" class="table table-striped mt-3">
-        <thead>
-            <tr>
-                <th>{% translate "Event Name" %}</th>
-                <th>{% translate "Seat Number" %}</th>
-                <th>{% translate "Email" %}</th>
-                <th>{% translate "Price" %}</th>
-                <th>{% translate "Price Class" %}</th>
-                <th>{% translate "Actions" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for ticket in order.tickets.all %}
+    <div class="table-responsive">
+        <table id="tickets-table" class="table table-striped mt-3">
+            <thead>
                 <tr>
-                    <td>{{ ticket.event.name }}</td>
-                    {% if ticket.event.display_seat_number %}
-                        <td>{{ ticket.seat }}</td>
-                    {% else %}
-                        <td>{% translate "Free seating" %}</td>
-                    {% endif %}
-                    <td>
-                        <form action="{% url 'update_ticket_email' ticket.id %}" method="post" class="update-email-form" style="display:inline-flex;">
-                            {% csrf_token %}
-                            <input type="email" name="email" value="{{ ticket.email }}" class="form-control form-control-sm" required style="margin-right: 5px;">
-                            {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
-                        </form>
-                    </td>
-                    <td>{{ ticket.price_class.price }} {{ currency }}</td>
-                    <td>{{ ticket.price_class.name }}</td>
-                    <td>
-                        <form action="{% url 'delete_ticket' ticket.id %}" method="post" class="delete-ticket-form" style="display:inline;">
-                            {% csrf_token %}
-                            {% bootstrap_button _("Delete") button_type="submit" button_class="btn btn-danger btn-sm" %}
-                        </form>
-                    </td>
+                    <th>{% translate "Event Name" %}</th>
+                    <th>{% translate "Seat Number" %}</th>
+                    <th>{% translate "Email" %}</th>
+                    <th>{% translate "Price" %}</th>
+                    <th>{% translate "Price Class" %}</th>
+                    <th>{% translate "Actions" %}</th>
                 </tr>
-            {% endfor %}
-            
-        </tbody>
-    </table>
-    <table id="total-table" class="table table-striped mt-3">
-        <tr>
-            <td colspan="2"><strong>{% translate "Total" %}</strong></td>
-            <td><strong>{{ order.total }} {{ currency }}</strong></td>
-        </tr>
-    </table>
+            </thead>
+            <tbody>
+                {% for ticket in order.tickets.all %}
+                    <tr>
+                        <td>{{ ticket.event.name }}</td>
+                        {% if ticket.event.display_seat_number %}
+                            <td>{{ ticket.seat }}</td>
+                        {% else %}
+                            <td>{% translate "Free seating" %}</td>
+                        {% endif %}
+                        <td>
+                            <form action="{% url 'update_ticket_email' ticket.id %}" method="post" class="update-email-form" style="display:inline-flex;">
+                                {% csrf_token %}
+                                <input type="email" name="email" value="{{ ticket.email }}" class="form-control form-control-sm" required style="margin-right: 5px;">
+                                {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
+                            </form>
+                        </td>
+                        <td>{{ ticket.price_class.price }} {{ currency }}</td>
+                        <td>{{ ticket.price_class.name }}</td>
+                        <td>
+                            <form action="{% url 'delete_ticket' ticket.id %}" method="post" class="delete-ticket-form" style="display:inline;">
+                                {% csrf_token %}
+                                {% bootstrap_button _("Delete") button_type="submit" button_class="btn btn-danger btn-sm" %}
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+    </div>
+    <div class="table-responsive">
+        <table id="total-table" class="table table-striped mt-3">
+            <tr>
+                <td colspan="2"><strong>{% translate "Total" %}</strong></td>
+                <td><strong>{{ order.total }} {{ currency }}</strong></td>
+            </tr>
+        </table>
+    </div>
 
     <p>{% translate "Your order is valid for another" %} <span id="timeout-time-remaining">{{ time_remaining }}:00</span> {% translate "minutes" %}.</p>
 
