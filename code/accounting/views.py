@@ -204,7 +204,7 @@ def confirm_order(request, order_id):
             order.save()
 
             for ticket in order.tickets.all():
-                ticket.sold_as = SoldAsStatus.PRESALE_ONLINE
+                ticket.sold_as = SoldAsStatus.PRESALE_ONLINE_WAITING
                 ticket.first_name = order.billing_first_name
                 ticket.last_name = order.billing_last_name
                 ticket.save()
@@ -300,8 +300,11 @@ def admin_confirm_order(request, order_id):
         order.save()
 
         for ticket in order.tickets.all():
-            ticket.send_to_email()
+            ticket.sold_as = SoldAsStatus.PRESALE_ONLINE
+            ticket.save()
         
+            ticket.send_to_email()
+            
         # Send confirmation and invoice email
         order.send_confirmation_email()
 

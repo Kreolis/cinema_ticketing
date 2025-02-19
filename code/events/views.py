@@ -135,7 +135,8 @@ def user_in_ticket_managers_group_or_admin(user):
 @user_passes_test(user_in_ticket_managers_group_or_admin)
 def event_check_in(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-    tickets = Ticket.objects.filter(event=event).exclude(sold_as=SoldAsStatus.WAITING)
+    # filter out waiting tickets = not sold yet, SoldAsStatus.PRESALE_ONLINE_WAITING and SoldAsStatus.WAITING
+    tickets = Ticket.objects.filter(event=event).exclude(sold_as__in=[SoldAsStatus.PRESALE_ONLINE_WAITING, SoldAsStatus.WAITING])
     branding = Branding.objects.filter(is_active=True).first()
     return render(request, 'event_check_in.html', {
         'event': event,

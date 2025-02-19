@@ -18,6 +18,7 @@ from branding.models import get_active_branding
 class SoldAsStatus:
     WAITING = "waiting"
     PRESALE_ONLINE = "presale_online"
+    PRESALE_ONLINE_WAITING = "presale_online_waiting"
     PRESALE_DOOR = "presale_door"
     DOOR = "door"
     REFUNDED = "refunded"
@@ -25,6 +26,7 @@ class SoldAsStatus:
     CHOICES = [
         (WAITING, _("Ticket not yet sold")),
         (PRESALE_ONLINE, _("Ticket was sold in online presale")),
+        (PRESALE_ONLINE_WAITING, _("Ticket was sold in online presale, but not yet confirmed")),
         (PRESALE_DOOR, _("Ticket was sold in door presale")),
         (DOOR, _("Ticket was sold at the door")),
         (REFUNDED, _("Ticket refunded")),
@@ -72,7 +74,7 @@ class Ticket(models.Model):
     price_class = models.ForeignKey(PriceClass, verbose_name=_("price class"), on_delete=models.CASCADE)  # Reference to PriceClass (ticket price)
     event = models.ForeignKey("Event", verbose_name=_("event"), on_delete=models.CASCADE)  # Add event to ticket
     seat = models.IntegerField(_("seat number")) # seat number
-    sold_as = models.CharField(_("sold as"), max_length=14, choices=SoldAsStatus.CHOICES, default=SoldAsStatus.WAITING)  # How the ticket was sold
+    sold_as = models.CharField(_("sold as"), max_length=24, choices=SoldAsStatus.CHOICES, default=SoldAsStatus.WAITING)  # How the ticket was sold
 
     first_name = models.CharField(_("first name"), max_length=128, blank=True, null=True)  # First name of the ticket holder/buyer
     last_name = models.CharField(_("last name"), max_length=128, blank=True, null=True)  # Last name of the ticket holder/buyer
