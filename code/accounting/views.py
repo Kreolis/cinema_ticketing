@@ -35,7 +35,7 @@ def cart_view(request):
     elif not order.is_valid():
         # this is an old order that has expired
         # delete the order and create a new one
-        order.delete()
+        order.delete(request)
         order = get_payment_model().objects.create(session_id=request.session.session_key)
 
     if request.method == 'POST':
@@ -60,7 +60,7 @@ def payment_form(request):
         return redirect('cart_view')
         
     if not order.is_valid():
-        order.delete()
+        order.delete(request)
         order = get_payment_model().objects.create(session_id=request.session.session_key)
         return redirect('cart_view')
         
