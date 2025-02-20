@@ -184,6 +184,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+## SIMPLE CAPTCHA SETTINGS
+CAPTCHA_LETTER_ROTATION = (-5, 5)
+
 ## DJANGO-PAYMENTS SETTINGS
 
 # define default CURRENCY
