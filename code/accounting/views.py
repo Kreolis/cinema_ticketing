@@ -270,7 +270,8 @@ def ticket_list(request, order_id):
         return render(request, 'ticket_list.html', {
             'order': order,
             'currency': settings.DEFAULT_CURRENCY,
-            'payment_instructions': order.get_payment_instructions()
+            'payment_instructions': order.get_payment_instructions(),
+            'humanzied_payment_variant': settings.HUMANIZED_PAYMENT_VARIANT[order.variant]
         })
     else:
         return redirect('payment_form')
