@@ -7,8 +7,8 @@ from .models import Order
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'status', 'total', 'created', 'show_invoice_pdf')
-    list_filter = ('status', 'created')
+    list_display = ('id', 'status', 'is_confirmed', 'variant', 'total', 'created' , 'modified', 'has_timed_out', 'show_invoice_pdf')
+    list_filter = ('status', 'created', 'is_confirmed', 'variant')
     search_fields = ('id', 'total', 'status')
     actions = ['custom_delete_selected']
 
