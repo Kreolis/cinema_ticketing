@@ -4,7 +4,7 @@ from datetime import timedelta, datetime
 from typing import Iterable
 
 from events.models import Ticket
-from branding.models import get_active_branding
+from branding.models import get_active_branding, TicketMaster
 
 from payments.models import BasePayment, PaymentStatus, PurchasedItem
 from django.core.mail import EmailMessage
@@ -424,6 +424,47 @@ class Order(BasePayment):
         # attach invoice
         pdf = self.generate_pdf_invoice()
         pdf_output = pdf.output(dest='S')
+        email.attach(f"order_invoice_{self.session_id}.pdf", pdf_output, 'application/pdf')
+        try:
+            email.send()
+        except Exception as e:
+            print(f"Error sending confirmation email: {e}")
+            raise e
+        
+
+        # inform ticket masters emails about new order
+        # get all ticket masters emails that are active
+        ticket_masters = TicketMaster.objects.filter(is_active=True)
+
+        subject = _("New Order {order_id} on {site_name}").format(order_id=self.id, site_name=site_name)
+        message = _("Dear Ticket Master,\n\n"
+                    "A new order has been placed on {site_name}.\n\n"
+                    "Please find the order details below:\n\n"
+                    "Order ID: {order_id}\n"
+                    "Order Date: {order_date}\n"
+                    "Customer: {customer_name}\n"
+                    "Customer Email: {customer_email}\n"
+                    "Total Amount: {total_amount} {currency}\n\n"
+                    "You can view the order details here: {order_link}\n\n"
+                    "Best regards,\nThe Event Team").format(
+                        order_id=self.id,
+                        site_name=site_name,
+                        order_date=self.created.strftime('%Y-%m-%d %H:%M'),
+                        customer_name=f"{self.billing_first_name} {self.billing_last_name}",
+                        customer_email=self.billing_email,
+                        total_amount=self.total,
+                        currency=self.currency,
+                        order_link=order_link
+                    )
+        
+        recipient_list = [ticket_master.email for ticket_master in ticket_masters]
+        email = EmailMessage(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            recipient_list
+        )
+
         email.attach(f"order_invoice_{self.session_id}.pdf", pdf_output, 'application/pdf')
         try:
             email.send()

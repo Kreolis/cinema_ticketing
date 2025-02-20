@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-19 20:21+0200\n"
-"PO-Revision-Date: 2025-02-19 20:22+0000\n"
+"POT-Creation-Date: 2025-02-20 15:09+0200\n"
+"PO-Revision-Date: 2025-02-20 13:19+0000\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -19,87 +19,87 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Translated-Using: django-rosetta 0.10.1\n"
 
-#: .\accounting\admin.py:42
+#: accounting/admin.py:42
 msgid "Delete selected orders"
 msgstr "Ausgewählte Bestellungen löschen"
 
-#: .\accounting\forms.py:12 .\events\forms.py:35
+#: accounting/forms.py:12 events/forms.py:35
 msgid "First Name"
 msgstr "Vorname"
 
-#: .\accounting\forms.py:13
+#: accounting/forms.py:13
 msgid "Enter the first name as it appears on the billing statement."
 msgstr "Geben Sie den Vornamen so ein, wie er auf der Abrechnung erscheint."
 
-#: .\accounting\forms.py:17 .\events\forms.py:42
+#: accounting/forms.py:17 events/forms.py:42
 msgid "Last Name"
 msgstr "Nachname"
 
-#: .\accounting\forms.py:18
+#: accounting/forms.py:18
 msgid "Enter the last name as it appears on the billing statement."
 msgstr "Geben Sie den Nachnamen so ein, wie er auf der Abrechnung erscheint."
 
-#: .\accounting\forms.py:22
+#: accounting/forms.py:22
 msgid "Address Line 1"
 msgstr "Adresszeile 1"
 
-#: .\accounting\forms.py:23
+#: accounting/forms.py:23
 msgid "Enter the primary address for billing purposes."
 msgstr "Geben Sie die Hauptadresse für Abrechnungszwecke ein."
 
-#: .\accounting\forms.py:27
+#: accounting/forms.py:27
 msgid "Address Line 2"
 msgstr "Adresszeile 2"
 
-#: .\accounting\forms.py:28
+#: accounting/forms.py:28
 msgid "Optional: Enter the secondary address for billing purposes, if any."
 msgstr ""
 "Optional: Geben Sie die sekundäre Adresse für Abrechnungszwecke ein, falls "
 "vorhanden."
 
-#: .\accounting\forms.py:33 .\accounting\models.py:227
+#: accounting/forms.py:33 accounting/models.py:227
 msgid "City"
 msgstr "Stadt"
 
-#: .\accounting\forms.py:34
+#: accounting/forms.py:34
 msgid "Enter the city for the billing address."
 msgstr "Geben Sie die Stadt für die Rechnungsadresse ein."
 
-#: .\accounting\forms.py:38 .\accounting\models.py:228
+#: accounting/forms.py:38 accounting/models.py:228
 msgid "Postcode"
 msgstr "Postleitzahl"
 
-#: .\accounting\forms.py:39
+#: accounting/forms.py:39
 msgid "Enter the postcode for the billing address."
 msgstr "Geben Sie die Postleitzahl für die Rechnungsadresse ein."
 
-#: .\accounting\forms.py:43 .\accounting\models.py:229
+#: accounting/forms.py:43 accounting/models.py:229
 msgid "Country"
 msgstr "Land"
 
-#: .\accounting\forms.py:44
+#: accounting/forms.py:44
 msgid "Optional: Enter the country for the billing address."
 msgstr "Optional: Geben Sie das Land für die Rechnungsadresse ein."
 
-#: .\accounting\forms.py:50
+#: accounting/forms.py:50
 msgid "State/Province"
 msgstr "Bundesland/Provinz"
 
-#: .\accounting\forms.py:51
+#: accounting/forms.py:51
 msgid "Enter the state or province for the billing address."
 msgstr ""
 "Geben Sie das Bundesland oder die Provinz für die Rechnungsadresse ein."
 
-#: .\accounting\forms.py:56 .\accounting\forms.py:82
-#: .\accounting\templates\cart.html:48
-#: .\accounting\templates\order_payment_overview.html:29
-#: .\accounting\templates\ticket_list.html:31 .\events\forms.py:28
-#: .\events\templates\event_check_in.html:153
-#: .\events\templates\event_door_selling.html:64
+#: accounting/forms.py:56 accounting/forms.py:82
+#: accounting/templates/cart.html:48
+#: accounting/templates/order_payment_overview.html:29
+#: accounting/templates/ticket_list.html:31 events/forms.py:28
+#: events/templates/event_check_in.html:153
+#: events/templates/event_door_selling.html:64
 msgid "Email"
 msgstr "E-Mail"
 
-#: .\accounting\forms.py:57
+#: accounting/forms.py:57
 msgid ""
 "Enter the email address where billing information will be sent. If you have "
 "not set the send-to-email for each ticket this email will be used for all "
@@ -109,35 +109,34 @@ msgstr ""
 "gesendet werden. Wenn Sie keine E-Mail-Adresse für jedes Ticket festgelegt "
 "haben, wird diese E-Mail-Adresse für alle Tickets verwendet."
 
-#: .\accounting\forms.py:63
-#: .\accounting\templates\order_payment_overview.html:60
-#: .\accounting\templates\ticket_list.html:81
+#: accounting/forms.py:63 accounting/templates/order_payment_overview.html:60
+#: accounting/templates/ticket_list.html:81
 msgid "Payment Method"
 msgstr "Zahlungsmethode"
 
-#: .\accounting\forms.py:64
+#: accounting/forms.py:64
 msgid "Select the payment method you would like to use."
 msgstr "Wählen Sie die Zahlungsmethode, die Sie verwenden möchten."
 
-#: .\accounting\forms.py:72
+#: accounting/forms.py:72
 msgid "Please prove you are human."
 msgstr "Bitte beweisen Sie, dass Sie ein Mensch sind."
 
-#: .\accounting\forms.py:83
+#: accounting/forms.py:83
 msgid "Enter the email address where all tickets will be sent to."
 msgstr ""
 "Geben Sie die E-Mail-Adresse ein, an die alle Tickets gesendet werden."
 
-#: .\accounting\models.py:92
+#: accounting/models.py:92
 #, python-brace-format
 msgid "Order {id} for session {session_id}"
 msgstr "Bestellung {id} für Sitzung {session_id}"
 
-#: .\accounting\models.py:155
+#: accounting/models.py:155
 msgid "Please transfer the total amount to the following bank account."
 msgstr "Bitte überweisen Sie den Gesamtbetrag auf das folgende Bankkonto."
 
-#: .\accounting\models.py:163
+#: accounting/models.py:163
 #, python-brace-format
 msgid ""
 "<p>{message}</p><p>Bank: <strong>{bank_name}</strong><br>Account Name: "
@@ -153,7 +152,7 @@ msgstr ""
 "Zahlung ist innerhalb von <strong>{due_days}</strong> Tagen "
 "fällig.</p><p>Vielen Dank für Ihren Einkauf!</p>"
 
-#: .\accounting\models.py:181
+#: accounting/models.py:181
 #, python-brace-format
 msgid ""
 "{message}\n"
@@ -174,88 +173,87 @@ msgstr ""
 "Die Zahlung ist innerhalb von {due_days} Tagen fällig.\n"
 "Vielen Dank für Ihren Einkauf!"
 
-#: .\accounting\models.py:224
+#: accounting/models.py:224
 msgid "Company Name"
 msgstr "Firmenname"
 
-#: .\accounting\models.py:225
+#: accounting/models.py:225
 msgid "Company Address"
 msgstr "Firmenadresse"
 
-#: .\accounting\models.py:230
+#: accounting/models.py:230
 msgid "VAT Number"
 msgstr "Umsatzsteuer-Identifikationsnummer"
 
-#: .\accounting\models.py:231
+#: accounting/models.py:231
 msgid "Phone Number"
 msgstr "Telefonnummer"
 
-#: .\accounting\models.py:232
+#: accounting/models.py:232
 msgid "Email Address"
 msgstr "E-Mail-Adresse"
 
-#: .\accounting\models.py:237
+#: accounting/models.py:237
 msgid "INV"
 msgstr "RECH"
 
-#: .\accounting\models.py:293
+#: accounting/models.py:293
 msgid "Invoice #:"
 msgstr "Rechnungsnummer:"
 
-#: .\accounting\models.py:293
+#: accounting/models.py:293
 msgid "Date:"
 msgstr "Datum:"
 
-#: .\accounting\models.py:293
+#: accounting/models.py:293
 msgid "Due Date:"
 msgstr "Fälligkeitsdatum:"
 
-#: .\accounting\models.py:298
+#: accounting/models.py:298
 msgid "Invoice To:"
 msgstr "Rechnung an:"
 
-#: .\accounting\models.py:305
+#: accounting/models.py:305
 msgid "Description"
 msgstr "Beschreibung"
 
-#: .\accounting\models.py:306
+#: accounting/models.py:306
 msgid "Quantity"
 msgstr "Menge"
 
-#: .\accounting\models.py:307
+#: accounting/models.py:307
 msgid "Unit Price"
 msgstr "Stückpreis"
 
-#: .\accounting\models.py:308 .\accounting\models.py:330
-#: .\accounting\templates\cart.html:87
-#: .\events\templates\all_event_statistics.html:34
-#: .\events\templates\all_event_statistics.html:86
-#: .\events\templates\all_event_statistics.html:126
-#: .\events\templates\event_statistics.html:36
-#: .\events\templates\event_statistics.html:76
+#: accounting/models.py:308 accounting/models.py:330
+#: accounting/templates/cart.html:87
+#: events/templates/all_event_statistics.html:34
+#: events/templates/all_event_statistics.html:86
+#: events/templates/all_event_statistics.html:126
+#: events/templates/event_statistics.html:36
+#: events/templates/event_statistics.html:76
 msgid "Total"
 msgstr "Gesamt"
 
-#: .\accounting\models.py:322
+#: accounting/models.py:322
 msgid "Subtotal"
 msgstr "Zwischensumme"
 
-#: .\accounting\models.py:326
+#: accounting/models.py:326
 #, python-brace-format
 msgid "Tax ({tax_rate}%)"
 msgstr "Steuer ({tax_rate}%)"
 
-#: .\accounting\models.py:340
+#: accounting/models.py:340
 msgid "Payment Instructions:"
 msgstr "Zahlungsanweisungen:"
 
-#: .\accounting\models.py:362
+#: accounting/models.py:362
 #, python-brace-format
-#| msgid "Your Ticket for {event_name} - {site_name}"
 msgid "Your Invoice for Order {order_id} - {site_name}"
 msgstr "Ihre Rechnung für die Bestellung {order_id} – {site_name}"
 
-#: .\accounting\models.py:363
+#: accounting/models.py:363
 #, python-brace-format
 msgid ""
 "Dear Customer,\n"
@@ -284,12 +282,12 @@ msgstr ""
 "Mit freundlichen Grüßen\n"
 "Das Event-Team"
 
-#: .\accounting\models.py:404
+#: accounting/models.py:404
 #, python-brace-format
 msgid "Payment Instructions for Your Order {order_id} on {site_name}"
 msgstr "Zahlungsanweisungen für Ihre Bestellung {order_id} auf {site_name}"
 
-#: .\accounting\models.py:406
+#: accounting/models.py:406
 #, python-brace-format
 msgid ""
 "Dear Customer,\n"
@@ -318,290 +316,331 @@ msgstr ""
 "Viele Grüße,\n"
 "Das Event-Team"
 
-#: .\accounting\models.py:441
+#: accounting/models.py:439
+#, python-brace-format
+#| msgid "Your Invoice for Order {order_id} - {site_name}"
+msgid "New Order {order_id} on {site_name}"
+msgstr "Neue Bestellung {order_id} auf {site_name}"
+
+#: accounting/models.py:440
+#, python-brace-format
+msgid ""
+"Dear Ticket Master,\n"
+"\n"
+"A new order has been placed on {site_name}.\n"
+"\n"
+"Please find the order details below:\n"
+"\n"
+"Order ID: {order_id}\n"
+"Order Date: {order_date}\n"
+"Customer: {customer_name}\n"
+"Customer Email: {customer_email}\n"
+"Total Amount: {total_amount} {currency}\n"
+"\n"
+"You can view the order details here: {order_link}\n"
+"\n"
+"Best regards,\n"
+"The Event Team"
+msgstr ""
+"Sehr geehrter Ticketmaster,\n"
+"\n"
+"Eine neue Bestellung wurde auf {site_name} aufgegeben.\n"
+"\n"
+"Die Bestelldetails finden Sie unten:\n"
+"\n"
+"Bestell-ID: {order_id}\n"
+"Bestelldatum: {order_date}\n"
+"Kunde: {customer_name}\n"
+"Kunden-E-Mail: {customer_email}\n"
+"Gesamtbetrag: {total_amount} {currency}\n"
+"\n"
+"Sie können die Bestelldetails hier einsehen: {order_link}\n"
+"\n"
+"Mit freundlichen Grüßen\n"
+"Das Event-Team"
+
+#: accounting/models.py:482
 msgid "Cannot delete a paid order."
 msgstr "Eine bezahlte Bestellung kann nicht gelöscht werden."
 
-#: .\accounting\templates\cart.html:9
+#: accounting/templates/cart.html:9
 msgid "Order Overview"
 msgstr "Bestellübersicht"
 
-#: .\accounting\templates\cart.html:12
+#: accounting/templates/cart.html:12
 msgid "Your Order"
 msgstr "Ihre Bestellung"
 
-#: .\accounting\templates\cart.html:21 .\accounting\templates\cart.html:93
-#: .\accounting\templates\order_payment_overview.html:22
-#: .\accounting\templates\order_payment_overview.html:101
-#: .\accounting\templates\payment_form.html:17
-#: .\accounting\templates\payment_form.html:28
+#: accounting/templates/cart.html:21 accounting/templates/cart.html:93
+#: accounting/templates/order_payment_overview.html:22
+#: accounting/templates/order_payment_overview.html:101
+#: accounting/templates/payment_form.html:17
+#: accounting/templates/payment_form.html:28
 msgid "Your order is valid for another"
 msgstr "Ihre Bestellung ist noch gültig für"
 
-#: .\accounting\templates\cart.html:21 .\accounting\templates\cart.html:93
-#: .\accounting\templates\order_payment_overview.html:22
-#: .\accounting\templates\order_payment_overview.html:101
-#: .\accounting\templates\payment_form.html:17
-#: .\accounting\templates\payment_form.html:28
+#: accounting/templates/cart.html:21 accounting/templates/cart.html:93
+#: accounting/templates/order_payment_overview.html:22
+#: accounting/templates/order_payment_overview.html:101
+#: accounting/templates/payment_form.html:17
+#: accounting/templates/payment_form.html:28
 msgid "minutes"
 msgstr "Minuten"
 
-#: .\accounting\templates\cart.html:24
+#: accounting/templates/cart.html:24
 msgid "Update all Ticket Emails"
 msgstr "Alle Ticket-E-Mails aktualisieren"
 
-#: .\accounting\templates\cart.html:35
+#: accounting/templates/cart.html:35
 msgid "Update Emails"
 msgstr "E-Mails aktualisieren"
 
-#: .\accounting\templates\cart.html:41
-#: .\accounting\templates\ticket_list.html:21
-#: .\events\templates\event_door_selling.html:37
+#: accounting/templates/cart.html:41 accounting/templates/ticket_list.html:21
+#: events/templates/event_door_selling.html:37
 msgid "Tickets"
 msgstr "Tickets"
 
-#: .\accounting\templates\cart.html:46
-#: .\accounting\templates\order_payment_overview.html:27
-#: .\accounting\templates\ticket_list.html:29
+#: accounting/templates/cart.html:46
+#: accounting/templates/order_payment_overview.html:27
+#: accounting/templates/ticket_list.html:29
 msgid "Event Name"
 msgstr "Veranstaltungsname"
 
-#: .\accounting\templates\cart.html:47
-#: .\accounting\templates\order_payment_overview.html:28
-#: .\accounting\templates\ticket_list.html:30
-#: .\events\templates\event_check_in.html:151
-#: .\events\templates\event_door_selling.html:62
+#: accounting/templates/cart.html:47
+#: accounting/templates/order_payment_overview.html:28
+#: accounting/templates/ticket_list.html:30
+#: events/templates/event_check_in.html:151
+#: events/templates/event_door_selling.html:62
 msgid "Seat Number"
 msgstr "Sitznummer"
 
-#: .\accounting\templates\cart.html:49
-#: .\accounting\templates\order_payment_overview.html:30
-#: .\accounting\templates\ticket_list.html:32
-#: .\events\templates\event_door_selling.html:67
+#: accounting/templates/cart.html:49
+#: accounting/templates/order_payment_overview.html:30
+#: accounting/templates/ticket_list.html:32
+#: events/templates/event_door_selling.html:67
 msgid "Price"
 msgstr "Preis"
 
-#: .\accounting\templates\cart.html:50
-#: .\accounting\templates\order_payment_overview.html:31
-#: .\accounting\templates\ticket_list.html:33
-#: .\events\templates\event_door_selling.html:68
+#: accounting/templates/cart.html:50
+#: accounting/templates/order_payment_overview.html:31
+#: accounting/templates/ticket_list.html:33
+#: events/templates/event_door_selling.html:68
 msgid "Price Class"
 msgstr "Preisklasse"
 
-#: .\accounting\templates\cart.html:51
-#: .\accounting\templates\manage_orders.html:31
-#: .\accounting\templates\manage_orders.html:63
-#: .\accounting\templates\ticket_list.html:35
+#: accounting/templates/cart.html:51
+#: accounting/templates/manage_orders.html:31
+#: accounting/templates/manage_orders.html:63
+#: accounting/templates/ticket_list.html:35
 msgid "Actions"
 msgstr "Aktionen"
 
-#: .\accounting\templates\cart.html:61
-#: .\accounting\templates\order_payment_overview.html:41
-#: .\accounting\templates\ticket_list.html:46
+#: accounting/templates/cart.html:61
+#: accounting/templates/order_payment_overview.html:41
+#: accounting/templates/ticket_list.html:46
 msgid "Free seating"
 msgstr "Freie Platzwahl"
 
-#: .\accounting\templates\cart.html:67
-#: .\accounting\templates\ticket_list.html:52
-#: .\events\templates\event_door_selling.html:82
+#: accounting/templates/cart.html:67 accounting/templates/ticket_list.html:52
+#: events/templates/event_door_selling.html:82
 msgid "Update"
 msgstr "Aktualisieren"
 
-#: .\accounting\templates\cart.html:75
+#: accounting/templates/cart.html:75
 msgid "Delete"
 msgstr "Löschen"
 
-#: .\accounting\templates\cart.html:173
+#: accounting/templates/cart.html:173
 msgid "Proceed to Payment"
 msgstr "Zur Zahlung fortfahren"
 
-#: .\accounting\templates\cart.html:175
+#: accounting/templates/cart.html:175
 msgid "Continue ticket selection"
 msgstr "Ticket-Auswahl fortsetzen"
 
-#: .\accounting\templates\login.html:9 .\accounting\templates\login.html:13
-#: .\accounting\templates\login.html:17 .\templates\master.html:63
+#: accounting/templates/login.html:9 accounting/templates/login.html:13
+#: accounting/templates/login.html:17 templates/master.html:63
 msgid "Login"
 msgstr "Login"
 
-#: .\accounting\templates\manage_orders.html:9
-#: .\accounting\templates\manage_orders.html:12 .\templates\master.html:36
+#: accounting/templates/manage_orders.html:9
+#: accounting/templates/manage_orders.html:12 templates/master.html:36
 msgid "Manage Orders"
 msgstr "Bestellungen verwalten"
 
-#: .\accounting\templates\manage_orders.html:21
+#: accounting/templates/manage_orders.html:21
 msgid "Manual Orders"
 msgstr "Manuelle Bestellungen"
 
-#: .\accounting\templates\manage_orders.html:26
-#: .\accounting\templates\manage_orders.html:58
-#: .\accounting\templates\manage_orders.html:90
+#: accounting/templates/manage_orders.html:26
+#: accounting/templates/manage_orders.html:58
+#: accounting/templates/manage_orders.html:90
 msgid "Order ID"
 msgstr "Bestell-ID"
 
-#: .\accounting\templates\manage_orders.html:27
-#: .\accounting\templates\manage_orders.html:59
-#: .\accounting\templates\manage_orders.html:91
+#: accounting/templates/manage_orders.html:27
+#: accounting/templates/manage_orders.html:59
+#: accounting/templates/manage_orders.html:91
 msgid "Customer Email"
 msgstr "Kunden-E-Mail"
 
-#: .\accounting\templates\manage_orders.html:28
-#: .\accounting\templates\manage_orders.html:60
-#: .\accounting\templates\manage_orders.html:92
+#: accounting/templates/manage_orders.html:28
+#: accounting/templates/manage_orders.html:60
+#: accounting/templates/manage_orders.html:92
 msgid "Customer First Name"
 msgstr "Kunden-Vorname"
 
-#: .\accounting\templates\manage_orders.html:29
-#: .\accounting\templates\manage_orders.html:61
-#: .\accounting\templates\manage_orders.html:93
+#: accounting/templates/manage_orders.html:29
+#: accounting/templates/manage_orders.html:61
+#: accounting/templates/manage_orders.html:93
 msgid "Customer Last Name"
 msgstr "Kunden-Nachname"
 
-#: .\accounting\templates\manage_orders.html:30
-#: .\accounting\templates\manage_orders.html:62
-#: .\accounting\templates\manage_orders.html:94
+#: accounting/templates/manage_orders.html:30
+#: accounting/templates/manage_orders.html:62
+#: accounting/templates/manage_orders.html:94
 msgid "Total Amount"
 msgstr "Gesamtbetrag"
 
-#: .\accounting\templates\manage_orders.html:44
+#: accounting/templates/manage_orders.html:44
 msgid "Confirm Order"
 msgstr "Bestellung bestätigen"
 
-#: .\accounting\templates\manage_orders.html:53
+#: accounting/templates/manage_orders.html:53
 msgid "Paid Orders"
 msgstr "Bezahlte Bestellungen"
 
-#: .\accounting\templates\manage_orders.html:76
+#: accounting/templates/manage_orders.html:76
 msgid "View Tickets"
 msgstr "Tickets anzeigen"
 
-#: .\accounting\templates\manage_orders.html:85
+#: accounting/templates/manage_orders.html:85
 msgid "All Orders"
 msgstr "Alle Bestellungen"
 
-#: .\accounting\templates\manage_orders.html:95
+#: accounting/templates/manage_orders.html:95
 msgid "Status"
 msgstr "Status"
 
-#: .\accounting\templates\order_payment_overview.html:9
-#: .\accounting\templates\order_payment_overview.html:12
+#: accounting/templates/order_payment_overview.html:9
+#: accounting/templates/order_payment_overview.html:12
 msgid "Order and Payment Overview"
 msgstr "Bestell- und Zahlungsübersicht"
 
-#: .\accounting\templates\order_payment_overview.html:21
-#: .\accounting\templates\ticket_list.html:9
-#: .\accounting\templates\ticket_list.html:12
+#: accounting/templates/order_payment_overview.html:21
+#: accounting/templates/ticket_list.html:9
+#: accounting/templates/ticket_list.html:12
 msgid "Order Details"
 msgstr "Bestelldetails"
 
-#: .\accounting\templates\order_payment_overview.html:52
-#: .\accounting\templates\ticket_list.html:77
+#: accounting/templates/order_payment_overview.html:52
+#: accounting/templates/ticket_list.html:77
 msgid "Payment Details"
 msgstr "Zahlungsdetails"
 
-#: .\accounting\templates\order_payment_overview.html:56
-#: .\accounting\templates\ticket_list.html:85
+#: accounting/templates/order_payment_overview.html:56
+#: accounting/templates/ticket_list.html:85
 msgid "Payment Amount"
 msgstr "Zahlungsbetrag"
 
-#: .\accounting\templates\order_payment_overview.html:63
-#: .\accounting\templates\ticket_list.html:89
+#: accounting/templates/order_payment_overview.html:63
+#: accounting/templates/ticket_list.html:89
 msgid "Billing First Name"
 msgstr "Rechnungs-Vorname"
 
-#: .\accounting\templates\order_payment_overview.html:67
-#: .\accounting\templates\ticket_list.html:93
+#: accounting/templates/order_payment_overview.html:67
+#: accounting/templates/ticket_list.html:93
 msgid "Billing Last Name"
 msgstr "Rechnungs-Nachname"
 
-#: .\accounting\templates\order_payment_overview.html:71
-#: .\accounting\templates\ticket_list.html:97
+#: accounting/templates/order_payment_overview.html:71
+#: accounting/templates/ticket_list.html:97
 msgid "Billing Address Line 1"
 msgstr "Rechnungsadresse Zeile 1"
 
-#: .\accounting\templates\order_payment_overview.html:75
-#: .\accounting\templates\ticket_list.html:101
+#: accounting/templates/order_payment_overview.html:75
+#: accounting/templates/ticket_list.html:101
 msgid "Billing Address Line 2"
 msgstr "Rechnungsadresse Zeile 2"
 
-#: .\accounting\templates\order_payment_overview.html:79
-#: .\accounting\templates\ticket_list.html:105
+#: accounting/templates/order_payment_overview.html:79
+#: accounting/templates/ticket_list.html:105
 msgid "Billing City"
 msgstr "Rechnungsstadt"
 
-#: .\accounting\templates\order_payment_overview.html:83
-#: .\accounting\templates\ticket_list.html:109
+#: accounting/templates/order_payment_overview.html:83
+#: accounting/templates/ticket_list.html:109
 msgid "Billing Postcode"
 msgstr "Rechnungs-Postleitzahl"
 
-#: .\accounting\templates\order_payment_overview.html:87
-#: .\accounting\templates\ticket_list.html:113
+#: accounting/templates/order_payment_overview.html:87
+#: accounting/templates/ticket_list.html:113
 msgid "Billing Country"
 msgstr "Rechnungsland"
 
-#: .\accounting\templates\order_payment_overview.html:91
-#: .\accounting\templates\ticket_list.html:117
+#: accounting/templates/order_payment_overview.html:91
+#: accounting/templates/ticket_list.html:117
 msgid "Billing Country Area"
 msgstr "Rechnungs-Bundesland"
 
-#: .\accounting\templates\order_payment_overview.html:95
-#: .\accounting\templates\ticket_list.html:121
+#: accounting/templates/order_payment_overview.html:95
+#: accounting/templates/ticket_list.html:121
 msgid "Billing Email"
 msgstr "Rechnungs-E-Mail"
 
-#: .\accounting\templates\order_payment_overview.html:104
+#: accounting/templates/order_payment_overview.html:104
 msgid "Confirm order order with payment obligation"
 msgstr "Bestellung mit Zahlungspflicht bestätigen"
 
-#: .\accounting\templates\payment_failed.html:9
-#: .\accounting\templates\payment_failed.html:12
+#: accounting/templates/payment_failed.html:9
+#: accounting/templates/payment_failed.html:12
 msgid "Payment Failed"
 msgstr "Zahlung fehlgeschlagen"
 
-#: .\accounting\templates\payment_failed.html:14
+#: accounting/templates/payment_failed.html:14
 msgid "Your payment has failed. Please try again."
 msgstr "Ihre Zahlung ist fehlgeschlagen. Bitte versuchen Sie es erneut."
 
-#: .\accounting\templates\payment_failed.html:16
-#: .\accounting\templates\payment_form.html:32
+#: accounting/templates/payment_failed.html:16
+#: accounting/templates/payment_form.html:32
 msgid "Go back to cart"
 msgstr "Zurück zum Warenkorb"
 
-#: .\accounting\templates\payment_form.html:9
-#: .\accounting\templates\payment_form.html:12
+#: accounting/templates/payment_form.html:9
+#: accounting/templates/payment_form.html:12
 msgid "Payment Form"
 msgstr "Zahlungsformular"
 
-#: .\accounting\templates\payment_form.html:31
+#: accounting/templates/payment_form.html:31
 msgid "Proceed to Checkout"
 msgstr "Zur Kasse gehen"
 
-#: .\accounting\templates\payment_form.html:37
+#: accounting/templates/payment_form.html:37
 msgid ""
 "You will be redirected to the payment gateway to complete your payment."
 msgstr ""
 "Sie werden zum Zahlungs-Gateway weitergeleitet, um Ihre Zahlung "
 "abzuschließen."
 
-#: .\accounting\templates\payment_form.html:42
+#: accounting/templates/payment_form.html:42
 msgid "Complete Payment"
 msgstr "Zahlung abschließen"
 
-#: .\accounting\templates\payment_form.html:70
+#: accounting/templates/payment_form.html:70
 msgid "Your order has expired."
 msgstr "Ihre Bestellung ist abgelaufen."
 
-#: .\accounting\templates\ticket_list.html:60
-#: .\events\templates\event_door_selling.html:91
+#: accounting/templates/ticket_list.html:60
+#: events/templates/event_door_selling.html:91
 msgid "Show Ticket"
 msgstr "Ticket anzeigen"
 
-#: .\accounting\templates\ticket_list.html:63
-#: .\events\templates\event_door_selling.html:94
+#: accounting/templates/ticket_list.html:63
+#: events/templates/event_door_selling.html:94
 msgid "Send ticket to Email"
 msgstr "Ticket an E-Mail senden"
 
-#: .\accounting\templates\ticket_list.html:73
+#: accounting/templates/ticket_list.html:73
 msgid ""
 "This order is not confirmed yet. See payment instructions below or in your "
 "invoice."
@@ -609,52 +648,57 @@ msgstr ""
 "Diese Bestellung ist noch nicht bestätigt. Siehe Zahlungsanweisungen unten "
 "oder in Ihrer Rechnung."
 
-#: .\accounting\templates\ticket_list.html:128
+#: accounting/templates/ticket_list.html:128
 msgid "Show Invoice"
 msgstr "Rechnung anzeigen"
 
-#: .\branding\forms.py:10
+#: branding/forms.py:10
 msgid "Enter your full name."
 msgstr "Geben Sie Ihren vollständigen Namen ein."
 
-#: .\branding\forms.py:14
+#: branding/forms.py:14
 msgid "Enter a valid email address."
 msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
 
-#: .\branding\forms.py:19
+#: branding/forms.py:19
 msgid "Enter your message or inquiry."
 msgstr "Geben Sie Ihre Nachricht oder Anfrage ein."
 
-#: .\branding\forms.py:24
+#: branding/forms.py:24
 msgid "Select an event to which your message is related (optional)."
 msgstr ""
 "Wählen Sie eine Veranstaltung aus, auf die sich Ihre Nachricht bezieht "
 "(optional)."
 
-#: .\branding\models.py:9
+#: branding/models.py:9 branding/models.py:18
 msgid "Enter the first name"
 msgstr "Geben Sie den Vornamen ein"
 
-#: .\branding\models.py:10
+#: branding/models.py:10 branding/models.py:19
 msgid "Enter the last name"
 msgstr "Geben Sie den Nachnamen ein"
 
-#: .\branding\models.py:11
-msgid "Enter the email address"
-msgstr "Geben Sie die E-Mail-Adresse ein"
+#: branding/models.py:11
+#| msgid "Enter the email address where all tickets will be sent to."
+msgid "Enter the email address to which the contact form is sent"
+msgstr ""
+"Geben Sie die E-Mail-Adresse ein, an die das Kontaktformular gesendet wird"
 
-#: .\branding\models.py:12
+#: branding/models.py:12 branding/models.py:21
 msgid "Indicates if the contact is active"
 msgstr "Gibt an, ob der Kontakt aktiv ist"
 
-#: .\branding\models.py:20
+#: branding/models.py:20
+#| msgid "Enter the email address where all tickets will be sent to."
+msgid "Enter the email address to which all ticket sales are sent"
+msgstr ""
+"Geben Sie die E-Mail-Adresse ein, an die alle Ticketverkäufe gesendet werden"
+
+#: branding/models.py:28
 msgid "Enter the name of your branding"
 msgstr "Geben Sie den Namen Ihres Brandings ein"
 
-#: .\branding\models.py:21
-#| msgid ""
-#| "Enter the name of your site. This will be used as the title of the site and "
-#| "in communcations."
+#: branding/models.py:29
 msgid ""
 "Enter the name of your site. This will be used as the title of the site and "
 "in communications."
@@ -662,40 +706,34 @@ msgstr ""
 "Geben Sie den Namen Ihrer Site ein. Dies wird als Titel der Website und in "
 "der Kommunikation verwendet."
 
-#: .\branding\models.py:22
-#| msgid ""
-#| "Enter the name of your site. This will be used as the title of the site and "
-#| "in communcations."
+#: branding/models.py:30
 msgid "Enter the URL of your site. This will be used in communications."
 msgstr ""
 "Geben Sie die URL Ihrer Website ein. Dies wird in der Kommunikation "
 "verwendet."
 
-#: .\branding\models.py:23
+#: branding/models.py:31
 msgid "Upload the logo image"
 msgstr "Laden Sie das Logo-Bild hoch"
 
-#: .\branding\models.py:24
+#: branding/models.py:32
 msgid "Upload the favicon image (max 64x64 pixels)"
 msgstr "Laden Sie das Favicon-Bild hoch (max. 64x64 Pixel)"
 
-#: .\branding\models.py:25
+#: branding/models.py:33
 msgid "Timeout in minutes until user needs to start fresh with their order"
 msgstr ""
 "Timeout in Minuten, bis der Benutzer seine Bestellung neu starten muss"
 
-#: .\branding\models.py:26
+#: branding/models.py:34
 msgid "Upload the success sound file for ticket scanner"
 msgstr "Laden Sie die Erfolgs-Sounddatei für den Ticket-Scanner hoch"
 
-#: .\branding\models.py:29
+#: branding/models.py:37
 msgid "Upload the global ticket background image"
 msgstr "Laden Sie das globale Ticket-Hintergrundbild hoch"
 
-#: .\branding\models.py:30
-#| msgid ""
-#| "Indicates if seat numbers are diplayed for customers, if not free seating "
-#| "text is displayed"
+#: branding/models.py:38
 msgid ""
 "Indicates if seat numbers are displayed for customers, if not free seating "
 "text is displayed"
@@ -703,19 +741,19 @@ msgstr ""
 "Gibt an, ob Sitzplatznummern für Kunden angezeigt werden, wenn keine freien "
 "Sitzplätze vorhanden sind, wird Text angezeigt"
 
-#: .\branding\models.py:31
+#: branding/models.py:39
 msgid "Upload the global event background image"
 msgstr "Laden Sie das globale Veranstaltungs-Hintergrundbild hoch"
 
-#: .\branding\models.py:32
+#: branding/models.py:40
 msgid "Indicates if presale is allowed"
 msgstr "Gibt an, ob der Vorverkauf erlaubt ist"
 
-#: .\branding\models.py:33
+#: branding/models.py:41
 msgid "Enter the date and time when presale starts"
 msgstr "Geben Sie Datum und Uhrzeit an, wann der Vorverkauf beginnt"
 
-#: .\branding\models.py:34
+#: branding/models.py:42
 msgid ""
 "Number of hours before event start when presale ends and door (not presale) "
 "selling starts"
@@ -723,97 +761,97 @@ msgstr ""
 "Anzahl der Stunden vor Veranstaltungsbeginn, wenn der Vorverkauf endet und "
 "der Verkauf an der Tür (nicht Vorverkauf) beginnt"
 
-#: .\branding\models.py:35
+#: branding/models.py:43
 msgid "Indicates if selling tickets at the door is allowed"
 msgstr "Gibt an, ob der Verkauf von Tickets an der Tür erlaubt ist"
 
-#: .\branding\models.py:38
+#: branding/models.py:46
 msgid ""
 "Indicates if invoice information is displayed on auto generated invoices"
 msgstr ""
 "Gibt an, ob Rechnungsinformationen auf automatisch generierten Rechnungen "
 "angezeigt werden"
 
-#: .\branding\models.py:39
+#: branding/models.py:47
 msgid "Upload the global invoice background image"
 msgstr "Laden Sie das globale Rechnungs-Hintergrundbild hoch"
 
-#: .\branding\models.py:40
+#: branding/models.py:48
 msgid "Upload the logo image for invoices"
 msgstr "Laden Sie das Logo-Bild für Rechnungen hoch"
 
-#: .\branding\models.py:41
+#: branding/models.py:49
 msgid "Enter your name to appear on invoices"
 msgstr "Geben Sie Ihren Namen ein, der auf Rechnungen erscheinen soll"
 
-#: .\branding\models.py:42 .\branding\models.py:43
+#: branding/models.py:50 branding/models.py:51
 msgid "Enter your address to appear on invoices"
 msgstr "Geben Sie Ihre Adresse ein, die auf Rechnungen erscheinen soll"
 
-#: .\branding\models.py:44
+#: branding/models.py:52
 msgid "Enter your city to appear on invoices"
 msgstr "Geben Sie Ihre Stadt ein, die auf Rechnungen erscheinen soll"
 
-#: .\branding\models.py:45
+#: branding/models.py:53
 msgid "Enter your postal code to appear on invoices"
 msgstr "Geben Sie Ihre Postleitzahl ein, die auf Rechnungen erscheinen soll"
 
-#: .\branding\models.py:46
+#: branding/models.py:54
 msgid "Enter your country to appear on invoices"
 msgstr "Geben Sie Ihr Land ein, das auf Rechnungen erscheinen soll"
 
-#: .\branding\models.py:47
+#: branding/models.py:55
 msgid "Enter your email address to appear on invoices"
 msgstr "Geben Sie Ihre E-Mail-Adresse ein, die auf Rechnungen erscheinen soll"
 
-#: .\branding\models.py:48
+#: branding/models.py:56
 msgid "Enter your phone number to appear on invoices"
 msgstr "Geben Sie Ihre Telefonnummer ein, die auf Rechnungen erscheinen soll"
 
-#: .\branding\models.py:49
+#: branding/models.py:57
 msgid "Enter your VAT number to appear on invoices"
 msgstr ""
 "Geben Sie Ihre Umsatzsteuer-Identifikationsnummer ein, die auf Rechnungen "
 "erscheinen soll"
 
-#: .\branding\models.py:50
+#: branding/models.py:58
 msgid "Enter the tax rate in percent to appear on invoices"
 msgstr ""
 "Geben Sie den Steuersatz in Prozent ein, der auf Rechnungen erscheinen soll"
 
-#: .\branding\models.py:52
+#: branding/models.py:60
 msgid "Enter the padding in cm for the top of the invoice"
 msgstr "Geben Sie den Abstand in cm für die Oberseite der Rechnung ein"
 
-#: .\branding\models.py:53
+#: branding/models.py:61
 msgid "Enter the padding in cm for the left of the invoice"
 msgstr "Geben Sie den Abstand in cm für die linke Seite der Rechnung ein"
 
-#: .\branding\models.py:54
+#: branding/models.py:62
 msgid "Enter the padding in cm for the right of the invoice"
 msgstr "Geben Sie den Abstand in cm für die rechte Seite der Rechnung ein"
 
-#: .\branding\models.py:55
+#: branding/models.py:63
 msgid "Enter the padding in cm for the bottom of the invoice"
 msgstr "Geben Sie den Abstand in cm für die Unterseite der Rechnung ein"
 
-#: .\branding\models.py:57
+#: branding/models.py:65
 msgid "Enter the bank account name for advanced payments"
 msgstr "Geben Sie den Kontonamen für Vorauszahlungen ein"
 
-#: .\branding\models.py:58
+#: branding/models.py:66
 msgid "Enter the bank name for advanced payments"
 msgstr "Geben Sie den Banknamen für Vorauszahlungen ein"
 
-#: .\branding\models.py:59
+#: branding/models.py:67
 msgid "Enter the IBAN for advanced payments"
 msgstr "Geben Sie die IBAN für Vorauszahlungen ein"
 
-#: .\branding\models.py:60
+#: branding/models.py:68
 msgid "Enter the SWIFT code for advanced payments"
 msgstr "Geben Sie den SWIFT-Code für Vorauszahlungen ein"
 
-#: .\branding\models.py:61
+#: branding/models.py:69
 msgid ""
 "Enter the reference for advanced payments. This is also used as invoice "
 "number."
@@ -821,210 +859,209 @@ msgstr ""
 "Geben Sie den Verwendungszweck für Vorauszahlungen ein. Dies wird auch als "
 "Rechnungsnummer verwendet."
 
-#: .\branding\models.py:62
+#: branding/models.py:70
 msgid "Enter the number of days until payment is due for advanced payments"
 msgstr ""
 "Geben Sie die Anzahl der Tage ein, bis die Zahlung für Vorauszahlungen "
 "fällig ist"
 
-#: .\branding\models.py:63
+#: branding/models.py:71
 msgid "Enter the message to appear on advanced payment emails"
 msgstr ""
 "Geben Sie die Nachricht ein, die in Vorauszahlungs-E-Mails erscheinen soll"
 
-#: .\branding\models.py:65
+#: branding/models.py:73
 msgid "Indicates if this branding is active"
 msgstr "Gibt an, ob dieses Branding aktiv ist"
 
-#: .\branding\models.py:87
+#: branding/models.py:95
 msgid "Favicon size should not exceed 64x64 pixels."
 msgstr "Die Größe des Favicons sollte 64x64 Pixel nicht überschreiten."
 
-#: .\branding\templates\contact.html:9 .\branding\templates\contact.html:13
-#: .\templates\master.html:77
+#: branding/templates/contact.html:9 branding/templates/contact.html:13
+#: templates/master.html:77
 msgid "Contact Us"
 msgstr "Kontaktieren Sie uns"
 
-#: .\branding\templates\contact.html:15
+#: branding/templates/contact.html:15
 msgid "For any questions or concerns, please contact us at:"
 msgstr "Bei Fragen oder Bedenken kontaktieren Sie uns bitte unter:"
 
-#: .\branding\templates\contact.html:30
+#: branding/templates/contact.html:30
 msgid "Submit"
 msgstr "Absenden"
 
-#: .\branding\views.py:38
+#: branding/views.py:38
 msgid "Message sent successfully!"
 msgstr "Nachricht erfolgreich gesendet!"
 
-#: .\cinema_tickets\settings.py:148
+#: cinema_tickets/settings.py:148
 msgid "English"
 msgstr "Englisch"
 
-#: .\cinema_tickets\settings.py:149
+#: cinema_tickets/settings.py:149
 msgid "German"
 msgstr "Deutsch"
 
-#: .\cinema_tickets\settings.py:287
+#: cinema_tickets/settings.py:287
 msgid "Stripe (Credit Card)"
 msgstr "Stripe (Kreditkarte)"
 
-#: .\cinema_tickets\settings.py:288
+#: cinema_tickets/settings.py:288
 msgid "Paypal"
 msgstr "Paypal"
 
-#: .\cinema_tickets\settings.py:289
+#: cinema_tickets/settings.py:289
 msgid "Advance Payment"
 msgstr "Vorauszahlung"
 
-#: .\cinema_tickets\settings.py:290
+#: cinema_tickets/settings.py:290
 msgid "Dummy Payment"
 msgstr "Dummy-Zahlung"
 
-#: .\events\forms.py:23
+#: events/forms.py:23
 msgid "Select the number of tickets for this price class."
 msgstr "Wählen Sie die Anzahl der Tickets für diese Preisklasse."
 
-#: .\events\forms.py:57
+#: events/forms.py:57
 msgid "+1 Ticket"
 msgstr "+1 Ticket"
 
-#: .\events\forms.py:58
+#: events/forms.py:58
 msgid "+2 Tickets"
 msgstr "+2 Tickets"
 
-#: .\events\forms.py:59
+#: events/forms.py:59
 msgid "+5 Tickets"
 msgstr "+5 Tickets"
 
-#: .\events\forms.py:65
+#: events/forms.py:65
 msgid "Reset"
 msgstr "Zurücksetzen"
 
-#: .\events\models.py:27
+#: events/models.py:27
 msgid "Ticket not yet sold"
 msgstr "Ticket noch nicht verkauft"
 
-#: .\events\models.py:28
+#: events/models.py:28
 msgid "Ticket was sold in online presale"
 msgstr "Ticket wurde im Online-Vorverkauf verkauft"
 
-#: .\events\models.py:29
-#| msgid "Ticket was sold in online presale"
+#: events/models.py:29
 msgid "Ticket was sold in online presale, but not yet confirmed"
 msgstr ""
 "Das Ticket wurde im Online-Vorverkauf verkauft, aber noch nicht bestätigt"
 
-#: .\events\models.py:30
+#: events/models.py:30
 msgid "Ticket was sold in door presale"
 msgstr "Ticket wurde im Tür-Vorverkauf verkauft"
 
-#: .\events\models.py:31
+#: events/models.py:31
 msgid "Ticket was sold at the door"
 msgstr "Ticket wurde an der Tür verkauft"
 
-#: .\events\models.py:32
+#: events/models.py:32
 msgid "Ticket refunded"
 msgstr "Ticket erstattet"
 
-#: .\events\models.py:39 .\events\models.py:58 .\events\models.py:266
+#: events/models.py:39 events/models.py:58 events/models.py:266
 msgid "name"
 msgstr "Name"
 
-#: .\events\models.py:40
+#: events/models.py:40
 msgid "total seats"
 msgstr "Gesamtsitze"
 
-#: .\events\models.py:43
+#: events/models.py:43
 msgid "street"
 msgstr "Straße"
 
-#: .\events\models.py:44
+#: events/models.py:44
 msgid "house number"
 msgstr "Hausnummer"
 
-#: .\events\models.py:45
+#: events/models.py:45
 msgid "city"
 msgstr "Stadt"
 
-#: .\events\models.py:46
+#: events/models.py:46
 msgid "zip code"
 msgstr "Postleitzahl"
 
-#: .\events\models.py:60
+#: events/models.py:60
 msgid "notification message"
 msgstr "Benachrichtigungsnachricht"
 
-#: .\events\models.py:63
+#: events/models.py:63
 msgid "secret"
 msgstr "Geheimnis"
 
-#: .\events\models.py:74
+#: events/models.py:74
 msgid "price class"
 msgstr "Preisklasse"
 
-#: .\events\models.py:75
+#: events/models.py:75
 msgid "event"
 msgstr "Veranstaltung"
 
-#: .\events\models.py:76
+#: events/models.py:76
 msgid "seat number"
 msgstr "Sitznummer"
 
-#: .\events\models.py:77
+#: events/models.py:77
 msgid "sold as"
 msgstr "verkauft als"
 
-#: .\events\models.py:79
+#: events/models.py:79
 msgid "first name"
 msgstr "Vorname"
 
-#: .\events\models.py:80
+#: events/models.py:80
 msgid "last name"
 msgstr "Nachname"
 
-#: .\events\models.py:82
+#: events/models.py:82
 msgid "email"
 msgstr "E-Mail"
 
-#: .\events\models.py:85
+#: events/models.py:85
 msgid "activated"
 msgstr "aktiviert"
 
-#: .\events\models.py:142
+#: events/models.py:142
 msgid "Start:"
 msgstr "Start:"
 
-#: .\events\models.py:145
+#: events/models.py:145
 msgid "Duration:"
 msgstr "Dauer:"
 
-#: .\events\models.py:149
+#: events/models.py:149
 msgid "Venue:"
 msgstr "Veranstaltungsort:"
 
-#: .\events\models.py:154
+#: events/models.py:154
 msgid "Seat Number:"
 msgstr "Sitznummer:"
 
-#: .\events\models.py:157 .\events\models.py:199 .\events\models.py:226
+#: events/models.py:157 events/models.py:199 events/models.py:226
 msgid "Free Seating"
 msgstr "Freie Platzwahl"
 
-#: .\events\models.py:161
+#: events/models.py:161
 msgid "Price Class:"
 msgstr "Preisklasse:"
 
-#: .\events\models.py:172
+#: events/models.py:172
 msgid "Price:"
 msgstr "Preis:"
 
-#: .\events\models.py:221
+#: events/models.py:221
 #, python-brace-format
 msgid "Your Ticket for {event_name} - {site_name}"
 msgstr "Ihr Ticket für {event_name} - {site_name}"
 
-#: .\events\models.py:228
+#: events/models.py:228
 #, python-brace-format
 msgid ""
 "Dear Customer,\n"
@@ -1053,449 +1090,449 @@ msgstr ""
 "Mit freundlichen Grüßen,\n"
 "Event-Team"
 
-#: .\events\models.py:260
+#: events/models.py:260
 msgid "No email address associated with this ticket."
 msgstr "Keine E-Mail-Adresse mit diesem Ticket verknüpft."
 
-#: .\events\models.py:267
+#: events/models.py:267
 msgid "start time"
 msgstr "Startzeit"
 
-#: .\events\models.py:268
+#: events/models.py:268
 msgid "duration"
 msgstr "Dauer"
 
-#: .\events\models.py:269
+#: events/models.py:269
 msgid "location"
 msgstr "Ort"
 
-#: .\events\models.py:270
+#: events/models.py:270
 msgid "price classes"
 msgstr "Preisklassen"
 
-#: .\events\models.py:271
+#: events/models.py:271
 msgid "program link"
 msgstr "Programmlink"
 
-#: .\events\models.py:275
+#: events/models.py:275
 msgid "is active"
 msgstr "ist aktiv"
 
-#: .\events\models.py:278
+#: events/models.py:278
 msgid "custom seats"
 msgstr "benutzerdefinierte Sitze"
 
-#: .\events\models.py:284
+#: events/models.py:284
 msgid "ticket background"
 msgstr "Ticket-Hintergrund"
 
-#: .\events\models.py:292
+#: events/models.py:292
 msgid "display seat number"
 msgstr "Sitznummer anzeigen"
 
-#: .\events\models.py:297
+#: events/models.py:297
 msgid "event background"
 msgstr "Veranstaltungs-Hintergrund"
 
-#: .\events\models.py:305
+#: events/models.py:305
 msgid "allow presale"
 msgstr "Vorverkauf erlauben"
 
-#: .\events\models.py:310
+#: events/models.py:310
 msgid "presale start"
 msgstr "Vorverkaufsstart"
 
-#: .\events\models.py:315
+#: events/models.py:315
 msgid "presale ends before and door (not presale) selling starts"
 msgstr "Vorverkauf endet und Türverkauf (nicht Vorverkauf) beginnt"
 
-#: .\events\models.py:320
+#: events/models.py:320
 msgid "allow door selling"
 msgstr "Türverkauf erlauben"
 
-#: .\events\templates\all_event_statistics.html:8
-#: .\events\templates\all_event_statistics.html:11
-#: .\events\templates\all_event_statistics.html:23
+#: events/templates/all_event_statistics.html:8
+#: events/templates/all_event_statistics.html:11
+#: events/templates/all_event_statistics.html:23
 msgid "Overall Statistics"
 msgstr "Gesamtstatistik"
 
-#: .\events\templates\all_event_statistics.html:13
+#: events/templates/all_event_statistics.html:13
 msgid "Go to Event List"
 msgstr "Zur Veranstaltungsübersicht gehen"
 
-#: .\events\templates\all_event_statistics.html:14
+#: events/templates/all_event_statistics.html:14
 msgid "Print Global Statistics"
 msgstr "Globale Statistik drucken"
 
-#: .\events\templates\all_event_statistics.html:28
-#: .\events\templates\all_event_statistics.html:91
-#: .\events\templates\event_statistics.html:41
+#: events/templates/all_event_statistics.html:28
+#: events/templates/all_event_statistics.html:91
+#: events/templates/event_statistics.html:41
 msgid "Waiting"
 msgstr "Warten"
 
-#: .\events\templates\all_event_statistics.html:29
-#: .\events\templates\all_event_statistics.html:98
-#: .\events\templates\event_statistics.html:48
+#: events/templates/all_event_statistics.html:29
+#: events/templates/all_event_statistics.html:98
+#: events/templates/event_statistics.html:48
 msgid "Presale Online"
 msgstr "Online-Vorverkauf"
 
-#: .\events\templates\all_event_statistics.html:30
-#: .\events\templates\all_event_statistics.html:105
-#: .\events\templates\event_statistics.html:55
+#: events/templates/all_event_statistics.html:30
+#: events/templates/all_event_statistics.html:105
+#: events/templates/event_statistics.html:55
 msgid "Presale Door"
 msgstr "Tür-Vorverkauf"
 
-#: .\events\templates\all_event_statistics.html:31
-#: .\events\templates\all_event_statistics.html:112
-#: .\events\templates\event_statistics.html:62
+#: events/templates/all_event_statistics.html:31
+#: events/templates/all_event_statistics.html:112
+#: events/templates/event_statistics.html:62
 msgid "Door"
 msgstr "Tür"
 
-#: .\events\templates\all_event_statistics.html:33
-#: .\events\templates\all_event_statistics.html:119
-#: .\events\templates\event_statistics.html:69
+#: events/templates/all_event_statistics.html:33
+#: events/templates/all_event_statistics.html:119
+#: events/templates/event_statistics.html:69
 msgid "Total Sold"
 msgstr "Gesamt verkauft"
 
-#: .\events\templates\all_event_statistics.html:36
-#: .\events\templates\all_event_statistics.html:133
-#: .\events\templates\event_statistics.html:83
+#: events/templates/all_event_statistics.html:36
+#: events/templates/all_event_statistics.html:133
+#: events/templates/event_statistics.html:83
 msgid "Activated Presale Online"
 msgstr "Aktivierter Online-Vorverkauf"
 
-#: .\events\templates\all_event_statistics.html:37
-#: .\events\templates\all_event_statistics.html:140
-#: .\events\templates\event_statistics.html:90
+#: events/templates/all_event_statistics.html:37
+#: events/templates/all_event_statistics.html:140
+#: events/templates/event_statistics.html:90
 msgid "Activated Presale Door"
 msgstr "Aktivierter Tür-Vorverkauf"
 
-#: .\events\templates\all_event_statistics.html:38
-#: .\events\templates\all_event_statistics.html:147
-#: .\events\templates\event_statistics.html:97
+#: events/templates/all_event_statistics.html:38
+#: events/templates/all_event_statistics.html:147
+#: events/templates/event_statistics.html:97
 msgid "Activated Door"
 msgstr "Aktivierte Tür"
 
-#: .\events\templates\all_event_statistics.html:40
-#: .\events\templates\all_event_statistics.html:154
-#: .\events\templates\event_statistics.html:104
+#: events/templates/all_event_statistics.html:40
+#: events/templates/all_event_statistics.html:154
+#: events/templates/event_statistics.html:104
 msgid "Total Sold Activated"
 msgstr "Gesamt verkauft aktiviert"
 
-#: .\events\templates\all_event_statistics.html:42
-#: .\events\templates\all_event_statistics.html:168
-#: .\events\templates\event_statistics.html:118
+#: events/templates/all_event_statistics.html:42
+#: events/templates/all_event_statistics.html:168
+#: events/templates/event_statistics.html:118
 msgid "Total Earned Presale Online"
 msgstr "Gesamt verdient im Online-Vorverkauf"
 
-#: .\events\templates\all_event_statistics.html:43
-#: .\events\templates\all_event_statistics.html:175
-#: .\events\templates\event_statistics.html:125
+#: events/templates/all_event_statistics.html:43
+#: events/templates/all_event_statistics.html:175
+#: events/templates/event_statistics.html:125
 msgid "Total Earned Presale Door"
 msgstr "Gesamt verdient im Tür-Vorverkauf"
 
-#: .\events\templates\all_event_statistics.html:44
-#: .\events\templates\all_event_statistics.html:182
-#: .\events\templates\event_statistics.html:132
+#: events/templates/all_event_statistics.html:44
+#: events/templates/all_event_statistics.html:182
+#: events/templates/event_statistics.html:132
 msgid "Total Earned Door"
 msgstr "Gesamt verdient an der Tür"
 
-#: .\events\templates\all_event_statistics.html:47
-#: .\events\templates\all_event_statistics.html:189
-#: .\events\templates\event_statistics.html:139
+#: events/templates/all_event_statistics.html:47
+#: events/templates/all_event_statistics.html:189
+#: events/templates/event_statistics.html:139
 msgid "Total Earned"
 msgstr "Gesamt verdient"
 
-#: .\events\templates\all_event_statistics.html:82
-#: .\events\templates\event_statistics.html:32
+#: events/templates/all_event_statistics.html:82
+#: events/templates/event_statistics.html:32
 msgid "Statistic"
 msgstr "Statistik"
 
-#: .\events\templates\all_event_statistics.html:161
-#: .\events\templates\event_statistics.html:111
+#: events/templates/all_event_statistics.html:161
+#: events/templates/event_statistics.html:111
 msgid "Ticket Price"
 msgstr "Ticketpreis"
 
-#: .\events\templates\event_check_in.html:8
-#: .\events\templates\event_check_in.html:11
+#: events/templates/event_check_in.html:8
+#: events/templates/event_check_in.html:11
 msgid "Event Check-In"
 msgstr "Veranstaltungs-Check-In"
 
-#: .\events\templates\event_check_in.html:39
+#: events/templates/event_check_in.html:39
 msgid "Last QR Code Detected"
 msgstr "Letzter QR-Code erkannt"
 
-#: .\events\templates\event_check_in.html:57
-#: .\events\templates\event_check_in.html:115
-#: .\events\templates\event_check_in.html:164
+#: events/templates/event_check_in.html:57
+#: events/templates/event_check_in.html:115
+#: events/templates/event_check_in.html:164
 msgid "Deactivate"
 msgstr "Deaktivieren"
 
-#: .\events\templates\event_check_in.html:79
+#: events/templates/event_check_in.html:79
 msgid "Scan error"
 msgstr "Scan-Fehler"
 
-#: .\events\templates\event_check_in.html:96
+#: events/templates/event_check_in.html:96
 msgid "Error starting QR scanner"
 msgstr "Fehler beim Starten des QR-Scanners"
 
-#: .\events\templates\event_check_in.html:98
+#: events/templates/event_check_in.html:98
 msgid "Please grant camera permissions to scan QR codes."
 msgstr "Bitte erteilen Sie Kameraberechtigungen, um QR-Codes zu scannen."
 
-#: .\events\templates\event_check_in.html:115
-#: .\events\templates\event_check_in.html:164
+#: events/templates/event_check_in.html:115
+#: events/templates/event_check_in.html:164
 msgid "Activate"
 msgstr "Aktivieren"
 
-#: .\events\templates\event_check_in.html:143
-#: .\events\templates\event_door_selling.html:56
+#: events/templates/event_check_in.html:143
+#: events/templates/event_door_selling.html:56
 msgid "Event Tickets"
 msgstr "Veranstaltungstickets"
 
-#: .\events\templates\event_check_in.html:148
-#: .\events\templates\event_door_selling.html:69
+#: events/templates/event_check_in.html:148
+#: events/templates/event_door_selling.html:69
 msgid "Action"
 msgstr "Aktion"
 
-#: .\events\templates\event_check_in.html:149
+#: events/templates/event_check_in.html:149
 msgid "Has been activated"
 msgstr "Wurde aktiviert"
 
-#: .\events\templates\event_check_in.html:154
-#: .\events\templates\event_door_selling.html:65
+#: events/templates/event_check_in.html:154
+#: events/templates/event_door_selling.html:65
 msgid "Name"
 msgstr "Name"
 
-#: .\events\templates\event_check_in.html:155
-#: .\events\templates\event_door_selling.html:66
+#: events/templates/event_check_in.html:155
+#: events/templates/event_door_selling.html:66
 msgid "Ticket ID"
 msgstr "Ticket-ID"
 
-#: .\events\templates\event_check_in.html:156
+#: events/templates/event_check_in.html:156
 msgid "Sold as"
 msgstr "Verkauft als"
 
-#: .\events\templates\event_check_in.html:198
-#: .\events\templates\event_door_selling.html:186
+#: events/templates/event_check_in.html:198
+#: events/templates/event_door_selling.html:186
 msgid "Event is not active or is in the past."
 msgstr "Veranstaltung ist nicht aktiv oder liegt in der Vergangenheit."
 
-#: .\events\templates\event_details.html:18
-#: .\events\templates\event_list.html:26
+#: events/templates/event_details.html:18 events/templates/event_list.html:26
 msgid "Start Time"
 msgstr "Startzeit"
 
-#: .\events\templates\event_details.html:19
-#: .\events\templates\event_list.html:27
+#: events/templates/event_details.html:19 events/templates/event_list.html:27
 msgid "Location"
 msgstr "Ort"
 
-#: .\events\templates\event_details.html:20
-#: .\events\templates\event_list.html:28
+#: events/templates/event_details.html:20 events/templates/event_list.html:28
 msgid "Duration"
 msgstr "Dauer"
 
-#: .\events\templates\event_details.html:22
+#: events/templates/event_details.html:22
 msgid "View Program"
 msgstr "Programm anzeigen"
 
-#: .\events\templates\event_details.html:29
-#: .\events\templates\event_door_selling.html:25
+#: events/templates/event_details.html:29
+#: events/templates/event_door_selling.html:25
 msgid "Presale starts at "
 msgstr "Vorverkauf beginnt um "
 
-#: .\events\templates\event_details.html:29
-#: .\events\templates\event_door_selling.html:25
+#: events/templates/event_details.html:29
+#: events/templates/event_door_selling.html:25
 msgid "Presale ends at "
 msgstr "Vorverkauf endet um "
 
-#: .\events\templates\event_details.html:34
-#: .\events\templates\event_door_selling.html:28
+#: events/templates/event_details.html:34
+#: events/templates/event_door_selling.html:28
 msgid ""
 "Tickets are sold at the door. Tickets at the door will be available for"
 msgstr ""
 "Tickets werden an der Tür verkauft. Tickets an der Tür sind verfügbar für"
 
-#: .\events\templates\event_details.html:34
-#: .\events\templates\event_door_selling.html:28
+#: events/templates/event_details.html:34
+#: events/templates/event_door_selling.html:28
 msgid "before the event starts at "
 msgstr "bevor die Veranstaltung beginnt um "
 
-#: .\events\templates\event_details.html:39
+#: events/templates/event_details.html:39
 msgid "This event is sold out."
 msgstr "Diese Veranstaltung ist ausverkauft."
 
-#: .\events\templates\event_details.html:44
-#: .\events\templates\event_statistics.html:22
+#: events/templates/event_details.html:44
+#: events/templates/event_statistics.html:22
 msgid "Go to Ticket Check-In"
 msgstr "Zum Ticket-Check-In gehen"
 
-#: .\events\templates\event_details.html:45
-#: .\events\templates\event_statistics.html:23
+#: events/templates/event_details.html:45
+#: events/templates/event_statistics.html:23
 msgid "Go to Ticket Door Selling"
 msgstr "Zum Ticket-Türverkauf gehen"
 
-#: .\events\templates\event_details.html:46
+#: events/templates/event_details.html:46
 msgid "Go to Statistics"
 msgstr "Zur Statistik gehen"
 
-#: .\events\templates\event_details.html:50
+#: events/templates/event_details.html:50
 msgid "Select Tickets"
 msgstr "Tickets auswählen"
 
-#: .\events\templates\event_details.html:71
+#: events/templates/event_details.html:71
 msgid "Add to Cart"
 msgstr "In den Warenkorb legen"
 
-#: .\events\templates\event_details.html:72
+#: events/templates/event_details.html:72
 msgid "Go to cart"
 msgstr "Zum Warenkorb gehen"
 
-#: .\events\templates\event_details.html:98
-#: .\events\templates\event_door_selling.html:117
+#: events/templates/event_details.html:98
+#: events/templates/event_door_selling.html:117
 msgid "Presale will become active later."
 msgstr "Vorverkauf wird später aktiv."
 
-#: .\events\templates\event_details.html:103
+#: events/templates/event_details.html:103
 msgid "Presale has ended."
 msgstr "Vorverkauf ist beendet."
 
-#: .\events\templates\event_door_selling.html:8
-#: .\events\templates\event_door_selling.html:11
+#: events/templates/event_door_selling.html:8
+#: events/templates/event_door_selling.html:11
 msgid "Event Door Selling"
 msgstr "Veranstaltungs-Türverkauf"
 
-#: .\events\templates\event_door_selling.html:32
+#: events/templates/event_door_selling.html:32
 msgid "Event is sold out."
 msgstr "Veranstaltung ist ausverkauft."
 
-#: .\events\templates\event_door_selling.html:38
+#: events/templates/event_door_selling.html:38
 msgid "Remaining seats: "
 msgstr "Verbleibende Sitze: "
 
-#: .\events\templates\event_door_selling.html:48
+#: events/templates/event_door_selling.html:48
 msgid "Commit Order"
 msgstr "Bestellung abschließen"
 
-#: .\events\templates\event_door_selling.html:114
+#: events/templates/event_door_selling.html:114
 msgid "Presale is active - Presale ONLY - END: "
 msgstr "Vorverkauf ist aktiv - NUR Vorverkauf - ENDE: "
 
-#: .\events\templates\event_door_selling.html:120
+#: events/templates/event_door_selling.html:120
 msgid "Presale is inactive - Door ONLY"
 msgstr "Vorverkauf ist inaktiv - NUR Türverkauf"
 
-#: .\events\templates\event_list.html:9 .\events\templates\event_list.html:14
+#: events/templates/event_list.html:9 events/templates/event_list.html:14
 msgid "Upcoming Events"
 msgstr "Bevorstehende Veranstaltungen"
 
-#: .\events\templates\event_list.html:18
+#: events/templates/event_list.html:18
 msgid "Go to Global Statistics"
 msgstr "Zur globalen Statistik gehen"
 
-#: .\events\templates\event_list.html:29
+#: events/templates/event_list.html:29
 msgid "Price Classes"
 msgstr "Preisklassen"
 
-#: .\events\templates\event_list.html:38
+#: events/templates/event_list.html:38
 msgid "View program"
 msgstr "Programm anzeigen"
 
-#: .\events\templates\event_list.html:40
+#: events/templates/event_list.html:40
 msgid "Buy tickets"
 msgstr "Tickets kaufen"
 
-#: .\events\templates\event_list.html:46
+#: events/templates/event_list.html:46
 msgid "Currently there are no events available for purchase."
 msgstr "Derzeit sind keine Veranstaltungen zum Kauf verfügbar."
 
-#: .\events\templates\event_statistics.html:8
-#: .\events\templates\event_statistics.html:11
+#: events/templates/event_statistics.html:8
+#: events/templates/event_statistics.html:11
 msgid "Event Statistics"
 msgstr "Veranstaltungsstatistik"
 
-#: .\events\templates\event_statistics.html:21
+#: events/templates/event_statistics.html:21
 msgid "Go to Event Details"
 msgstr "Zu den Veranstaltungsdetails gehen"
 
-#: .\events\templates\event_statistics.html:24
+#: events/templates/event_statistics.html:24
 msgid "Print Statistics"
 msgstr "Statistik drucken"
 
-#: .\events\templates\event_statistics.html:27
+#: events/templates/event_statistics.html:27
 msgid "Per Price Class Statistics"
 msgstr "Statistik pro Preisklasse"
 
-#: .\events\views.py:46
+#: events/views.py:46
 msgid "Presale has ended for this event."
 msgstr "Der Vorverkauf für diese Veranstaltung ist beendet."
 
-#: .\events\views.py:50
+#: events/views.py:50
 msgid "Presale has not started yet."
 msgstr "Der Vorverkauf hat noch nicht begonnen."
 
-#: .\events\views.py:124
+#: events/views.py:124
 msgid "Email sent successfully."
 msgstr "E-Mail erfolgreich gesendet."
 
-#: .\events\views.py:126
+#: events/views.py:126
 msgid "An error occurred while sending the Email."
 msgstr "Beim Senden der E-Mail ist ein Fehler aufgetreten."
 
-#: .\events\views.py:127
+#: events/views.py:127
 msgid "No email address provided."
 msgstr "Keine E-Mail-Adresse verknüpft."
 
-#: .\events\views.py:206
+#: events/views.py:206
 msgid "Door selling is not allowed for this event."
 msgstr "Türverkauf ist für diese Veranstaltung nicht erlaubt."
 
-#: .\events\views.py:221
+#: events/views.py:221
 msgid "Event is not active."
 msgstr "Veranstaltung ist nicht aktiv."
 
-#: .\templates\404.html:9
+#: templates/404.html:9
 msgid "Page Not Found"
 msgstr "Seite nicht gefunden"
 
-#: .\templates\404.html:12
+#: templates/404.html:12
 msgid "404 - Page Not Found"
 msgstr "404 - Seite nicht gefunden"
 
-#: .\templates\404.html:13
+#: templates/404.html:13
 msgid "Sorry, the page you are looking for does not exist."
 msgstr "Entschuldigung, die Seite, die Sie suchen, existiert nicht."
 
-#: .\templates\500.html:9
+#: templates/500.html:9
 msgid "Server Error"
 msgstr "Serverfehler"
 
-#: .\templates\500.html:12
+#: templates/500.html:12
 msgid "500 - Server Error"
 msgstr "500 - Serverfehler"
 
-#: .\templates\500.html:13
+#: templates/500.html:13
 msgid "Sorry, something went wrong on our end. Please try again later."
 msgstr ""
 "Entschuldigung, etwas ist auf unserer Seite schief gelaufen. Bitte versuchen"
 " Sie es später erneut."
 
-#: .\templates\master.html:29
+#: templates/master.html:29
 msgid "Events List"
 msgstr "Veranstaltungsliste"
 
-#: .\templates\master.html:33
+#: templates/master.html:33
 msgid "Global Statistics"
 msgstr "Globale Statistik"
 
-#: .\templates\master.html:40
+#: templates/master.html:40
 msgid "Cart"
 msgstr "Warenkorb"
 
-#: .\templates\master.html:47
+#: templates/master.html:47
 msgid "Language"
 msgstr "Sprache"
 
-#: .\templates\master.html:61
+#: templates/master.html:61
 msgid "Logout"
 msgstr "Logout"
+
+#~ msgid "Enter the email address"
+#~ msgstr "Geben Sie die E-Mail-Adresse ein"

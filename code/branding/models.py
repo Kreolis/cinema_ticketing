@@ -8,12 +8,20 @@ from PIL import Image
 class Contact(models.Model):
     firstname = models.CharField(max_length=100, help_text=_("Enter the first name"))
     lastname = models.CharField(max_length=100, help_text=_("Enter the last name"))
-    email = models.EmailField(help_text=_("Enter the email address"))
+    email = models.EmailField(help_text=_("Enter the email address to which the contact form is sent"))
     is_active = models.BooleanField(default=False, help_text=_("Indicates if the contact is active"))
 
     def __str__(self):
         return f"{self.firstname} {self.lastname}"
-    
+
+class TicketMaster(models.Model):
+    firstname = models.CharField(max_length=100, help_text=_("Enter the first name"))
+    lastname = models.CharField(max_length=100, help_text=_("Enter the last name"))
+    email = models.EmailField(help_text=_("Enter the email address to which all ticket sales are sent"))
+    is_active = models.BooleanField(default=False, help_text=_("Indicates if the contact is active"))
+
+    def __str__(self):
+        return f"{self.firstname} {self.lastname}"    
 
 # model for logos and other branding images
 class Branding(models.Model):
