@@ -33,6 +33,14 @@ class Branding(models.Model):
     presale_start = models.DateTimeField(null=True, blank=True, help_text=_("Enter the date and time when presale starts"))
     presale_ends_before = models.IntegerField(default=1, help_text=_("Number of hours before event start when presale ends and door (not presale) selling starts"))
     allow_door_selling = models.BooleanField(default=True, help_text=_("Indicates if selling tickets at the door is allowed"))
+    check_timeout_orders_interval = models.IntegerField(default=30, help_text=_("Interval in minutes for checking timed out orders"))
+
+    # ticket statistics settings
+    enable_ticket_statistics_sending = models.BooleanField(default=False, help_text=_("Indicates if ticket statistics are sent via email"))
+    ticket_statistics_email = models.EmailField(null=True, blank=True, help_text=_("Enter the email address to receive ticket statistics"))
+    ticket_statistics_interval = models.IntegerField(default=24, help_text=_("Enter the interval in hours for sending ticket statistics"))
+    ticket_statistics_start = models.DateTimeField(default=None, null=True, blank=True, help_text=_("Enter the date and time when ticket statistics should start sending"))
+    ticket_statistics_end = models.DateTimeField(default=None, null=True, blank=True, help_text=_("Enter the date and time when ticket statistics should stop sending"))
 
     # invoice settings
     display_invoice_info = models.BooleanField(default=True, help_text=_("Indicates if invoice information is displayed on auto generated invoices"))

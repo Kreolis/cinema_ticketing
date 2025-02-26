@@ -319,9 +319,8 @@ def all_events_statistics(request):
         'currency': settings.DEFAULT_CURRENCY
     })
 
-@login_required
-@user_passes_test(user_in_ticket_managers_group_or_admin)
-def show_generated_global_statistics_pdf(request):
+
+def generate_global_statistics_pdf():
     # Generate statistics for all events
     # Create the PDF
     pdf = FPDF(unit="cm", format=(21.0, 29.7))  # A4 format
@@ -406,7 +405,15 @@ def show_generated_global_statistics_pdf(request):
                 display_value = f"{stats[key]} {settings.DEFAULT_CURRENCY}" if 'earned' in key else stats[key]
                 pdf.cell(4.0, 0.6, text=f"{display_value}", border=1, align='L')
             pdf.ln(0.6)
+        
+    return pdf
 
+@login_required
+@user_passes_test(user_in_ticket_managers_group_or_admin)
+def show_generated_global_statistics_pdf(request):
+    # Generate PDF for the selected ticket
+    pdf = generate_global_statistics_pdf()
+    # Create a BytesIO stream to hold
     file_stream = io.BytesIO(pdf.output())
     # Create a FileResponse to send the PDF file
     now = datetime.now().strftime("%Y-%m-%d")
