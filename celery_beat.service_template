@@ -1,0 +1,14 @@
+[Unit]
+Description=Celery Beat Service
+After=network.target emperor.uwsgi.service
+
+[Service]
+User=your_user
+Group=your_group
+WorkingDirectory=/path/to/your/project/event_env/cinema_ticketing/code
+ExecStart=/path/to/your/event_env/bin/celery -A cinema_ticketing beat --loglevel=info
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

@@ -111,6 +111,28 @@ python manage.py runserver
 2. Enter payment details on the checkout page.
 3. On successful payment, you will be redirected to a confirmation page.
 
+### Regular Tasks
+This website uses celery and redis to perform some tasks regularly:
+
+- Orders that have been reserved and have not been payed within the timeout period will be deleted regularly
+- Emails containing the current global event statistics (if activated in admin panel)
+
+Ensure that the Redis server is running locally. You can start Redis using the following command:
+```bash
+redis-server
+```
+
+One has to start these actions with:
+```bash
+celery -A cinema_tickets worker --loglevel=info
+celery -A cinema_tickets beat --loglevel=info
+```
+
+You can also trigger these commands manually with:
+```bash
+python manage.py delete_timeout_orders
+python manage.py send_statistics_as_mail
+```
 
 ### 🏢 Deployment with Nginx
 
@@ -164,6 +186,56 @@ Make sure to collect your static files like .css so that your website is properl
 
 ```bash
 python manage.py collectstatic
+```
+
+#### Configure Cron for Celery
+
+**Create Celery Worker Service**
+Create a file named `celery_worker.service` in `/etc/systemd/system/`:
+
+```bash
+[Unit]
+Description=Celery Worker Service
+After=network.target emperor.uwsgi.service
+
+[Service]
+User=your_user
+Group=your_group
+WorkingDirectory=/path/to/your/project/event_env/cinema_ticketing/code
+ExecStart=/path/to/your/event_env/bin/celery -A cinema_ticketing worker --loglevel=info
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Create Celery Beat Service**
+Create a file named `celery_beat.service` in `/etc/systemd/system/`:
+
+```bash
+[Unit]
+Description=Celery Beat Service
+After=network.target emperor.uwsgi.service
+
+[Service]
+User=your_user
+Group=your_group
+WorkingDirectory=/path/to/your/project/event_env/cinema_ticketing/code
+ExecStart=/path/to/your/event_env/bin/celery -A cinema_ticketing beat --loglevel=info
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Start and enable the worker and beat services:
+```bash
+sudo systemctl enable celery_worker
+sudo systemctl enable celery_beat
+sudo systemctl start celery_worker
+sudo systemctl start celery_beat
 ```
 
 #### Configure Nginx
