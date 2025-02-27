@@ -32,7 +32,7 @@ class TicketAdmin(admin.ModelAdmin):
     list_display = ('event', 'seat', 'email', 'price_class', 'sold_as', 'activated', 'show_pdf_action', 'send_ticket_email_single')
     actions = ['send_ticket_email_selected']
     list_filter = ('sold_as', 'activated')
-    search_fields = ('id', 'event', 'sold_as')
+    search_fields = ('id', 'event__name', 'sold_as')  # Updated search_fields
 
     # Add custom action buttons
     def show_pdf_action(self, obj):
@@ -67,7 +67,7 @@ class TicketAdmin(admin.ModelAdmin):
 class EventAdmin(admin.ModelAdmin):
     list_display = ('name', 'start_time', 'location')
     list_filter = ('location', 'start_time')
-    search_fields = ('name', 'location')
+    search_fields = ('name', 'location__name')  # Updated search_fields
     
     inlines = [TicketInline]  # Add tickets inline within the event admin page
 

@@ -237,7 +237,7 @@ def event_door_selling(request, event_id):
 @user_passes_test(user_in_ticket_managers_group_or_admin)
 def event_statistics(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-    total_stats, price_class_stats =  event.calculate_statistics()
+    total_stats, price_class_stats = event.calculate_statistics()
     return render(request, 'event_statistics.html', {
         'price_class_stats': price_class_stats,
         'total_stats': total_stats,
@@ -284,7 +284,7 @@ def get_all_event_statistics():
     }
 
     for event in events:
-        total_stats, price_class_stats =  event.calculate_statistics()
+        total_stats, price_class_stats = event.calculate_statistics()
         events_stats.append({
             'event': event,
             'price_class_stats': price_class_stats,
