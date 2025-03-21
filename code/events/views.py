@@ -222,13 +222,15 @@ def event_door_selling(request, event_id):
             
     form = TicketSelectionForm(price_classes=price_classes, display_name_fields=True)
 
+    tickets_door_and_presale = Ticket.objects.filter(event=event).filter(sold_as__in=[SoldAsStatus.DOOR, SoldAsStatus.PRESALE_DOOR])
+
     return render(request, 'event_door_selling.html', {
         'event': event,
         'event_active': event.check_active(),
         'presale_end_time': presale_end_time,
         'presale_start_time': event.presale_start,
         'price_classes': price_classes,
-        'pre_sale_door_ticktes': Ticket.objects.filter(event=event).filter(sold_as=SoldAsStatus.PRESALE_DOOR),
+        'tickets_door_and_presale': tickets_door_and_presale,
         'form': form,
         'currency': settings.DEFAULT_CURRENCY
     })

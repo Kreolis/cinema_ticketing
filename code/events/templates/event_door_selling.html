@@ -70,7 +70,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for ticket in pre_sale_door_ticktes %}
+                    {% for ticket in tickets_door_and_presale %}
                         <tr id="row-{{ ticket.id }}">
                             {% if event.display_seat_number %}
                                 <td>{{ ticket.seat }}</td>
