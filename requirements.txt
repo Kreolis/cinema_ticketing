@@ -1,6 +1,6 @@
 python-decouple # For handling environment variables
 
-django # Django framework
+django>=5.2 # Django framework
 celery # For handling asynchronous tasks
 
 psycopg2  # For PostgreSQL
@@ -15,4 +15,4 @@ iso3166 # For handling country codes
 fpdf2 # For generating PDF files
 qrcode[pil] # For generating QR codes
 
-django-bootstrap-v5 # For using Bootstrap 5 in Django templates
+django-bootstrap5 # For using Bootstrap 5 in Django templates

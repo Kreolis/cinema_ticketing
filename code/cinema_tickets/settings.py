@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'payments',     # payment handling
-    'bootstrap5',   # bootstrap5 support
+    'django_bootstrap5',   # bootstrap5 support
     'rosetta',      # translation management
     'captcha',      # captcha support
     
@@ -135,7 +135,6 @@ TIME_ZONE = 'UTC'
 
 # Activate internationalization
 USE_I18N = True
-USE_L10N = True
 
 USE_TZ = True
 
@@ -205,8 +204,8 @@ else:
 # Mail settings
 # Email backend configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+#if DEBUG:
+#    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
     
 EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 EMAIL_PORT = config('EMAIL_PORT', default=587)  # Typically 587 for TLS, 465 for SSL
