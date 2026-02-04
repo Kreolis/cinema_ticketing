@@ -43,7 +43,7 @@ class PaymentInfoForm(forms.Form):
         label=_('Country'),
         help_text=_('Optional: Enter the country for the billing address.'),
         choices=[(country.alpha2, country.name) for country in countries],
-        initial=countries.get(locale.getdefaultlocale()[0].split('_')[1].upper()),
+        initial=None,  # Initially set to None
         widget=forms.Select(attrs={'required': True})
     )
     billing_country_area = forms.CharField(
@@ -75,7 +75,17 @@ class PaymentInfoForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['billing_country_code'].initial = locale.getdefaultlocale()[0].split('_')[1].upper()
+        loc = locale.getlocale()[0]
+        # Ensure locale is not None and properly formatted
+        if loc and '_' in loc:
+            country_code = loc.split('_')[1].upper()
+            if country_code in countries:
+                self.fields['billing_country_code'].initial = country_code
+            else:
+                self.fields['billing_country_code'].initial = 'DE'  # Default to DE or a sensible default
+        else:
+            self.fields['billing_country_code'].initial = 'DE'  # Default if locale not properly set
+
 
 class UpdateEmailsForm(forms.Form):
     email = forms.EmailField(

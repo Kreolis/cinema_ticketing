@@ -477,10 +477,10 @@ class Order(BasePayment):
     # delete order and associated tickets
     def delete(self, request, *args, **kwargs):
 
-        if self.status == PaymentStatus.CONFIRMED:
-            if settings.CONFIRM_DELETE_PAID_ORDER:
-                messages.error(request, _("Cannot delete a paid order."))
-                return False
+        #if self.status == PaymentStatus.CONFIRMED:
+            #if settings.CONFIRM_DELETE_PAID_ORDER or settings.DEBUG:
+            #    messages.error(request, _("Cannot delete a paid order."))
+            #    return False
         
         # Properly delete associated tickets
         for ticket in self.tickets.all():
