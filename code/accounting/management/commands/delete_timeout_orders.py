@@ -10,26 +10,21 @@ class Command(BaseCommand):
     help = _('Delete orders that have timed out')
 
     def handle(self, *args, **kwargs):
-        now = timezone.now()
         waiting_orders = Order.objects.filter(
             status=PaymentStatus.WAITING
         )
         
-        first_order = waiting_orders.first()
-        if not first_order:
+        if not waiting_orders.exists():
             self.stdout.write(self.style.WARNING('No waiting orders found'))
             return
         
-        timed_out_orders = waiting_orders.filter(
-            created__lt=now - timedelta(minutes=first_order.timeout)
-        )
-
-        count = timed_out_orders.count()
+        timed_out_orders_list = [order for order in waiting_orders if order.has_timed_out()]
+        count = len(timed_out_orders_list)
         if count == 0:
             self.stdout.write(self.style.WARNING('No timed-out orders found'))
             return
         
-        for order in timed_out_orders:
+        for order in timed_out_orders_list:
             self.stdout.write(f'Deleting order {order.id} created at {order.created}')
             order.delete()
 
