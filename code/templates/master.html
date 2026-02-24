@@ -35,6 +35,9 @@
         <li class="nav-item">
           <a class="nav-link link-light" href="{% url 'manage_orders' %}">{% translate "Manage Orders" %}</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link link-light" href="/admin">{% translate "Display Backend" %}</a>
+        </li>
       {% else %}
         <li class="nav-item">
           <a class="nav-link link-light" href="{% url 'cart_view' %}">{% translate "Cart" %}</a>
