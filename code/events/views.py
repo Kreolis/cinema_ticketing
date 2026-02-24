@@ -374,7 +374,7 @@ def generate_global_statistics_pdf():
         pdf.cell(5.0, 0.6, text=f"{event.start_time.strftime('%H:%M %d.%m.%Y')}", border=0, align='L')
         pdf.ln(0.8)
         pdf.cell(4.0, 0.6, text=_("Venue:"), border=0, align='L')
-        pdf.cell(10.0, 0.6, text=f"{event.location.name}", border=0,  align='L')
+        pdf.cell(10.0, 0.6, text=f"{event.location.name}", border=0, align='L')
         pdf.ln(0.8)
 
         # Add total statistics

@@ -431,7 +431,7 @@ class Event(models.Model):
         pdf.cell(5.0, 0.6, text=f"{self.start_time.strftime('%H:%M %d.%m.%Y')}", border=0, align='L')
         pdf.ln(0.8)
         pdf.cell(4.0, 0.6, text=_("Venue:"), border=0, align='L')
-        pdf.cell(10.0, 0.6, text=f"{self.location.name}", border=0,  align='L')
+        pdf.cell(10.0, 0.6, text=f"{self.location.name}", border=0, align='L')
         pdf.ln(0.8)
 
         # created at
