@@ -93,7 +93,7 @@ class Order(BasePayment):
 
     @property
     def has_timed_out(self) -> bool:
-        return timezone.now() - self.modified > timedelta(minutes=self.timeout)
+        return (timezone.now() - self.modified) > timedelta(minutes=self.timeout)
 
     def is_valid(self) -> bool:
         if self.status == PaymentStatus.CONFIRMED:
@@ -475,7 +475,7 @@ class Order(BasePayment):
 
 
     # delete order and associated tickets
-    def delete(self, request, *args, **kwargs):
+    def delete(self, *args, **kwargs):
 
         #if self.status == PaymentStatus.CONFIRMED:
             #if settings.CONFIRM_DELETE_PAID_ORDER or settings.DEBUG:
@@ -486,6 +486,7 @@ class Order(BasePayment):
         for ticket in self.tickets.all():
             ticket_to_delete = Ticket.objects.get(id=ticket.id)
             ticket_to_delete.delete()
+            print(f"Deleted ticket {ticket.id} for event {ticket.event.name}")
 
         super().delete(*args, **kwargs)
 

@@ -13,11 +13,24 @@ class Command(BaseCommand):
         now = timezone.now()
         waiting_orders = Order.objects.filter(
             status=PaymentStatus.WAITING
-        ) 
+        )
+        
+        first_order = waiting_orders.first()
+        if not first_order:
+            self.stdout.write(self.style.WARNING('No waiting orders found'))
+            return
+        
         timed_out_orders = waiting_orders.filter(
-            created__lt=now - timedelta(minutes=waiting_orders.first().timeout)
+            created__lt=now - timedelta(minutes=first_order.timeout)
         )
 
         count = timed_out_orders.count()
-        timed_out_orders.delete()
+        if count == 0:
+            self.stdout.write(self.style.WARNING('No timed-out orders found'))
+            return
+        
+        for order in timed_out_orders:
+            self.stdout.write(f'Deleting order {order.id} created at {order.created}')
+            order.delete()
+
         self.stdout.write(self.style.SUCCESS(f'Successfully deleted {count} timed-out orders'))

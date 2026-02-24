@@ -6,7 +6,7 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 
 import io
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from fpdf import FPDF
 
 from payments import get_payment_model
@@ -14,6 +14,9 @@ from payments import get_payment_model
 from .models import Event, Ticket, SoldAsStatus
 from branding.models import Branding
 from .forms import TicketSelectionForm
+
+from accounting.management.commands.delete_timeout_orders import Command
+
 
 def event_list(request):
     # Retrieve all events, you can filter if they are active
@@ -30,6 +33,11 @@ def event_list(request):
 # Event detail view with ticket selection
 def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
+
+    # delete all orders that are timed out for the current session and are not confirmed yet (waiting for payment)
+    # using command from accounting.management.commands.delete_timeout_orders import Command
+    Command().handle()
+    
 
     # select all price classes for the event apart from secret ones
     price_classes = event.price_classes.all().exclude(secret=True)
