@@ -40,6 +40,8 @@
                 {% for ticket in order.tickets.all %}
                     <tr>
                         <td>{{ ticket.event.name }}</td>
+                        <td>{{ ticket.event.start_time }}</td>
+                        <td>{{ ticket.event.location.name }}</td>
                         {% if ticket.event.display_seat_number %}
                             <td>{{ ticket.seat }}</td>
                         {% else %}
