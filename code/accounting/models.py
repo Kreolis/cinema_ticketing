@@ -254,7 +254,7 @@ class Order(BasePayment):
             tax_rate = Decimal(0.0)
 
         # Calculate totals
-        items = [{"description": ticket.event.name, "qty": 1, "unit_price": ticket.price_class.price} for ticket in self.tickets.all()]
+        items = [{"description": ticket.event.name, "qty": 1, "unit_price": ticket.price_class.price, "datetime": ticket.event.start_time} for ticket in self.tickets.all()]
         subtotal_with_tax = sum(item["qty"] * item["unit_price"] for item in items)
         tax = subtotal_with_tax * tax_rate
         subtotal = subtotal_with_tax - tax
@@ -311,7 +311,7 @@ class Order(BasePayment):
         # Add table rows
         pdf.set_font(font, size=10)
         for item in items:
-            pdf.cell(10 - invoice_padding_left - invoice_padding_right, 0.6, item["description"], border=1)
+            pdf.cell(10 - invoice_padding_left - invoice_padding_right, 0.6, f"{item['description']} ({item['datetime'].strftime('%d.%m.%Y %H:%M')})", border=1)
             pdf.cell(2.5, 0.6, str(item["qty"]), border=1, align="C")
             pdf.cell(2.5, 0.6, f"{item['unit_price']:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
             pdf.cell(2.5, 0.6, f"{item['qty'] * item['unit_price']:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")

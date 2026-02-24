@@ -75,6 +75,8 @@
     {% for event_stats in events_stats %}
 
     <h2 class="mt-4">{{ event_stats.event.name }}</h2>
+    <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {{ event_stats.event.start_time }}</p>
+    <p class="card-text"><strong>{% translate "Location" %}:</strong> {{ event_stats.event.location.name }}</p>
     <div class="table-responsive">
         <table id="statistics-table" class="table table-striped mt-3">
             <thead>
