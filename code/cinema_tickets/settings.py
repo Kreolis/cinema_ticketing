@@ -49,6 +49,10 @@ INSTALLED_APPS = [
     'branding',     # branding management
     'events',       # events management
     'accounting',   # payment and order management
+    'celery',        # Celery integration
+
+    # Celery result backend
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -125,6 +129,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Celery Configuration Options
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default=None)
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='django-db')
+CELERY_TIMEZONE = "UTC"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

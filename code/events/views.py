@@ -15,9 +15,6 @@ from .models import Event, Ticket, SoldAsStatus
 from branding.models import Branding
 from .forms import TicketSelectionForm
 
-from accounting.management.commands.delete_timeout_orders import Command
-
-
 def event_list(request):
     # Retrieve all events, you can filter if they are active
     events = Event.objects.filter(is_active=True).order_by('start_time')

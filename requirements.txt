@@ -1,7 +1,9 @@
 python-decouple # For handling environment variables
 
 django>=5.2 # Django framework
-celery # For handling asynchronous tasks
+celery[rabbitmq] # For handling asynchronous tasks
+django-celery-results # For storing Celery task results in Django database
+flower # For monitoring Celery tasks
 
 psycopg2  # For PostgreSQL
 
