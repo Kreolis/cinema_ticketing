@@ -9,6 +9,8 @@
 
 {% block content %}
     <h1 class="mt-4">{% translate "Event Statistics" %} - {{ event.name }}</h1>
+    <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
+    <p class="card-text"><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
     
     <!-- Include jQuery library via CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

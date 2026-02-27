@@ -426,6 +426,14 @@ class Event(models.Model):
         pdf.set_font(font, size=18, style='B')
         pdf.cell(19.0, 1.0, text=f"{self.name} - Statistics", border=0, align='C')
         pdf.ln(1.0)
+        pdf.set_font(font, size=12, style='B')
+        pdf.cell(4.0, 0.6, text=_("Start:"), border=0, align='L')
+        pdf.cell(5.0, 0.6, text=f"{self.start_time.strftime('%H:%M %d.%m.%Y')}", border=0, align='L')
+        pdf.ln(0.8)
+        pdf.cell(4.0, 0.6, text=_("Venue:"), border=0, align='L')
+        pdf.cell(10.0, 0.6, text=f"{self.location.name}", border=0, align='L')
+        pdf.ln(0.8)
+
         # created at
         pdf.set_font(font, size=10)
         pdf.cell(19.0, 0.6, text=f"Created at: {datetime.now().strftime('%d.%m.%Y %H:%M')}", border=0, align='L')
@@ -462,15 +470,19 @@ class Event(models.Model):
 
         # Create table for price class statistics
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(5.0, 0.6, text="Statistic", border=1, align='C', fill=True)
+        pdf.cell(5.0, 1.2, text="Statistic", border=1, align='C', fill=True)
         for price_class in price_class_stats.keys():
-            pdf.cell(4.0, 0.6, text=f"{price_class.name} - {price_class.price} {settings.DEFAULT_CURRENCY}", border=1, align='C', fill=True)
+            pdf.multi_cell(3.0, 1.2, text=f"{price_class.name}", border=1, align='C', fill=True, ln=3, max_line_height=pdf.font_size*1.5)
+        pdf.ln(1.2)
+        pdf.cell(5.0, 0.6, text=f"Price", border=1, align='C', fill=True)
+        for price_class in price_class_stats.keys():
+            pdf.cell(3.0, 0.6, text=f"{price_class.price} {settings.DEFAULT_CURRENCY}", border=1, align='C', fill=True)
         pdf.ln(0.6)
         for key in next(iter(price_class_stats.values())).keys():
             pdf.cell(5.0, 0.6, text=f"{key.replace('_', ' ').title()}", border=1, align='L')
             for price_class, stats in price_class_stats.items():
                 display_value = f"{stats[key]} {settings.DEFAULT_CURRENCY}" if 'earned' in key else stats[key]
-                pdf.cell(4.0, 0.6, text=f"{display_value}", border=1, align='L')
+                pdf.cell(3.0, 0.6, text=f"{display_value}", border=1, align='L')
             pdf.ln(0.6)
 
         return pdf
