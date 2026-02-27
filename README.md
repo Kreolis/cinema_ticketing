@@ -433,7 +433,6 @@ Version 2:
 - [ ] global event picture generation from name
 - [ ] custom event picture per event
 - [ ] language toggle with redirect to current page
-- [ ] Order ticket count shown in menu
 - [ ] Use shorter ids for urls and names
 - [ ] location and price import
 - [ ] make setting upload with csv
