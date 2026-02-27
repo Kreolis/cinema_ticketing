@@ -214,13 +214,14 @@ systemctl enable emperor.uwsgi.service
 systemctl start emperor.uwsgi.service
 ```
 
-One can run Celery in the background:
+One can run Celery in the background. First, navigate to the project's code directory where `manage.py` is located:
 
 ```bash
-celery -A cinema_tickets worker --beat --loglevel=info --detach
+cd /path/to/your/cinema_ticketing/code
+celery -A cinema_tickets worker --beat --loglevel=info
 ```
 
-or you can manage celery as a systemd service. Create a file named `cinema_celery.service` in the `/etc/systemd/system/` directory with the following content:
+Or you can manage celery as a systemd service. Create a file named `cinema_celery.service` in the `/etc/systemd/system/` directory with the following content:
 
 ```ini
 [Unit]
@@ -228,12 +229,16 @@ Description=Cinema Ticketing Celery Worker
 After=network.target rabbitmq-server.service
 
 [Service]
-Type=forking
+Type=simple
 User=www-data # or nginx (the user that governs your websites)
 Group=www-data # or nginx (the user that governs your websites)
-WorkingDirectory=/path/to/your/cinema_ticketing
+WorkingDirectory=/path/to/your/cinema_ticketing/code
 Environment="PATH=/path/to/your/event_venv/bin"
-ExecStart=/path/to/your/event_venv/bin/celery -A cinema_tickets worker --beat --loglevel=info --detach
+Environment="VIRTUAL_ENV=/path/to/your/event_venv"
+ExecStart=/path/to/your/event_venv/bin/celery -A cinema_tickets worker --beat --loglevel=info
+
+Restart=on-failure
+RestartSec=10s
 
 [Install]
 WantedBy=multi-user.target
@@ -246,7 +251,14 @@ sudo systemctl enable cinema_celery.service
 sudo systemctl start cinema_celery.service
 ```
 
-For monitoring Celery tasks in production, you can also run Flower as a systemd service. Create a file named `cinema_flower.service` in the `/etc/systemd/system/` directory:
+For monitoring Celery tasks, you can run Flower manually. First, navigate to the project's code directory:
+
+```bash
+cd /path/to/your/cinema_ticketing/code
+celery -A cinema_tickets flower --basic_auth=username:password --port=5555
+```
+
+Or you can manage Flower as a systemd service. Create a file named `cinema_flower.service` in the `/etc/systemd/system/` directory:
 
 ```ini
 [Unit]
@@ -258,10 +270,11 @@ Requires=cinema_celery.service
 Type=simple
 User=www-data # or nginx (the user that governs your websites)
 Group=www-data # or nginx (the user that governs your websites)
-WorkingDirectory=/path/to/your/cinema_ticketing
+WorkingDirectory=/path/to/your/cinema_ticketing/code
 Environment="PATH=/path/to/your/event_venv/bin"
-EnvironmentFile=/path/to/your/cinema_ticketing/.env
-ExecStart=/path/to/your/event_venv/bin/celery -A cinema_tickets flower --basic_auth=${FLOWER_USERNAME}:${FLOWER_PASSWORD} --port=5555
+Environment="VIRTUAL_ENV=/path/to/your/event_venv"
+EnvironmentFile=/path/to/your/cinema_ticketing/code/.env
+ExecStart=/path/to/your/event_venv/bin/celery -A cinema_tickets flower --url_prefix=/flower --basic_auth=${FLOWER_USERNAME}:${FLOWER_PASSWORD} --port=5555
 
 Restart=on-failure
 RestartSec=10s
@@ -327,7 +340,7 @@ To add flower support add the following to your nginx configuration:
 
 ```nginx
     location /flower/ {
-        proxy_pass http://127.0.0.1:5555/;
+        proxy_pass http://127.0.0.1:5555/flower/;
     }
 ```
 
