@@ -34,6 +34,39 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ('id', 'total', 'status')
     actions = ['custom_delete_selected']
 
+    def has_view_permission(self, request):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        return False
+
     def show_invoice_pdf(self, obj):
         return format_html(
             '<a class="button" href="{}" target="_blank">Show Invoice</a>&nbsp;',

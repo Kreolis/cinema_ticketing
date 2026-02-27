@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Location, PriceClass, Event, Ticket
+from .views import get_ticketmaster_for_user
 
 from django.urls import reverse
 from django.utils.html import format_html
@@ -22,6 +23,39 @@ class CSVImportForm(forms.Form):
 class LocationAdmin(admin.ModelAdmin):
     list_display = ('name', 'total_seats')
     change_list_template = "admin_locations_custom.html"
+
+    def has_view_permission(self, request):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        return False
 
     def get_urls(self):
         urls = super().get_urls()
@@ -84,6 +118,39 @@ class LocationAdmin(admin.ModelAdmin):
 class PriceClassAdmin(admin.ModelAdmin):
     list_display = ('name', 'price')
     change_list_template = "admin_price_classes_custom.html"
+
+    def has_view_permission(self, request):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        return False
 
     def get_urls(self):
         urls = super().get_urls()
@@ -152,6 +219,51 @@ class TicketAdmin(admin.ModelAdmin):
     list_filter = ('sold_as', 'activated')
     search_fields = ('id', 'event__name', 'sold_as')  # Updated search_fields
 
+    def has_view_permission(self, request):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        if request.user.groups.filter(name='ticketmanagers').exists():
+            ticket_master = get_ticketmaster_for_user(request.user)
+            # filter displayed tickets based on active locations of the ticket manager
+            active_locations = ticket_master.active_locations.all()
+            if obj and obj.event.location not in active_locations:
+                return False
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        if request.user.groups.filter(name='ticketmanagers').exists():
+            ticket_master = get_ticketmaster_for_user(request.user)
+            # filter displayed tickets based on active locations of the ticket manager
+            active_locations = ticket_master.active_locations.all()
+            if obj and obj.event.location not in active_locations:
+                return False
+        return False
+
     # Add custom action buttons
     def show_pdf_action(self, obj):
         return format_html(
@@ -190,6 +302,51 @@ class EventAdmin(admin.ModelAdmin):
     inlines = [TicketInline]  # Add tickets inline within the event admin page
 
     change_list_template = "admin_events_custom.html"
+
+    def has_view_permission(self, request):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        if request.user.groups.filter(name='ticketmanagers').exists():
+            ticket_master = get_ticketmaster_for_user(request.user)
+            # filter displayed tickets based on active locations of the ticket manager
+            active_locations = ticket_master.active_locations.all()
+            if obj and obj.event.location not in active_locations:
+                return False
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if request.user.groups.filter(name='admin').exists():
+            return True
+        if request.user.groups.filter(name='ticketmanagers').exists():
+            ticket_master = get_ticketmaster_for_user(request.user)
+            # filter displayed tickets based on active locations of the ticket manager
+            active_locations = ticket_master.active_locations.all()
+            if obj and obj.event.location not in active_locations:
+                return False
+        return False
 
     def get_urls(self):
         urls = super().get_urls()
