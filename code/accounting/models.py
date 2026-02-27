@@ -33,14 +33,18 @@ class Order(BasePayment):
     timeout = models.IntegerField(default=10)  # in minutes
 
     # user choices for payment, limit choices to settings.PAYMENT_VARIANTS
-    variant = models.CharField(max_length=255, choices=[(key, key) for key in settings.PAYMENT_VARIANTS.keys()], default=settings.DEFAULT_PAYMENT_VARIANT)
+    variant = models.CharField(max_length=255, 
+                               choices=[(key, key) for key in settings.PAYMENT_VARIANTS.keys()], 
+                               verbose_name=_("Payment Method"),
+                               default=settings.DEFAULT_PAYMENT_VARIANT)
 
     currency = models.CharField(max_length=10, default=settings.DEFAULT_CURRENCY)
 
     failure_url = models.URLField(max_length=255, blank=True, null=True)
     success_url = models.URLField(max_length=255, blank=True, null=True)
 
-    is_confirmed = models.BooleanField(default=False)
+    # boolean field to indicate if order is confirmed by the ticket master or not, default is false
+    is_confirmed = models.BooleanField(default=False, verbose_name=_("Payment Is Confirmed"), help_text=_("Indicates whether the order has been confirmed by the ticket master."))
 
     def get_purchased_items(self) -> Iterable[PurchasedItem]:
         """Return an iterable of purchased items.
@@ -100,10 +104,14 @@ class Order(BasePayment):
         return (timezone.now() - self.modified) > timedelta(minutes=self.timeout)
 
     def is_valid(self) -> bool:
+        # check if order is confirmed or not timed out yet
         if self.status == PaymentStatus.CONFIRMED:
+            # order is confirmed, so it's valid regardless of timeout
             return True
         if self.created is None or self.modified is None:
+            # if created or modified is not set, consider order as invalid to prevent issues with timeout calculation
             return False
+        # order is not confirmed, check if it has timed out
         return not self.has_timed_out
 
     def save(self, *args, **kwargs):
