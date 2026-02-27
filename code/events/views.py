@@ -99,8 +99,13 @@ def delete_ticket(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
     order = get_object_or_404(get_payment_model(), session_id=request.session.session_key)
     order.delete_ticket(ticket)
-    return redirect('cart_view')
-    #return JsonResponse({"status": "success"})
+    
+    # Return JSON response with updated order data
+    return JsonResponse({
+        "status": "success",
+        "new_total": f"{order.total} {settings.DEFAULT_CURRENCY}",
+        "ticket_count": order.tickets.count()
+    })
 
 def show_generated_ticket_pdf(request, ticket_id):
     # Fetch the ticket by ID

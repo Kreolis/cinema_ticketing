@@ -4,8 +4,6 @@ from django.urls import reverse
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 from django.contrib.admin import SimpleListFilter
-from django.db.models import F, ExpressionWrapper, DurationField
-from django.db.models.functions import Now
 from .models import Order
 
 class TimedOutFilter(SimpleListFilter):
@@ -20,25 +18,14 @@ class TimedOutFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == 'yes':
-            timeout_duration = ExpressionWrapper(
-                F('timeout') * 60,  # Convert minutes to seconds
-                output_field=DurationField()
-            )
-            return queryset.annotate(
-                timeout_threshold=Now() - timeout_duration
-            ).filter(
-                modified__lt=F('timeout_threshold')
-            )
+            # Filter in Python for orders that have timed out
+            timed_out_orders = [order for order in queryset if order.has_timed_out]
+            return queryset.filter(id__in=[order.id for order in timed_out_orders])
         elif self.value() == 'no':
-            timeout_duration = ExpressionWrapper(
-                F('timeout') * 60,  # Convert minutes to seconds
-                output_field=DurationField()
-            )
-            return queryset.annotate(
-                timeout_threshold=Now() - timeout_duration
-            ).exclude(
-                modified__lt=F('timeout_threshold')
-            )
+            # Filter in Python for orders that have NOT timed out
+            active_orders = [order for order in queryset if not order.has_timed_out]
+            return queryset.filter(id__in=[order.id for order in active_orders])
+        return queryset
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):

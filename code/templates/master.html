@@ -43,7 +43,12 @@
         </li>
       {% else %}
         <li class="nav-item">
-          <a class="nav-link link-light" href="{% url 'cart_view' %}">{% translate "Cart" %}</a>
+          <a class="nav-link link-light" href="{% url 'cart_view' %}">
+            {% translate "Cart" %}
+            {% if cart_ticket_count > 0 %}
+              <span class="badge bg-warning text-dark">{{ cart_ticket_count }}</span>
+            {% endif %}
+          </a>
         </li>
       {% endif %}
     </div>

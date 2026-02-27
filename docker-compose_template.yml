@@ -1,0 +1,67 @@
+
+version: "3"
+
+services:
+    db:
+        hostname: db
+        image: postgres:15
+        container_name: cinema_ticketing-db 
+        volumes:
+            - ./data/db:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_DB=cinema_ticketing
+            - POSTGRES_USER=cinema_ticketing
+            - POSTGRES_PASSWORD=cinema_ticketing123
+        ports:
+            - "5432:5432"
+
+    web:
+        hostname: web
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        container_name: cinema_ticketing-web
+        command: python manage.py runserver 0.0.0.0:8000
+        volumes:
+            - ./code:/app
+        ports:
+            - "8000:8000"
+        depends_on:
+            - db
+            - rabbitmq
+            - celery
+        env_file:
+            - .env
+
+    rabbitmq:
+        image: rabbitmq:latest
+        container_name: cinema_ticketing-rabbitmq 
+        ports:
+            - "5672:5672"
+    
+    celery:
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        container_name: cinema_ticketing-celery 
+        command: celery -A cinema_tickets.celery worker --beat -l info 
+        volumes:
+            - ./code:/app/ 
+        depends_on:
+            - db
+            - rabbitmq
+
+    flower:
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        container_name: cinema_ticketing-flower 
+        command: celery -A cinema_tickets flower --url_prefix=/flower --basic_auth=${FLOWER_USERNAME}:${FLOWER_PASSWORD} --port=5555
+        volumes:
+            - ./code:/app/ 
+        depends_on:
+            - db
+            - celery
+            - rabbitmq
+        env_file:
+            - .env

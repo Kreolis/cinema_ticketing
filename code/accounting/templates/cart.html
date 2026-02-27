@@ -97,6 +97,29 @@
     <p>{% translate "Your order is valid for another" %} <span id="timeout-time-remaining">{{ time_remaining }}:00</span> {% translate "minutes" %}.</p>
 
     <script>
+        // Function to update the cart badge in the navbar
+        function updateCartBadge(count) {
+            var badge = document.querySelector('a[href*="cart"] .badge');
+            if (count > 0) {
+                if (!badge) {
+                    // Create badge if it doesn't exist
+                    var cartLink = document.querySelector('a[href*="cart"]');
+                    var newBadge = document.createElement('span');
+                    newBadge.className = 'badge bg-warning text-dark';
+                    newBadge.textContent = count;
+                    cartLink.appendChild(newBadge);
+                } else {
+                    // Update existing badge
+                    badge.textContent = count;
+                }
+            } else {
+                // Remove badge if count is 0
+                if (badge) {
+                    badge.remove();
+                }
+            }
+        }
+
         $(document).ready(function() {
             $('#tickets-table').DataTable();
 
@@ -133,6 +156,8 @@
                         form.closest('tr').remove();
                         // Update the total
                         $('#total-table strong').text(response.new_total);
+                        // Update the cart badge in the navbar
+                        updateCartBadge(response.ticket_count);
                     },
                     error: function(xhr, errmsg, err) {
                         alert("An error occurred: " + errmsg);
