@@ -1,6 +1,7 @@
 import logging
 from celery import shared_task
-from .models import Order, PaymentStatus
+from .models import Order
+from payments.models import PaymentStatus
 
 logger = logging.getLogger(__name__)
 
