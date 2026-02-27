@@ -15,9 +15,9 @@ def restart_flower():
     cmd = 'pkill flower'
     subprocess.call(shlex.split(cmd))
     if DEBUG:
-        cmd = f'celery -A cinema_tickets flower --port=5555 --loglevel=debug --username={FLOWER_USER} --password={FLOWER_PASSWORD}'
+        cmd = f'celery -A cinema_tickets flower --port=5555 --loglevel=debug --basic-auth={FLOWER_USER}:{FLOWER_PASSWORD}'
     else:
-        cmd = f'celery -A cinema_tickets flower --port=5555 --loglevel=info --username={FLOWER_USER} --password={FLOWER_PASSWORD}'
+        cmd = f'celery -A cinema_tickets flower --port=5555 --loglevel=info --basic-auth={FLOWER_USER}:{FLOWER_PASSWORD}'
     subprocess.call(shlex.split(cmd))
 
 

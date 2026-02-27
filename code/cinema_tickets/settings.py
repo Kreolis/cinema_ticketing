@@ -53,7 +53,6 @@ INSTALLED_APPS = [
     'branding',     # branding management
     'events',       # events management
     'accounting',   # payment and order management
-    'celery',        # Celery integration
 
     # Celery result backend
     'django_celery_results',
@@ -139,6 +138,10 @@ CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='django-db')
 CELERY_TIMEZONE = "UTC"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
+
+# Flower Configuration
+FLOWER_USER = config('FLOWER_USER', default='admin')
+FLOWER_PASSWORD = config('FLOWER_PASSWORD', default='admin')
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
