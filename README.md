@@ -433,7 +433,6 @@ Version 2:
 - [ ] global event picture generation from name
 - [ ] custom event picture per event
 - [ ] Use shorter ids for urls and names
-- [ ] location and price import
 - [ ] make setting upload with csv
 - [ ] Branding Logo
 - [ ] Branding Page Name

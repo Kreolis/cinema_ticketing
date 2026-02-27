@@ -1,0 +1,7 @@
+{% extends "admin/change_list.html" %}
+{% block object-tools %}
+    <div class="object-tools">
+        <a href="{% url 'admin:events_location_add' %}" class="addlink">Add Location</a>
+        <a href="{% url 'admin:import_locations_csv' %}" class="addlink">Import CSV</a>
+    </div>
+{% endblock %}

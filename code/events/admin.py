@@ -21,10 +21,124 @@ class CSVImportForm(forms.Form):
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     list_display = ('name', 'total_seats')
+    change_list_template = "admin_locations_custom.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('import-csv/', self.import_csv, name='import_locations_csv'),
+            path('download-template-csv/', self.download_template_csv, name='download_locations_template_csv'),
+        ]
+        return custom_urls + urls
+
+    def import_csv(self, request):
+        if request.method == "POST":
+            csv_file = request.FILES["csv_file"]
+            try:
+                reader = csv.reader(csv_file.read().decode('utf-8').splitlines())
+                headers = next(reader)
+                for row in reader:
+                    location_data = dict(zip(headers, row))
+                    
+                    location = Location.objects.create(
+                        name=location_data["name"],
+                        total_seats=int(location_data["total_seats"]),
+                        street=location_data.get("street", ""),
+                        house_number=location_data.get("house_number", ""),
+                        city=location_data.get("city", ""),
+                        zip_code=location_data.get("zip_code", ""),
+                    )
+                    logger.info(f"Created location: {location}")
+
+                self.message_user(request, "Locations imported successfully.")
+                return redirect("..")
+            except Exception as e:
+                error_message = f"Error importing CSV file: {str(e)}"
+                form = CSVImportForm()
+                payload = {"form": form, "error_message": error_message}
+                logger.error(error_message)
+                return render(request, "locations_import_csv_form.html", payload)
+            
+        form = CSVImportForm()
+        payload = {"form": form}
+        return render(request, "locations_import_csv_form.html", payload)
+
+    def download_template_csv(self, request):
+        response = HttpResponse(
+            content_type='text/csv',
+            headers={'Content-Disposition': 'attachment; filename="location_import_template.csv"'},
+        )
+        writer = csv.writer(response)
+        writer.writerow(['name', 'total_seats', 'street', 'house_number', 'city', 'zip_code'])
+        writer.writerow(['Sample Location 1', '100', 'Main Street', '123', 'Helsinki', '00100'])
+        writer.writerow(['Sample Location 2', '150', 'Park Avenue', '456', 'Espoo', '02100'])
+        
+        if Location.objects.count() != 0:
+            locations = Location.objects.all()
+            for location in locations:
+                writer.writerow([location.name, location.total_seats, location.street, location.house_number, location.city, location.zip_code])
+        
+        return response
 
 @admin.register(PriceClass)
 class PriceClassAdmin(admin.ModelAdmin):
     list_display = ('name', 'price')
+    change_list_template = "admin_price_classes_custom.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('import-csv/', self.import_csv, name='import_price_classes_csv'),
+            path('download-template-csv/', self.download_template_csv, name='download_price_classes_template_csv'),
+        ]
+        return custom_urls + urls
+
+    def import_csv(self, request):
+        if request.method == "POST":
+            csv_file = request.FILES["csv_file"]
+            try:
+                reader = csv.reader(csv_file.read().decode('utf-8').splitlines())
+                headers = next(reader)
+                for row in reader:
+                    price_class_data = dict(zip(headers, row))
+                    
+                    price_class = PriceClass.objects.create(
+                        name=price_class_data["name"],
+                        price=float(price_class_data["price"]),
+                        notification_message=price_class_data.get("notification_message", ""),
+                        secret=bool(price_class_data["secret"]),
+                    )
+                    logger.info(f"Created price class: {price_class}")
+
+                self.message_user(request, "Price classes imported successfully.")
+                return redirect("..")
+            except Exception as e:
+                error_message = f"Error importing CSV file: {str(e)}"
+                form = CSVImportForm()
+                payload = {"form": form, "error_message": error_message}
+                logger.error(error_message)
+                return render(request, "price_classes_import_csv_form.html", payload)
+            
+        form = CSVImportForm()
+        payload = {"form": form}
+        return render(request, "price_classes_import_csv_form.html", payload)
+
+    def download_template_csv(self, request):
+        response = HttpResponse(
+            content_type='text/csv',
+            headers={'Content-Disposition': 'attachment; filename="price_class_import_template.csv"'},
+        )
+        writer = csv.writer(response)
+        writer.writerow(['name', 'price', 'notification_message', 'secret'])
+        writer.writerow(['Standard', '15.00', 'Standard ticket', 'True'])
+        writer.writerow(['Premium', '25.00', 'Premium ticket with extras', 'False'])
+        
+        if PriceClass.objects.count() != 0:
+            price_classes = PriceClass.objects.all()
+            for price_class in price_classes:
+                writer.writerow([price_class.name, price_class.price, price_class.notification_message, price_class.secret])
+        
+        return response
 
 class TicketInline(admin.TabularInline):
     model = Ticket
@@ -80,8 +194,8 @@ class EventAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('import-csv/', self.import_csv, name='import_csv'),
-            path('download-template-csv/', self.download_template_csv, name='download_template_csv'),
+            path('import-csv/', self.import_csv, name='import_events_csv'),
+            path('download-template-csv/', self.download_template_csv, name='download_events_template_csv'),
         ]
         return custom_urls + urls
 
