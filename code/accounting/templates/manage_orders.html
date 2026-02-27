@@ -43,6 +43,9 @@
                             <a href="{% url 'admin_confirm_order' order.session_id %}" class="btn btn-primary">
                                 {% translate "Confirm Order" %}
                             </a>
+                            <a href="{% url 'ticket_list' order.session_id %}" class="btn btn-primary">
+                                {% translate "View Order" %}
+                            </a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -73,7 +76,7 @@
                         <td>{{ order.total }} {{ currency }}</td>
                         <td>
                             <a href="{% url 'ticket_list' order.session_id %}" class="btn btn-primary">
-                                {% translate "View Tickets" %}
+                                {% translate "View Order" %}
                             </a>
                         </td>
                     </tr>
