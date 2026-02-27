@@ -23,12 +23,12 @@ services:
         container_name: cinema_ticketing-web
         command: python manage.py runserver 0.0.0.0:8000
         volumes:
-            - ./cinema_tickets:/app
+            - ./code:/app
         ports:
             - "8000:8000"
         depends_on:
             - db
-            - redis
+            - rabbitmq
             - celery
         env_file:
             - .env
@@ -39,6 +39,7 @@ services:
         ports:
             - "5672:5672"
             - "15672:15672"
+    
     celery:
         build:
             context: .
@@ -46,20 +47,22 @@ services:
         container_name: cinema_ticketing-celery 
         command: celery -A cinema_tickets.celery worker --beat -l info 
         volumes:
-            - ./cinema_tickets:/app/ 
+            - ./code:/app/ 
         depends_on:
             - db
             - rabbitmq
-    
+
     flower:
         build:
             context: .
             dockerfile: ./Dockerfile
         container_name: cinema_ticketing-flower 
-        command: celery -A cinema_tickets.celery flower 
+        command: celery -A cinema_tickets flower --url_prefix=/flower --basic_auth=${FLOWER_USERNAME}:${FLOWER_PASSWORD} --port=5555
         volumes:
-            - ./cinema_tickets:/app/ 
+            - ./code:/app/ 
         depends_on:
             - db
             - celery
             - rabbitmq
+        env_file:
+            - .env
