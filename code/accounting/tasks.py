@@ -11,13 +11,13 @@ These tasks can be scheduled to run periodically or triggered asynchronously as 
 @shared_task
 def delete_timed_out_orders_task():
     try:
-        # Fetch orders that are currently in the WAITING status
+        # Get all orders waiting for payment
         waiting_orders = Order.objects.filter(
             status=PaymentStatus.WAITING
         )
         
-        # Identify orders that have timed out
-        timed_out_orders_list = [order for order in waiting_orders if order.has_timed_out()]
+        # Filter in Python for those that have timed out
+        timed_out_orders_list = [order for order in waiting_orders if order.has_timed_out]
         count = len(timed_out_orders_list)
         
         # If no timed-out orders are found, log the information and return a message

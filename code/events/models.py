@@ -13,6 +13,10 @@ import os
 import tempfile
 import uuid
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 from branding.models import get_active_branding
 
 class SoldAsStatus:
@@ -123,10 +127,10 @@ class Ticket(models.Model):
                     try:
                         pdf.set_page_background(self.event.ticket_background.path)
                     except Exception as e:
-                        print(f"Error loading template image: {e}")
+                        logger.error(f"Error loading template image: {e}")
                 else:
                     pdf.set_page_background(None)  # Proceed without a template if not found
-                    #print("Template file not found. Proceeding without it.")
+                    logger.warning("Template file not found. Proceeding without it.")
             
             pdf.add_page()
             borders = 0
@@ -254,7 +258,7 @@ class Ticket(models.Model):
                 email.send()
             except Exception as e:
                 # Log the error or handle it as needed
-                print(f"Error sending email: {e}")
+                logger.error(f"Error sending email: {e}")
                 raise e
         else:
             raise ValueError(_("No email address associated with this ticket."))

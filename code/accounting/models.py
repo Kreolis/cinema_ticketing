@@ -17,6 +17,10 @@ from decimal import Decimal
 from fpdf import FPDF
 import os
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # class for holding one sessions order until payment is completed
 class Order(BasePayment):
     """
@@ -29,14 +33,18 @@ class Order(BasePayment):
     timeout = models.IntegerField(default=10)  # in minutes
 
     # user choices for payment, limit choices to settings.PAYMENT_VARIANTS
-    variant = models.CharField(max_length=255, choices=[(key, key) for key in settings.PAYMENT_VARIANTS.keys()], default=settings.DEFAULT_PAYMENT_VARIANT)
+    variant = models.CharField(max_length=255, 
+                               choices=[(key, key) for key in settings.PAYMENT_VARIANTS.keys()], 
+                               verbose_name=_("Payment Method"),
+                               default=settings.DEFAULT_PAYMENT_VARIANT)
 
     currency = models.CharField(max_length=10, default=settings.DEFAULT_CURRENCY)
 
     failure_url = models.URLField(max_length=255, blank=True, null=True)
     success_url = models.URLField(max_length=255, blank=True, null=True)
 
-    is_confirmed = models.BooleanField(default=False)
+    # boolean field to indicate if order is confirmed by the ticket master or not, default is false
+    is_confirmed = models.BooleanField(default=False, verbose_name=_("Payment Is Confirmed"), help_text=_("Indicates whether the order has been confirmed by the ticket master."))
 
     def get_purchased_items(self) -> Iterable[PurchasedItem]:
         """Return an iterable of purchased items.
@@ -96,10 +104,14 @@ class Order(BasePayment):
         return (timezone.now() - self.modified) > timedelta(minutes=self.timeout)
 
     def is_valid(self) -> bool:
+        # check if order is confirmed or not timed out yet
         if self.status == PaymentStatus.CONFIRMED:
+            # order is confirmed, so it's valid regardless of timeout
             return True
         if self.created is None or self.modified is None:
+            # if created or modified is not set, consider order as invalid to prevent issues with timeout calculation
             return False
+        # order is not confirmed, check if it has timed out
         return not self.has_timed_out
 
     def save(self, *args, **kwargs):
@@ -271,10 +283,10 @@ class Order(BasePayment):
                 try:
                     pdf.set_page_background(branding.invoice_background.path)
                 except Exception as e:
-                    print(f"Error loading template image: {e}")
+                    logger.error(f"Error loading template image: {e}")
             else:
                 pdf.set_page_background(None)  # Proceed without a template if not found
-                print("Template file not found. Proceeding without it.")
+                logger.warning("Template file not found. Proceeding without it.")
 
         pdf.add_page()
         font = "Helvetica"
@@ -286,7 +298,7 @@ class Order(BasePayment):
                 if os.path.exists(branding.invoice_logo.path):
                     pdf.image(branding.invoice_logo.path, x=invoice_padding_left, y=invoice_padding_top, w=3)
                 else:
-                    print("Logo file not found. Proceeding without it.")
+                    logger.warning("Logo file not found. Proceeding without it.")
             pdf.ln(3)
             # Add company details
             pdf.set_font(font, size=10)
@@ -384,7 +396,7 @@ class Order(BasePayment):
             try:
                 email.send()
             except Exception as e:
-                print(f"Error sending confirmation email: {e}")
+                logger.error(f"Error sending confirmation email: {e}")
                 raise e
 
     def send_payment_instructions_email(self):
@@ -428,7 +440,7 @@ class Order(BasePayment):
         try:
             email.send()
         except Exception as e:
-            print(f"Error sending confirmation email: {e}")
+            logger.error(f"Error sending confirmation email: {e}")
             raise e
         
 
@@ -469,7 +481,7 @@ class Order(BasePayment):
         try:
             email.send()
         except Exception as e:
-            print(f"Error sending confirmation email: {e}")
+            logger.error(f"Error sending confirmation email: {e}")
             raise e
 
 
@@ -486,7 +498,7 @@ class Order(BasePayment):
         for ticket in self.tickets.all():
             ticket_to_delete = Ticket.objects.get(id=ticket.id)
             ticket_to_delete.delete()
-            print(f"Deleted ticket {ticket.id} for event {ticket.event.name}")
+            logger.info(f"Deleted ticket {ticket.id} for event {ticket.event.name}")
 
         super().delete(*args, **kwargs)
 

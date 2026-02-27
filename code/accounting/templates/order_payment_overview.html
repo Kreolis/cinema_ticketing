@@ -126,19 +126,36 @@
 
         // Countdown timer
         function startCountdown(minutes, elementId) {
-            var remainingTime = minutes * 60;
-            var interval = setInterval(function() {
+            var endTime = Date.now() + (minutes * 60 * 1000);
+
+            function updateCountdown() {
+                var remainingTime = Math.max(0, Math.round((endTime - Date.now()) / 1000));
                 if (remainingTime <= 0) {
-                    clearInterval(interval);
                     $(elementId).text('0:00');
                     alert(_("Your order has expired."));
-                } else {
-                    remainingTime--;
-                    var minutesLeft = Math.floor(remainingTime / 60);
-                    var secondsLeft = remainingTime % 60;
-                    $(elementId).text(minutesLeft + ':' + (secondsLeft < 10 ? '0' : '') + secondsLeft);
+                    return false;
+                }
+                var minutesLeft = Math.floor(remainingTime / 60);
+                var secondsLeft = remainingTime % 60;
+                $(elementId).text(minutesLeft + ':' + (secondsLeft < 10 ? '0' : '') + secondsLeft);
+                return true;
+            }
+
+            updateCountdown();
+
+            var interval = setInterval(function() {
+                if (!updateCountdown()) {
+                    clearInterval(interval);
                 }
             }, 1000);
+
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') {
+                    if (!updateCountdown()) {
+                        clearInterval(interval);
+                    }
+                }
+            });
         }
     </script>
 {% endblock %}
