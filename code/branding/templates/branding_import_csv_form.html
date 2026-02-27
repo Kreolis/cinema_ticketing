@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+  <h1>Import Branding from CSV</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="button">Upload</button>
+  </form>
+  {% if error_message %}
+    <div class="error">{{ error_message }}</div>
+  {% endif %}
+  <div>
+    <h2>Download Template CSV</h2>
+    <a href="{% url 'admin:download_branding_template_csv' %}" class="button">Download Template CSV</a>
+  </div>
+{% endblock %}

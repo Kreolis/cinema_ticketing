@@ -1,8 +1,16 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
+import logging
+
+logger = logging.getLogger(__name__)
+
+from cinema_tickets.celery import app
 
 # model for contact form emails
 class Contact(models.Model):
@@ -83,10 +91,12 @@ class Branding(models.Model):
     def __str__(self):
         return self.name
     
-    # make sure only one image is active at a time
+    # make sure only one branding is active at a time
     def save(self, *args, **kwargs):
         if self.is_active:
             Branding.objects.filter(is_active=True).update(is_active=False)
+
+        update_statistics_task_schedule(instance=self)  # update the statistics task schedule whenever
         super(Branding, self).save(*args, **kwargs)
 
     # delete image files when object is deleted
@@ -94,6 +104,7 @@ class Branding(models.Model):
         self.logo.delete()
         self.favicon.delete()
         self.success_sound.delete()
+        update_statistics_task_schedule(instance=self) # update the statistics task schedule
         super(Branding, self).delete(*args, **kwargs)
 
     def clean(self):
@@ -109,3 +120,29 @@ def get_active_branding():
         if Branding.objects.filter(is_active=True).exists():
             return Branding.objects.filter(is_active=True).first()
     return None
+
+
+def update_statistics_task_schedule(instance):
+    logger.info("Branding saved, updating statistics task schedule if needed.")
+    # check if statistics sending is enabled and update the Celery beat schedule accordingly
+    if instance.enable_ticket_statistics_sending:
+        # make sure if task already exists in beat schedule, if so remove it before adding the updated one
+        if 'send_global_statistics_report_task-every-X-hours' in app.conf.beat_schedule:
+            del app.conf.beat_schedule['send_global_statistics_report_task-every-X-hours']
+
+        # check if sedning period has started and has not ended yet before scheduling the task
+        now = timezone.now()
+        if instance.ticket_statistics_start and now < instance.ticket_statistics_start:
+            return  # Do not schedule the task if the start date is in the future
+        if instance.ticket_statistics_end and now > instance.ticket_statistics_end:
+            return  # Do not schedule the task if the end date has passed
+        
+        app.conf.beat_schedule.update({
+            'send_global_statistics_report_task-every-X-hours': {
+                'task': 'branding.tasks.send_global_statistics_report_task',
+                'schedule': instance.ticket_statistics_interval * 36.0,  # convert hours to seconds
+            },
+        })
+    else:
+        if 'send_global_statistics_report_task-every-X-hours' in app.conf.beat_schedule:
+            del app.conf.beat_schedule['send_global_statistics_report_task-every-X-hours']

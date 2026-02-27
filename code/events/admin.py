@@ -106,7 +106,7 @@ class PriceClassAdmin(admin.ModelAdmin):
                         name=price_class_data["name"],
                         price=float(price_class_data["price"]),
                         notification_message=price_class_data.get("notification_message", ""),
-                        secret=bool(price_class_data["secret"]),
+                        secret=price_class_data.get("secret", "").upper() == 'TRUE',
                     )
                     logger.info(f"Created price class: {price_class}")
 
@@ -235,34 +235,34 @@ class EventAdmin(admin.ModelAdmin):
                             event.price_classes.add(PriceClass.objects.get_or_create(name=price_class, defaults={'price': 0})[0])
                     
                     if event_data.get("program_link"):
-                        event.program_link = event_data["program_link"]
+                        event.program_link = event_data.get("program_link")
                     
-                    if event_data.get("is_active") == 'TRUE':
-                        event.is_active = event_data["is_active"] == 'TRUE'
+                    if event_data.get("is_active"):
+                        event.is_active = event_data.get("is_active", "").upper() == 'TRUE'
 
                     if event_data.get("custom_seats"):
-                        event.custom_seats = int(event_data["custom_seats"])
+                        event.custom_seats = int(event_data.get("custom_seats"))
 
                     if event_data.get("ticket_background"):
-                        event.ticket_background = event_data["ticket_background"]
+                        event.ticket_background = event_data.get("ticket_background")
 
                     if event_data.get("display_seat_number"):
-                        event.display_seat_number = event_data["display_seat_number"]
+                        event.display_seat_number = event_data.get("display_seat_number", "").upper() == 'TRUE'
                     
                     if event_data.get("event_background"):
-                        event.event_background = event_data["event_background"]
+                        event.event_background = event_data.get("event_background")
 
-                    if event_data.get("allow_presale") == 'TRUE':
-                        event.allow_presale = event_data["allow_presale"] == 'TRUE'
+                    if event_data.get("allow_presale"):
+                        event.allow_presale = event_data.get("allow_presale", "").upper() == 'TRUE'
 
                     if presale_start:
                         event.presale_start = presale_start
 
                     if event_data.get("presale_ends_before"):
-                        event.presale_ends_before = int(event_data["presale_ends_before"])
+                        event.presale_ends_before = int(event_data.get("presale_ends_before"))
 
-                    if event_data.get("allow_door_selling") == 'TRUE':
-                        event.allow_door_selling = event_data["allow_door_selling"] == 'TRUE'
+                    if event_data.get("allow_door_selling"):
+                        event.allow_door_selling = event_data.get("allow_door_selling", "").upper() == 'TRUE'
 
                     event.save()
                     logger.info(f"Event saved: {event}")
