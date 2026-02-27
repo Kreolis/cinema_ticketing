@@ -35,10 +35,6 @@ Here is an example `.envrc` file for this project:
 
 ```bash
 source bin/activate
-
-set -a && . cinema_ticketing/code/cinema_tickets/.env && set +a
-
-export FLOWER_BASIC_AUTH="${FLOWER_USERNAME}:${FLOWER_PASSWORD}"
 ```
 
 ### 2. Clone the Repository
@@ -69,13 +65,13 @@ sudo systemctl start rabbitmq
 sudo systemctl enable rabbitmq
 ```
 
-Dont forget to setup rabbitmq and create a user for it:
+Don't forget to setup rabbitmq and create a user for it:
 
 ```bash
 sudo rabbitmqctl add_user yourusername yourpassword
 sudo rabbitmqctl add_vhost yourvhost
 sudo rabbitmqctl set_user_tags yourusername yourtag
-sudo rabbitmqctl set_permissions -p myvhost yourusername ".*" ".*" ".*"
+sudo rabbitmqctl set_permissions -p yourvhost yourusername ".*" ".*" ".*"
 ```
 
 Please also follow the instructions in the [Celery documentation](https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/rabbitmq.html#broker-rabbitmq) to set up RabbitMQ with Django.
@@ -120,7 +116,7 @@ If you want to use a postgres database set `USE_POSTGRES` to `True` and add the 
   POSTGRES_PORT=your-db-port
 ```
 
-Depening on your setup you might also want to change the `CELERY_BROKER_URL` and `CELERY_RESULT_BACKEND` variables to match your RabbitMQ configuration.
+Depending on your setup you might also want to change the `CELERY_BROKER_URL` and `CELERY_RESULT_BACKEND` variables to match your RabbitMQ configuration.
 
 ```bash
   CELERY_BROKER_URL='amqp://yourusername:yourpassword@localhost:5672/yourvhost'
@@ -151,7 +147,7 @@ python manage.py runserver
 For periodic tasks, run the Celery worker in a separate terminal:
 
 ```bash
-celery -A cinema_tickets worker --loglevel=info
+python manage.py celery
 ```
 
 Make sure that RabbitMQ is running before starting the Celery worker.
@@ -171,9 +167,9 @@ Make sure that RabbitMQ is running before starting the Celery worker.
 - Navigate to `http://127.0.0.1:8000/admin/` to manage events, tickets, and payments.
 - Create a superuser with:
   
-  ```bash
-  python manage.py createsuperuser
-  ```
+```bash
+python manage.py createsuperuser
+```
 
 ### Payment Flow
 
@@ -217,6 +213,71 @@ Enable and start the uWSGI emperor service to start serving the side.
 systemctl enable emperor.uwsgi.service
 systemctl start emperor.uwsgi.service
 ```
+
+One can run Celery in the background:
+
+```bash
+celery -A cinema_tickets worker --beat --loglevel=info --detach
+```
+
+or you can manage celery as a systemd service. Create a file named `cinema_celery.service` in the `/etc/systemd/system/` directory with the following content:
+
+```ini
+[Unit]
+Description=Cinema Ticketing Celery Worker
+After=network.target rabbitmq-server.service
+
+[Service]
+Type=forking
+User=www-data # or nginx (the user that governs your websites)
+Group=www-data # or nginx (the user that governs your websites)
+WorkingDirectory=/path/to/your/cinema_ticketing
+Environment="PATH=/path/to/your/event_venv/bin"
+ExecStart=/path/to/your/event_venv/bin/celery -A cinema_tickets worker --beat --loglevel=info --detach
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and start the Celery service, run:
+
+```bash
+sudo systemctl enable cinema_celery.service
+sudo systemctl start cinema_celery.service
+```
+
+For monitoring Celery tasks in production, you can also run Flower as a systemd service. Create a file named `cinema_flower.service` in the `/etc/systemd/system/` directory:
+
+```ini
+[Unit]
+Description=Cinema Ticketing Flower Celery Monitoring
+After=network.target rabbitmq-server.service cinema_celery.service
+Requires=cinema_celery.service
+
+[Service]
+Type=simple
+User=www-data # or nginx (the user that governs your websites)
+Group=www-data # or nginx (the user that governs your websites)
+WorkingDirectory=/path/to/your/cinema_ticketing
+Environment="PATH=/path/to/your/event_venv/bin"
+EnvironmentFile=/path/to/your/cinema_ticketing/.env
+ExecStart=/path/to/your/event_venv/bin/celery -A cinema_tickets flower --basic_auth=${FLOWER_USERNAME}:${FLOWER_PASSWORD} --port=5555
+
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable and start the Flower service:
+
+```bash
+sudo systemctl enable cinema_flower.service
+sudo systemctl start cinema_flower.service
+```
+
+Then access Flower at `http://your-server:5555` using the credentials from your `.env` file. For production, it's recommended to put Flower behind Nginx with proper authentication and SSL.
 
 #### Manage Translation and Static
 
@@ -297,7 +358,7 @@ Run Celery worker in the background to handle asynchronous tasks with periodic t
 celery -A cinema_tickets worker --beat --loglevel=info --detach
 ```
 
-To easy opartions and enable automatic restarts of the celery worker you can use the management command provided in this project. Run this in your `cinema_ticketing` application folder.
+To enable automatic restarts of the celery worker you can use the management command provided in this project. Run this in your `cinema_ticketing` application folder.
 
 ```bash
 python manage.py celery
@@ -305,11 +366,13 @@ python manage.py celery
 
 This will automatically run the server and the celery worker with the correct log level based on the `DEBUG` setting in your `.env` file. It will also kill any existing celery processes before starting new ones.
 
-You can check the celery status with flower. Start flower in the background in a separate terminal:
+You can check the celery status with flower. Start flower in a separate terminal:
 
 ```bash
-celery -A cinema_tickets flower --port=5555
+python manage.py flower
 ```
+
+This will start flower on port 5555. You can access it by navigating to `http://your_domain_or_IP:5555/` in your browser. Use the credentials you set in the `.env` file to log in. The command ensures automatic restarts of the flower process as well, so you can monitor your celery tasks and workers effectively.
 
 #### Test the Deployment
 
