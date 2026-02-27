@@ -432,7 +432,6 @@ Version 2:
 - [ ] Add support for refunds or cancellations.
 - [ ] global event picture generation from name
 - [ ] custom event picture per event
-- [ ] language toggle with redirect to current page
 - [ ] Use shorter ids for urls and names
 - [ ] location and price import
 - [ ] make setting upload with csv

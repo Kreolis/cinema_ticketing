@@ -60,7 +60,7 @@
         <ul class="dropdown-menu" aria-labelledby="languageDropdown">
           {% for language in languages %}
             <li>
-              <a class="dropdown-item{% if language.code == CURRENT_LANGUAGE %} active{% endif %}" href="/{{ language.code }}/">
+              <a class="dropdown-item{% if language.code == CURRENT_LANGUAGE %} active{% endif %}" href="#" onclick="changeLanguage('{{ language.code }}'); return false;">
                 {{ language.name_local }}
               </a>
             </li>
@@ -88,5 +88,23 @@
     <p class="mx-2"><a href="{% url 'contact_form' %}">{% translate "Contact Us" %}</a></p>
   </div>
 </footer>
+
+<script>
+function changeLanguage(languageCode) {
+  const currentPath = window.location.pathname;
+  const pathSegments = currentPath.split('/').filter(segment => segment);
+  
+  // If the first segment is a language code, replace it
+  if (pathSegments.length > 0 && pathSegments[0].length === 2) {
+    pathSegments[0] = languageCode;
+  } else {
+    // Otherwise, prepend the language code
+    pathSegments.unshift(languageCode);
+  }
+  
+  const newPath = '/' + pathSegments.join('/') + (currentPath.endsWith('/') ? '/' : '');
+  window.location.href = newPath;
+}
+</script>
 
 </html>
