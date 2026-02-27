@@ -9,15 +9,8 @@
 
 {% block content %}
     <h1 class="mt-4">{% translate "Event Door Selling" %} - {{ event.name }}</h1>
-    
-    {% if event_active %}
-        <!-- Include jQuery library via CDN -->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-        <!-- Include DataTables.net library via CDN -->
-        <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" />
-        <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
-        
+    {% if event_active %}
         <h2 id="presale-status" class="text-warning"></h2>
 
         <!-- Elements to show/hide based on presale status -->
@@ -52,29 +45,34 @@
 
         <div id="message-container"></div>
 
+         <!-- Include jQuery library via CDN -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- Include DataTables.net library via CDN -->
+        <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" />
+        <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
+
         <!-- Tickets table -->
         <h2 class="mt-4">{% translate "Event Tickets" %}</h2>
         <div class="table-responsive">
             <table id="tickets-table" class="table table-striped mt-3">
                 <thead>
                     <tr>
-                        {% if event.display_seat_number %}
-                            <th>{% translate "Seat Number" %}</th>
-                        {% endif %}
-                        <th>{% translate "Email" %}</th>
-                        <th>{% translate "Name" %}</th>
-                        <th>{% translate "Ticket ID" %}</th>
+                        <th>{% translate "Seat Number" %}</th>
                         <th>{% translate "Price" %}</th>
                         <th>{% translate "Price Class" %}</th>
+                        <th>{% translate "Name" %}</th>
+                        <th>{% translate "Email" %}</th>
                         <th>{% translate "Action" %}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for ticket in tickets_door_and_presale %}
                         <tr id="row-{{ ticket.id }}">
-                            {% if event.display_seat_number %}
-                                <td>{{ ticket.seat }}</td>
-                            {% endif %}
+                            <td>{{ ticket.seat }}</td>
+                            <td>{{ ticket.price_class.price }} {{ currency }}</td>
+                            <td>{{ ticket.price_class.name }}</td>
+                            <td>{{ ticket.first_name }} {{ ticket.last_name }}</td>
                             <td>
                                 <form action="{% url 'update_ticket_email' ticket.id %}" method="post" class="update-email-form" style="display:inline-flex;">
                                     {% csrf_token %}
@@ -82,10 +80,6 @@
                                     {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
                                 </form>
                             </td>
-                            <td>{{ ticket.first_name }} {{ ticket.last_name }}</td>
-                            <td>{{ ticket.id }}</td>
-                            <td>{{ ticket.price_class.price }} {{ currency }}</td>
-                            <td>{{ ticket.price_class.name }}</td>
                             <td>
                                 <a href="{% url 'show_generated_ticket_pdf' ticket.id %}" class="btn btn-primary" target="_blank">
                                     {% translate "Show Ticket" %}
@@ -100,7 +94,11 @@
             </table>
         </div>
 
-        
+        <script>
+            $('#tickets-table').DataTable({
+            order: [[0, 'desc']]
+            });
+        </script>
 
         <script>
             const presaleStartTime = new Date("{{ presale_start_time|date:'c' }}");

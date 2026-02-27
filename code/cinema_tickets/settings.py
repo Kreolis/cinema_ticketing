@@ -14,6 +14,10 @@ from pathlib import Path
 from decouple import config
 import os
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -49,6 +53,9 @@ INSTALLED_APPS = [
     'branding',     # branding management
     'events',       # events management
     'accounting',   # payment and order management
+
+    # Celery result backend
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -125,6 +132,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Celery Configuration Options
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default=None)
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='django-db')
+CELERY_TIMEZONE = "UTC"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+# Flower Configuration
+FLOWER_USER = config('FLOWER_USER', default='admin')
+FLOWER_PASSWORD = config('FLOWER_PASSWORD', default='admin')
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -280,10 +297,10 @@ if DEBUG:
 
 DEFAULT_PAYMENT_VARIANT = config('DEFAULT_GATEWAY')
 if DEFAULT_PAYMENT_VARIANT not in PAYMENT_VARIANTS:
-    print(f"Default payment variant {DEFAULT_PAYMENT_VARIANT} not found in PAYMENT_VARIANTS")
-    print("Available payment variants:")
+    logger.warning(f"Default payment variant {DEFAULT_PAYMENT_VARIANT} not found in PAYMENT_VARIANTS")
+    logger.info("Available payment variants:")
     for key in PAYMENT_VARIANTS:
-        print(f"  {key}")
+        logger.info(f"  {key}")
 
 HUMANIZED_PAYMENT_VARIANT = {
     'stripe': _('Stripe (Credit Card)'),

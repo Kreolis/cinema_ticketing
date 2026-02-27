@@ -6,6 +6,7 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout 
 
 import io
+import logging
 
 from django.conf import settings
 from django.http import FileResponse
@@ -19,6 +20,8 @@ from .forms import UpdateEmailsForm
 
 from events.models import SoldAsStatus
 from events.views import user_in_ticket_managers_group_or_admin
+
+logger = logging.getLogger(__name__)
 
 def cart_view(request):
     if not request.session.session_key:
@@ -251,20 +254,19 @@ def ticket_list(request, order_id):
             order.send_confirmation_email()
 
         if request.session.session_key == None:
-            print(f"Session key: {request.session.session_key}")
-            print("No session key found. Cycle key.")
+            logger.info(f"Session key: {request.session.session_key}")
+            logger.info("No session key found. Creating new session.")
             request.session.create()
         
 
         # order is paid
         # make sure the user can make a new order by creating a new session
         while request.session.session_key == order_id:
-            print(f"Session key: {request.session.session_key}")
-            print("Session key is the same as order ID. Cycle key.")
+            logger.info(f"Session key: {request.session.session_key}")
+            logger.info("Session key is the same as order ID. Cycling key.")
             request.session.cycle_key()
 
-        print(f"Session key: {request.session.session_key}")
-
+        logger.info(f"Session key: {request.session.session_key}")
     # if order is payed show the tickets
     if order.status == PaymentStatus.CONFIRMED:
         return render(request, 'ticket_list.html', {
