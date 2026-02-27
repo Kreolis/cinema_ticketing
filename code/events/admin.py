@@ -11,6 +11,10 @@ from django.http import HttpResponse
 from datetime import datetime, timedelta
 from django.utils import timezone
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 class CSVImportForm(forms.Form):
     csv_file = forms.FileField(label='CSV file')
 
@@ -107,7 +111,7 @@ class EventAdmin(admin.ModelAdmin):
                         duration=duration,
                         location=location,
                     )
-                    print("Created event:", event)
+                    logger.info(f"Created event: {event}")
                     
                     if event_data.get("price_classes"):
                         price_classes = event_data["price_classes"].split(',')
@@ -147,7 +151,7 @@ class EventAdmin(admin.ModelAdmin):
                         event.allow_door_selling = event_data["allow_door_selling"] == 'TRUE'
 
                     event.save()
-                    print("Event saved:", event)
+                    logger.info(f"Event saved: {event}")
 
                 self.message_user(request, "Events imported successfully.")
                 return redirect("..")
@@ -155,7 +159,7 @@ class EventAdmin(admin.ModelAdmin):
                 error_message = f"Error importing CSV file: {str(e)}"
                 form = CSVImportForm()
                 payload = {"form": form, "error_message": error_message}
-                print(error_message)
+                logger.error(error_message)
                 return render(request, "events_import_csv_form.html", payload)
             
         form = CSVImportForm()

@@ -7,6 +7,10 @@ from django.utils.translation import gettext as _
 from .models import Contact
 from .forms import ContactForm
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # contact form view
 def contact_form(request):
     if request.method == 'POST':
@@ -32,7 +36,7 @@ def contact_form(request):
             try:
                 email.send()
             except Exception as e:
-                print(f"Error sending confirmation email: {e}")
+                logger.error(f"Error sending confirmation email: {e}")
                 raise e
             
             return JsonResponse({"status": "success", 'message': _('Message sent successfully!')})
