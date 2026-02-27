@@ -62,10 +62,11 @@ sudo apt-get install rabbitmq-server
 yay -S rabbitmq
 ```
 
-After that start the rabbitmq server:
+After that start and enable the rabbitmq server:
 
 ```bash
 sudo systemctl start rabbitmq
+sudo systemctl enable rabbitmq
 ```
 
 Dont forget to setup rabbitmq and create a user for it:
@@ -124,6 +125,13 @@ Depening on your setup you might also want to change the `CELERY_BROKER_URL` and
 ```bash
   CELERY_BROKER_URL='amqp://yourusername:yourpassword@localhost:5672/yourvhost'
   CELERY_RESULT_BACKEND='django-db'
+```
+
+Additionally, add flower credentials for monitoring celery tasks:
+
+```bash
+  FLOWER_USERNAME='your-flower-username'
+  FLOWER_PASSWORD='your-flower-password'
 ```
 
 ### 5. Apply Migrations
@@ -252,6 +260,14 @@ server {
     error_log /var/log/nginx/cinema_ticketing_error.log;
     access_log /var/log/nginx/cinema_ticketing_access.log;
 }
+```
+
+To add flower support add the following to your nginx configuration:
+
+```nginx
+    location /flower/ {
+        proxy_pass http://127.0.0.1:5555/;
+    }
 ```
 
 Enable the configuration by creating a symbolic link to it in the `/etc/nginx/sites-enabled/` directory.
