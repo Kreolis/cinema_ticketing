@@ -44,6 +44,9 @@ def restart_flower():
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        logger.info('Starting flower with autoreload...')
-
-        autoreload.run_with_reloader(restart_flower) 
+        self.stdout.write(self.style.SUCCESS('Starting flower with autoreload...'))
+        try:
+            autoreload.run_with_reloader(restart_flower)
+        except Exception as error:
+            self.stderr.write(self.style.ERROR(f'Flower command failed: {error}'))
+            raise
