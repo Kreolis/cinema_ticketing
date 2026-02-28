@@ -11,8 +11,24 @@
     <h1 class="mt-4">{% translate "Overall Statistics" %}</h1>
     <div class="mt-4">
         <a href="{% url 'event_list' %}" class="btn btn-primary">{% translate "Go to Event List" %}</a>
-        <a href="{% url 'show_generated_global_statistics_pdf' %}" class="btn btn-secondary">{% translate "Print Global Statistics" %}</a>
+        <a href="{% url 'show_generated_global_statistics_pdf' %}{% if selected_location_id %}?location={{ selected_location_id }}{% endif %}" class="btn btn-secondary">{% translate "Print Global Statistics" %}</a>
     </div>
+
+    <form method="get" class="row g-3 mt-2 align-items-end">
+        <div class="col-md-4">
+            <label for="location" class="form-label">{% translate "Event Location" %}</label>
+            <select id="location" name="location" class="form-select">
+                <option value="">{% translate "All Locations" %}</option>
+                {% for location in location_options %}
+                    <option value="{{ location.id }}" {% if selected_location_id == location.id|stringformat:"s" %}selected{% endif %}>{{ location.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-auto">
+            <button type="submit" class="btn btn-outline-primary">{% translate "Filter" %}</button>
+            <a href="{% url 'all_events_statistics' %}" class="btn btn-outline-secondary">{% translate "Reset" %}</a>
+        </div>
+    </form>
     <!-- Include jQuery library via CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -78,7 +94,7 @@
     <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {{ event_stats.event.start_time }}</p>
     <p class="card-text"><strong>{% translate "Location" %}:</strong> {{ event_stats.event.location.name }}</p>
     <div class="table-responsive">
-        <table id="statistics-table" class="table table-striped mt-3">
+        <table id="statistics-table-{{ event_stats.event.id }}" class="table table-striped mt-3">
             <thead>
                 <tr>
                     <th>{% translate "Statistic" %}</th>
@@ -201,11 +217,13 @@
 
     <script>
         $(document).ready(function() {
-            $('#statistics-table').DataTable({
-                "pageLength": 15,
-                "order": [],
-                "ordering": false
-            });
+            {% for event_stats in events_stats %}
+                $('#statistics-table-{{ event_stats.event.id }}').DataTable({
+                    "pageLength": 15,
+                    "order": [],
+                    "ordering": false
+                });
+            {% endfor %}
             $('#overall-statistics-table').DataTable({
                 "pageLength": 1,
                 "order": [],

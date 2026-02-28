@@ -11,7 +11,7 @@ from fpdf import FPDF
 
 from payments import get_payment_model
 
-from .models import Event, Ticket, SoldAsStatus, TicketMaster
+from .models import Event, Ticket, SoldAsStatus, TicketMaster, Location
 from branding.models import Branding
 from .forms import TicketSelectionForm
 
@@ -350,23 +350,35 @@ def get_all_event_statistics(locations=None):
 @user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def all_events_statistics(request):
     is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
+    selected_location_id = request.GET.get('location')
+    locations = None
 
     # restrict the events shown to ticket managers to only those that are in their active locations if they have any
     if is_ticket_manager and not is_user_in_admin(request.user):
         ticket_master = get_ticketmaster_for_user(request.user)
-        locations = ticket_master.active_locations.all()
+        locations = ticket_master.active_locations.all() if ticket_master else Location.objects.none()
+
+        if selected_location_id:
+            locations = locations.filter(id=selected_location_id)
+
         events_stats, overall_total_stats = get_all_event_statistics(locations=locations)
+        location_options = ticket_master.active_locations.all().order_by('name') if ticket_master else Location.objects.none()
     else:
-        events_stats, overall_total_stats = get_all_event_statistics()
+        location_options = Location.objects.filter(event__isnull=False).distinct().order_by('name')
+        if selected_location_id:
+            locations = location_options.filter(id=selected_location_id)
+        events_stats, overall_total_stats = get_all_event_statistics(locations=locations)
 
     return render(request, 'all_event_statistics.html', {
         'events_stats': events_stats,
         'overall_total_stats': overall_total_stats,
-        'currency': settings.DEFAULT_CURRENCY
+        'currency': settings.DEFAULT_CURRENCY,
+        'location_options': location_options,
+        'selected_location_id': selected_location_id
     })
 
 
-def generate_global_statistics_pdf():
+def generate_global_statistics_pdf(locations=None):
     # Generate statistics for all events
     # Create the PDF
     pdf = FPDF(unit="cm", format=(21.0, 29.7))  # A4 format
@@ -383,7 +395,7 @@ def generate_global_statistics_pdf():
     pdf.ln(0.6)
 
     # add global statistics
-    events_stats, overall_total_stats = get_all_event_statistics()
+    events_stats, overall_total_stats = get_all_event_statistics(locations=locations)
 
     pdf.set_font(font, size=12, style='B')
     pdf.cell(19.0, 0.8, text="Global Statistics", border=0, align='L')
@@ -402,12 +414,15 @@ def generate_global_statistics_pdf():
         pdf.ln(0.6)
     
 
-    for event in Event.objects.all().order_by('start_time'):
+    for event_stats in events_stats:
         # Add a new page for each event
         pdf.add_page()
 
+        event = event_stats['event']
+
         # Fetch statistics
-        total_stats, price_class_stats = event.calculate_statistics()
+        total_stats = event_stats['total_stats']
+        price_class_stats = event_stats['price_class_stats']
 
         # Add event name
         pdf.set_font(font, size=14, style='B')
@@ -468,8 +483,20 @@ def generate_global_statistics_pdf():
 @login_required
 @user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def show_generated_global_statistics_pdf(request):
+    selected_location_id = request.GET.get('location')
+    locations = None
+
+    if is_user_in_ticket_managers_group_or_admin(request.user) and not is_user_in_admin(request.user):
+        ticket_master = get_ticketmaster_for_user(request.user)
+        locations = ticket_master.active_locations.all() if ticket_master else Location.objects.none()
+
+        if selected_location_id:
+            locations = locations.filter(id=selected_location_id)
+    elif selected_location_id:
+        locations = Location.objects.filter(id=selected_location_id)
+
     # Generate PDF for the selected ticket
-    pdf = generate_global_statistics_pdf()
+    pdf = generate_global_statistics_pdf(locations=locations)
     # Create a BytesIO stream to hold
     file_stream = io.BytesIO(pdf.output())
     # Create a FileResponse to send the PDF file
