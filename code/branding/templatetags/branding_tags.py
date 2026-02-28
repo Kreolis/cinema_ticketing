@@ -7,3 +7,13 @@ register = template.Library()
 def get_active_favicon():
     active_branding = get_active_branding()
     return active_branding.favicon.url if active_branding and active_branding.favicon else None
+
+@register.simple_tag
+def get_active_logo():
+    active_branding = get_active_branding()
+    return active_branding.logo.url if active_branding and active_branding.logo else None
+
+@register.simple_tag
+def get_active_site_name():
+    active_branding = get_active_branding()
+    return active_branding.site_name if active_branding and active_branding.site_name else None

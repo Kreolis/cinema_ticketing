@@ -428,17 +428,18 @@ We welcome contributions to this project! To contribute:
 
 Version 2:
 
-- [ ] Add user authentication for ticket buyers.
-- [ ] Add support for refunds or cancellations.
-- [ ] global event picture generation from name
+- [ ] global event picture generation from site name
 - [ ] custom event picture per event
 - [ ] Use shorter ids for urls and names
-- [ ] Branding Logo
-- [ ] Branding Page Name
 
 Nice to have:
 
 - [ ] admin stays logged in forever
+
+Version 3:
+
+- [ ] Option to: Add user authentication for ticket buyers.
+- [ ] Add support for refunds or cancellations.
 
 ### Handy Developing Things
 
