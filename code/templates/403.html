@@ -1,0 +1,10 @@
+{% extends "master.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-5">
+  <h1>{% trans "Permission denied" %}</h1>
+  <p>{% trans "You do not have permission to access this page." %}</p>
+  <p>{% trans "If you think this is a mistake, please contact an administrator." %}</p>
+</div>
+{% endblock %}

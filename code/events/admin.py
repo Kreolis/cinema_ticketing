@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Location, PriceClass, Event, Ticket
-from .views import get_ticketmaster_for_user
+from .models import Location, PriceClass, Event, Ticket, TicketMaster
 
 from django.urls import reverse
 from django.utils.html import format_html
@@ -9,12 +8,41 @@ from django.shortcuts import redirect, render
 from django.urls import path
 from django import forms
 from django.http import HttpResponse
+from django.core.exceptions import PermissionDenied
 from datetime import datetime, timedelta
 from django.utils import timezone
 
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def is_admin_user(user):
+    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins']).exists()
+
+
+def is_ticket_manager_user(user):
+    return user.groups.filter(name='Ticket Managers').exists()
+
+
+def get_ticketmaster_for_user(user):
+    return TicketMaster.for_user(user)
+
+
+def get_user_active_locations(user):
+    if is_admin_user(user):
+        return None
+    if not is_ticket_manager_user(user):
+        return Location.objects.none()
+
+    ticket_master = get_ticketmaster_for_user(user)
+    if not ticket_master:
+        return Location.objects.none()
+
+    active_locations = ticket_master.active_locations.all()
+    if active_locations.exists():
+        return active_locations
+    return None
 
 class CSVImportForm(forms.Form):
     csv_file = forms.FileField(label='CSV file')
@@ -24,12 +52,12 @@ class LocationAdmin(admin.ModelAdmin):
     list_display = ('name', 'total_seats')
     change_list_template = "admin_locations_custom.html"
 
-    def has_view_permission(self, request):
+    def has_view_permission(self, request, obj=None):
         """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
         if request.user.is_superuser:
             return True
         # Check if user is in 'admin' group
-        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
             return True
         return False
 
@@ -37,7 +65,7 @@ class LocationAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to add."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 
@@ -45,7 +73,7 @@ class LocationAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to change."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 
@@ -53,7 +81,7 @@ class LocationAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to delete."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 
@@ -66,6 +94,8 @@ class LocationAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def import_csv(self, request):
+        if not self.has_add_permission(request):
+            raise PermissionDenied
         if request.method == "POST":
             csv_file = request.FILES["csv_file"]
             try:
@@ -119,12 +149,12 @@ class PriceClassAdmin(admin.ModelAdmin):
     list_display = ('name', 'price')
     change_list_template = "admin_price_classes_custom.html"
 
-    def has_view_permission(self, request):
+    def has_view_permission(self, request, obj=None):
         """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
         if request.user.is_superuser:
             return True
         # Check if user is in 'admin' group
-        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
             return True
         return False
 
@@ -132,7 +162,7 @@ class PriceClassAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to add."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 
@@ -140,7 +170,7 @@ class PriceClassAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to change."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 
@@ -148,7 +178,7 @@ class PriceClassAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to delete."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 
@@ -161,6 +191,8 @@ class PriceClassAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def import_csv(self, request):
+        if not self.has_add_permission(request):
+            raise PermissionDenied
         if request.method == "POST":
             csv_file = request.FILES["csv_file"]
             try:
@@ -219,12 +251,12 @@ class TicketAdmin(admin.ModelAdmin):
     list_filter = ('sold_as', 'activated')
     search_fields = ('id', 'event__name', 'sold_as')  # Updated search_fields
 
-    def has_view_permission(self, request):
+    def has_view_permission(self, request, obj=None):
         """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
         if request.user.is_superuser:
             return True
         # Check if user is in 'admin' group
-        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='Ticket Managers').exists():
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
             return True
         return False
 
@@ -232,36 +264,45 @@ class TicketAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to add."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='Ticket Managers').exists():
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
             return True
         return False
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        active_locations = get_user_active_locations(request.user)
+        if active_locations is None:
+            return queryset
+        return queryset.filter(event__location__in=active_locations)
 
     def has_change_permission(self, request, obj=None):
         """Allow superusers and users in 'admin' group to change."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
-        if request.user.groups.filter(name='Ticket Managers').exists():
-            ticket_master = get_ticketmaster_for_user(request.user)
-            # filter displayed tickets based on active locations of the ticket manager
-            active_locations = ticket_master.active_locations.all()
-            if obj and obj.event.location not in active_locations:
-                return False
+        if is_ticket_manager_user(request.user):
+            active_locations = get_user_active_locations(request.user)
+            if active_locations is None:
+                return True
+            if obj is None:
+                return True
+            return obj.event.location in active_locations
         return False
 
     def has_delete_permission(self, request, obj=None):
         """Allow superusers and users in 'admin' group to delete."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
-        if request.user.groups.filter(name='Ticket Managers').exists():
-            ticket_master = get_ticketmaster_for_user(request.user)
-            # filter displayed tickets based on active locations of the ticket manager
-            active_locations = ticket_master.active_locations.all()
-            if obj and obj.event.location not in active_locations:
-                return False
+        if is_ticket_manager_user(request.user):
+            active_locations = get_user_active_locations(request.user)
+            if active_locations is None:
+                return True
+            if obj is None:
+                return True
+            return obj.event.location in active_locations
         return False
 
     # Add custom action buttons
@@ -303,12 +344,12 @@ class EventAdmin(admin.ModelAdmin):
 
     change_list_template = "admin_events_custom.html"
 
-    def has_view_permission(self, request):
+    def has_view_permission(self, request, obj=None):
         """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
         if request.user.is_superuser:
             return True
         # Check if user is in 'admin' group
-        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='Ticket Managers').exists():
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
             return True
         return False
 
@@ -316,36 +357,45 @@ class EventAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to add."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='Ticket Managers').exists():
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
             return True
         return False
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        active_locations = get_user_active_locations(request.user)
+        if active_locations is None:
+            return queryset
+        return queryset.filter(location__in=active_locations)
 
     def has_change_permission(self, request, obj=None):
         """Allow superusers and users in 'admin' group to change."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
-        if request.user.groups.filter(name='Ticket Managers').exists():
-            ticket_master = get_ticketmaster_for_user(request.user)
-            # filter displayed tickets based on active locations of the ticket manager
-            active_locations = ticket_master.active_locations.all()
-            if obj and obj.event.location not in active_locations:
-                return False
+        if is_ticket_manager_user(request.user):
+            active_locations = get_user_active_locations(request.user)
+            if active_locations is None:
+                return True
+            if obj is None:
+                return True
+            return obj.location in active_locations
         return False
 
     def has_delete_permission(self, request, obj=None):
         """Allow superusers and users in 'admin' group to delete."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
-        if request.user.groups.filter(name='Ticket Managers').exists():
-            ticket_master = get_ticketmaster_for_user(request.user)
-            # filter displayed tickets based on active locations of the ticket manager
-            active_locations = ticket_master.active_locations.all()
-            if obj and obj.event.location not in active_locations:
-                return False
+        if is_ticket_manager_user(request.user):
+            active_locations = get_user_active_locations(request.user)
+            if active_locations is None:
+                return True
+            if obj is None:
+                return True
+            return obj.location in active_locations
         return False
 
     def get_urls(self):
@@ -357,6 +407,8 @@ class EventAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def import_csv(self, request):        
+        if not self.has_add_permission(request):
+            raise PermissionDenied
         if request.method == "POST":
             csv_file = request.FILES["csv_file"]
             try:
@@ -474,3 +526,42 @@ class EventAdmin(admin.ModelAdmin):
                     event.presale_start, event.presale_ends_before, event.allow_door_selling
                 ])
         return response
+
+@admin.register(TicketMaster)
+class TicketMasterAdmin(admin.ModelAdmin):
+    list_display = ('firstname', 'lastname', 'email', 'user', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('firstname', 'lastname', 'email', 'user__username', 'user__email')
+
+    def has_view_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False

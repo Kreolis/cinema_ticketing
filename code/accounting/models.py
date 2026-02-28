@@ -15,8 +15,8 @@ from decimal import Decimal
 from fpdf import FPDF
 import os
 
-from branding.models import get_active_branding, TicketMaster
-from events.models import Ticket
+from branding.models import get_active_branding
+from events.models import Ticket, TicketMaster
 
 import logging
 

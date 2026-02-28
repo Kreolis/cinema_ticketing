@@ -514,3 +514,103 @@ class Event(models.Model):
         Return the total number of seats available for the event (either from the location or customized).
         """
         return self.custom_seats if self.custom_seats is not None else self.location.total_seats
+
+class TicketMaster(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='ticket_master_profile',
+        help_text=_("Optional direct link to the Django user for this ticket manager."),
+    )
+    firstname = models.CharField(max_length=100, help_text=_("Enter the first name"))
+    lastname = models.CharField(max_length=100, help_text=_("Enter the last name"))
+    email = models.EmailField(help_text=_("Enter the email address to which all ticket sales are sent"))
+    is_active = models.BooleanField(default=False, help_text=_("Indicates if the contact is active"))
+
+    active_locations = models.ManyToManyField(Location, blank=True, help_text=_("Select the locations for which this ticket master is responsible. If no location is selected this ticket master will be responsible for all locations."))
+
+    def __str__(self):
+        return f"{self.firstname} {self.lastname}"    
+
+    @classmethod
+    def for_user(cls, user):
+        if not user or not user.is_authenticated:
+            return None
+
+        ticket_master = cls.objects.filter(user=user).first()
+        if ticket_master:
+            return ticket_master
+
+        if user.email:
+            return cls.objects.filter(email=user.email).first()
+        return None
+    
+    def get_active_locations(self):
+        """
+        Return the active locations for this ticket master. If no location is selected, return all locations.
+        """
+        if self.active_locations.exists():
+            return self.active_locations.all()
+        else:
+            return Location.objects.all()
+    
+    # when saved add to Ticket Managers group and when deactivated remove from group
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Call the original save method to save the instance first
+
+        from django.contrib.auth.models import Group
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        # Get or create the 'Ticket Managers' group
+        ticket_managers_group, created = Group.objects.get_or_create(name='Ticket Managers')
+
+        # Find the user associated with this ticket master
+        try:
+            user = self.user or User.objects.get(email=self.email)
+            if self.is_active:
+                if not user.is_staff:
+                    user.is_staff = True
+                    user.save(update_fields=['is_staff'])
+                user.groups.add(ticket_managers_group)  # Add to group if active
+            else:
+                user.groups.remove(ticket_managers_group)  # Remove from group if not active
+                if (
+                    user.is_staff
+                    and not user.is_superuser
+                    and not user.groups.filter(name__in=['admin', 'Admins']).exists()
+                ):
+                    user.is_staff = False
+                    user.save(update_fields=['is_staff'])
+        except User.DoesNotExist:
+            pass  # If no user exists with this email, do nothing
+
+    def delete(self, *args, **kwargs):
+        from django.contrib.auth.models import Group
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        # Get the 'Ticket Managers' group
+        ticket_managers_group = Group.objects.filter(name='Ticket Managers').first()
+
+        # Find the user associated with this ticket master
+        try:
+            user = self.user or User.objects.get(email=self.email)
+            if ticket_managers_group:
+                user.groups.remove(ticket_managers_group)  # Remove from group when ticket master is deleted
+            if (
+                user.is_staff
+                and not user.is_superuser
+                and not user.groups.filter(name__in=['admin', 'Admins']).exists()
+            ):
+                user.is_staff = False
+                user.save(update_fields=['is_staff'])
+        except User.DoesNotExist:
+            pass  # If no user exists with this email, do nothing
+
+        super().delete(*args, **kwargs)  # Call the original delete method to delete the instance
+        

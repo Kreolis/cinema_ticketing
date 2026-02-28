@@ -11,8 +11,8 @@ from fpdf import FPDF
 
 from payments import get_payment_model
 
-from .models import Event, Ticket, SoldAsStatus
-from branding.models import Branding, TicketMaster
+from .models import Event, Ticket, SoldAsStatus, TicketMaster
+from branding.models import Branding
 from .forms import TicketSelectionForm
 
 def event_list(request):
@@ -24,11 +24,12 @@ def event_list(request):
     # restrict the events shown to ticket managers to only those that are in their active locations if they have any
     if is_ticket_manager and not is_user_in_admin(request.user):
         ticket_master = get_ticketmaster_for_user(request.user)
-        # filter events based on active locations of the ticket manager
-        active_locations = ticket_master.active_locations.all()
-        # filter only if active_locations is not empty
-        if active_locations.exists():
-            events = events.filter(location__in=active_locations)
+        if not ticket_master:
+            events = events.none()
+        else:
+            active_locations = ticket_master.active_locations.all()
+            if active_locations.exists():
+                events = events.filter(location__in=active_locations)
 
     return render(request, 'event_list.html', {
         'events': events,
@@ -85,12 +86,11 @@ def event_detail(request, event_id):
     # restrict the events shown to ticket managers to only those that are in their active locations if they have any
     if is_ticket_manager and not is_user_in_admin(request.user):
         ticket_master = get_ticketmaster_for_user(request.user)
-        # filter events based on active locations of the ticket manager
+        if not ticket_master:
+            return redirect('event_list')
         active_locations = ticket_master.active_locations.all()
-        # filter only if active_locations is not empty
-        if active_locations.exists():
-            if event.location not in active_locations:
-                return redirect('event_list')
+        if active_locations.exists() and event.location not in active_locations:
+            return redirect('event_list')
 
     return render(request, 'event_details.html', {
         'event': event,
@@ -153,20 +153,15 @@ def send_ticket_email(request, ticket_id):
 
 # check if user is in ticket managers group or admin
 def is_user_in_ticket_managers_group_or_admin(user):
-    # return True if user is in ticket managers group or admin group or is superuser
-    return user.groups.filter(name='admin_user_group').exists() or user.groups.filter(name='ticket_managers_group').exists() or user.is_superuser
+    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins', 'Ticket Managers']).exists()
 
 # check if user is in ticket managers group or admin
 def is_user_in_admin(user):
-    # return True if user is in admin group or is superuser
-    return user.groups.filter(name='admin_user_group').exists() or user.is_superuser
+    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins']).exists()
 
 # get ticket manager for user
 def get_ticketmaster_for_user(user):
-    try:
-        return TicketMaster.objects.get(user=user)
-    except TicketMaster.DoesNotExist:
-        return None
+    return TicketMaster.for_user(user)
 
 @login_required
 @user_passes_test(is_user_in_ticket_managers_group_or_admin)

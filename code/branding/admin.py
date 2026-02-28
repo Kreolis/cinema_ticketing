@@ -1,14 +1,13 @@
 from django.contrib import admin
-from .models import Contact, TicketMaster, Branding
+from .models import Contact, Branding
 
-from django.urls import reverse
-from django.utils.html import format_html
 import csv
 from django.shortcuts import redirect, render
 from django.urls import path
+from django.core.exceptions import PermissionDenied
 from django import forms
 from django.http import HttpResponse
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.utils import timezone
 
 import logging
@@ -24,51 +23,12 @@ class ContactAdmin(admin.ModelAdmin):
     list_filter = ('is_active',)
     search_fields = ('name', 'email')
 
-    def has_view_permission(self, request):
+    def has_view_permission(self, request, obj=None):
         """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
         if request.user.is_superuser:
             return True
         # Check if user is in 'admin' group
         if request.user.groups.filter(name='admin').exists():
-            return True
-        return False
-
-    def has_add_permission(self, request):
-        """Allow superusers and users in 'admin' group to add."""
-        if request.user.is_superuser:
-            return True
-        if request.user.groups.filter(name='admin').exists():
-            return True
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        """Allow superusers and users in 'admin' group to change."""
-        if request.user.is_superuser:
-            return True
-        if request.user.groups.filter(name='admin').exists():
-            return True
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        """Allow superusers and users in 'admin' group to delete."""
-        if request.user.is_superuser:
-            return True
-        if request.user.groups.filter(name='admin').exists():
-            return True
-        return False
-
-@admin.register(TicketMaster)
-class TicketMasterAdmin(admin.ModelAdmin):
-    list_display = ('firstname', 'lastname', 'email', 'is_active')
-    list_filter = ('is_active',)
-    search_fields = ('name', 'email')
-
-    def has_view_permission(self, request):
-        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
-        if request.user.is_superuser:
-            return True
-        # Check if user is in 'admin' group
-        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='Ticket Managers').exists():
             return True
         return False
 
@@ -102,7 +62,7 @@ class BrandingAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     change_list_template = "admin_brandings_custom.html"
 
-    def has_view_permission(self, request):
+    def has_view_permission(self, request, obj=None):
         """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
         if request.user.is_superuser:
             return True
@@ -144,6 +104,9 @@ class BrandingAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def import_csv(self, request):
+        if not self.has_add_permission(request):
+            raise PermissionDenied
+        
         if request.method == "POST":
             csv_file = request.FILES["csv_file"]
             try:
