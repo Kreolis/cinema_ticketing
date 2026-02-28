@@ -30,6 +30,8 @@ def get_ticketmaster_for_user(user):
 def event_list(request):
     # Retrieve all events, you can filter if they are active
     events = Event.objects.filter(is_active=True).order_by('start_time')
+    selected_location_id = request.GET.get('location')
+    selected_day = request.GET.get('day')
 
     is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
 
@@ -43,10 +45,28 @@ def event_list(request):
             if active_locations.exists():
                 events = events.filter(location__in=active_locations)
 
+    location_options = Location.objects.filter(event__in=events).distinct().order_by('name')
+
+    if selected_location_id:
+        events = events.filter(location_id=selected_location_id)
+
+    day_options = events.values_list('start_time__date', flat=True).distinct().order_by('start_time__date')
+
+    if selected_day:
+        try:
+            day_date = datetime.strptime(selected_day, '%Y-%m-%d').date()
+            events = events.filter(start_time__date=day_date)
+        except ValueError:
+            selected_day = ''
+
     return render(request, 'event_list.html', {
         'events': events,
         'currency': settings.DEFAULT_CURRENCY,
-        'is_ticket_manager': is_ticket_manager
+        'is_ticket_manager': is_ticket_manager,
+        'location_options': location_options,
+        'selected_location_id': selected_location_id,
+        'selected_day': selected_day,
+        'day_options': day_options
     })
 
 # Event detail view with ticket selection

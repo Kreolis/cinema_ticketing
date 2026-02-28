@@ -13,6 +13,31 @@
 {% block content %}
     <h1>{% translate "Upcoming Events" %}</h1>
 
+    <form method="get" class="row g-3 mb-3 align-items-end">
+        <div class="col-md-4">
+            <label for="location" class="form-label">{% translate "Location" %}</label>
+            <select id="location" name="location" class="form-select">
+                <option value="">{% translate "All Locations" %}</option>
+                {% for location in location_options %}
+                    <option value="{{ location.id }}" {% if selected_location_id == location.id|stringformat:"s" %}selected{% endif %}>{{ location.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="day" class="form-label">{% translate "Day" %}</label>
+            <select id="day" name="day" class="form-select">
+                <option value="">{% translate "All Days" %}</option>
+                {% for day in day_options %}
+                    <option value="{{ day|date:'Y-m-d' }}" {% if selected_day == day|date:'Y-m-d' %}selected{% endif %}>{{ day|date:'Y-m-d' }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-auto">
+            <button type="submit" class="btn btn-outline-primary">{% translate "Filter" %}</button>
+            <a href="{% url 'event_list' %}" class="btn btn-outline-secondary">{% translate "Reset" %}</a>
+        </div>
+    </form>
+
     <div class="event-list row">
         {% if is_ticket_manager %}
             <a href="{% url 'all_events_statistics' %}" class="btn btn-secondary">{% translate "Go to Global Statistics" %}</a>
