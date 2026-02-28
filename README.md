@@ -442,6 +442,20 @@ Nice to have:
 - [ ] location based ticket manager
 - [ ] admin stays logged in forever
 
+### Handy Developing Things
+
+It possible to display all permissions that are currently managed by django with the following command.
+
+```bash
+python manage.py show_permissions
+```
+
+Additionally, a command can be used to send the global statistics email:
+
+```bash
+python manage.py send_statistics_as_mail
+```
+
 ### 👨‍💼 Main Contributors
 
 - **Kreolis** - Lead Developer ([GitHub](https://github.com/kreolis))
