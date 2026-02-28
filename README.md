@@ -433,13 +433,11 @@ Version 2:
 - [ ] global event picture generation from name
 - [ ] custom event picture per event
 - [ ] Use shorter ids for urls and names
-- [ ] make setting upload with csv
 - [ ] Branding Logo
 - [ ] Branding Page Name
 
 Nice to have:
 
-- [ ] location based ticket manager
 - [ ] admin stays logged in forever
 
 ### Handy Developing Things
