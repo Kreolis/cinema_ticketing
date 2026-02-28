@@ -15,6 +15,18 @@ from .models import Event, Ticket, SoldAsStatus, TicketMaster
 from branding.models import Branding
 from .forms import TicketSelectionForm
 
+# check if user is in ticket managers group or admin
+def is_user_in_ticket_managers_group_or_admin(user):
+    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins', 'Ticket Managers']).exists()
+
+# check if user is in ticket managers group or admin
+def is_user_in_admin(user):
+    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins']).exists()
+
+# get ticket manager for user
+def get_ticketmaster_for_user(user):
+    return TicketMaster.for_user(user)
+
 def event_list(request):
     # Retrieve all events, you can filter if they are active
     events = Event.objects.filter(is_active=True).order_by('start_time')
@@ -150,19 +162,6 @@ def send_ticket_email(request, ticket_id):
             return JsonResponse({'status': 'error', 'message': _('An error occurred while sending the Email.')}, status=500)
     return JsonResponse({"status": "error", "message": _("No email address provided.")})
 
-
-# check if user is in ticket managers group or admin
-def is_user_in_ticket_managers_group_or_admin(user):
-    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins', 'Ticket Managers']).exists()
-
-# check if user is in ticket managers group or admin
-def is_user_in_admin(user):
-    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins']).exists()
-
-# get ticket manager for user
-def get_ticketmaster_for_user(user):
-    return TicketMaster.for_user(user)
-
 @login_required
 @user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def event_check_in(request, event_id):
@@ -296,8 +295,13 @@ def show_generated_statistics_pdf(request, event_id):
     
     return response
 
-def get_all_event_statistics():
+def get_all_event_statistics(locations=None):
     events = Event.objects.all().order_by('start_time')
+
+    # filter event by locations if provided
+    if locations is not None:
+        events = events.filter(location__in=locations)
+
     events_stats = []
 
     overall_total_stats = {
@@ -345,7 +349,15 @@ def get_all_event_statistics():
 @login_required
 @user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def all_events_statistics(request):
-    events_stats, overall_total_stats = get_all_event_statistics()
+    is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
+
+    # restrict the events shown to ticket managers to only those that are in their active locations if they have any
+    if is_ticket_manager and not is_user_in_admin(request.user):
+        ticket_master = get_ticketmaster_for_user(request.user)
+        locations = ticket_master.active_locations.all()
+        events_stats, overall_total_stats = get_all_event_statistics(locations=locations)
+    else:
+        events_stats, overall_total_stats = get_all_event_statistics()
 
     return render(request, 'all_event_statistics.html', {
         'events_stats': events_stats,
