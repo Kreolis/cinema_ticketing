@@ -131,8 +131,8 @@ def update_statistics_task_schedule(instance):
         
         app.conf.beat_schedule.update({
             'send_global_statistics_report_task-every-X-hours': {
-                'task': 'branding.tasks.send_global_statistics_report_task',
-                'schedule': instance.ticket_statistics_interval * 36.0,  # convert hours to seconds
+                'task': 'events.tasks.send_global_statistics_report_task',
+                'schedule': instance.ticket_statistics_interval * 3600.0,  # convert hours to seconds
             },
         })
     else:
