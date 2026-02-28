@@ -3,12 +3,10 @@ from django.utils import timezone
 from datetime import timedelta, datetime
 from typing import Iterable
 
-from events.models import Ticket
-from branding.models import get_active_branding, TicketMaster
-
 from payments.models import BasePayment, PaymentStatus, PurchasedItem
 from django.core.mail import EmailMessage
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
@@ -16,6 +14,9 @@ from django.urls import reverse
 from decimal import Decimal
 from fpdf import FPDF
 import os
+
+from branding.models import get_active_branding, TicketMaster
+from events.models import Ticket
 
 import logging
 
@@ -402,6 +403,7 @@ class Order(BasePayment):
     def send_payment_instructions_email(self):
         payment_instructions = self.get_payment_instructions(html=False)
 
+        # send email to customer with payment instructions and pdf invoice attached
         branding = get_active_branding()
         if branding and branding.invoice_tax_rate:
             site_name = branding.site_name
@@ -444,9 +446,30 @@ class Order(BasePayment):
             raise e
         
 
+        ### Inform ticket masters about new order via email with pdf invoice attached
+        # form recipient list 
+        recipient_list = []
+
+        # get all email address from users in admin group and superusers
+        admin_users = User.objects.filter(models.Q(is_superuser=True) | models.Q(groups__name='admin')).distinct()
+        recipient_list.extend(admin_users.values_list('email', flat=True))
+        
+        # now add ticket master emails based on location of tickets for events bought in this order
         # inform ticket masters emails about new order
         # get all ticket masters emails that are active
         ticket_masters = TicketMaster.objects.filter(is_active=True)
+
+        # filter ticket master by location and only give access to orders of their location if they have one assigned
+        for ticket_master in ticket_masters:
+            active_locations = ticket_master.active_locations.all()
+            # if ticket master has active locations, check if order contains tickets for events in those locations, 
+            # if not skip sending email to this ticket master
+            # if ticket master does not have active locations, they should receive email for all orders, so do not skip them
+            if active_locations.exists():
+                if not self.tickets.filter(event__location__in=active_locations).exists():
+                    # if order does not contain tickets for events in ticket masters active locations, skip sending email to this ticket master
+                    continue
+            recipient_list.append(ticket_master.email)
 
         subject = _("New Order {order_id} on {site_name}").format(order_id=self.id, site_name=site_name)
         message = _("Dear Ticket Master,\n\n"
@@ -469,7 +492,6 @@ class Order(BasePayment):
                         order_link=order_link
                     )
         
-        recipient_list = [ticket_master.email for ticket_master in ticket_masters]
         email = EmailMessage(
             subject,
             message,

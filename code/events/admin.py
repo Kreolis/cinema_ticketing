@@ -224,7 +224,7 @@ class TicketAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return True
         # Check if user is in 'admin' group
-        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='Ticket Managers').exists():
             return True
         return False
 
@@ -232,7 +232,7 @@ class TicketAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to add."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='Ticket Managers').exists():
             return True
         return False
 
@@ -242,7 +242,7 @@ class TicketAdmin(admin.ModelAdmin):
             return True
         if request.user.groups.filter(name='admin').exists():
             return True
-        if request.user.groups.filter(name='ticketmanagers').exists():
+        if request.user.groups.filter(name='Ticket Managers').exists():
             ticket_master = get_ticketmaster_for_user(request.user)
             # filter displayed tickets based on active locations of the ticket manager
             active_locations = ticket_master.active_locations.all()
@@ -256,7 +256,7 @@ class TicketAdmin(admin.ModelAdmin):
             return True
         if request.user.groups.filter(name='admin').exists():
             return True
-        if request.user.groups.filter(name='ticketmanagers').exists():
+        if request.user.groups.filter(name='Ticket Managers').exists():
             ticket_master = get_ticketmaster_for_user(request.user)
             # filter displayed tickets based on active locations of the ticket manager
             active_locations = ticket_master.active_locations.all()
@@ -308,7 +308,7 @@ class EventAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return True
         # Check if user is in 'admin' group
-        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='Ticket Managers').exists():
             return True
         return False
 
@@ -316,7 +316,7 @@ class EventAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to add."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='ticketmanagers').exists():
+        if request.user.groups.filter(name='admin').exists() or request.user.groups.filter(name='Ticket Managers').exists():
             return True
         return False
 
@@ -326,7 +326,7 @@ class EventAdmin(admin.ModelAdmin):
             return True
         if request.user.groups.filter(name='admin').exists():
             return True
-        if request.user.groups.filter(name='ticketmanagers').exists():
+        if request.user.groups.filter(name='Ticket Managers').exists():
             ticket_master = get_ticketmaster_for_user(request.user)
             # filter displayed tickets based on active locations of the ticket manager
             active_locations = ticket_master.active_locations.all()
@@ -340,7 +340,7 @@ class EventAdmin(admin.ModelAdmin):
             return True
         if request.user.groups.filter(name='admin').exists():
             return True
-        if request.user.groups.filter(name='ticketmanagers').exists():
+        if request.user.groups.filter(name='Ticket Managers').exists():
             ticket_master = get_ticketmaster_for_user(request.user)
             # filter displayed tickets based on active locations of the ticket manager
             active_locations = ticket_master.active_locations.all()

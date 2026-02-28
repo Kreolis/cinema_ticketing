@@ -2,6 +2,7 @@ import logging
 from celery import shared_task
 from django.core.mail import EmailMessage
 from django.conf import settings
+
 from .models import get_active_branding
 from events.views import generate_global_statistics_pdf
 

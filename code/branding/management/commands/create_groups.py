@@ -10,11 +10,11 @@ class Command(BaseCommand):
         if created:
             # Assign permissions ticket and events management
             permissions = [
-                'add_event', 'change_event', 'delete_event', 'view_event',
-                'add_location', 'change_location', 'delete_location', 'view_location',
-                'add_priceclass', 'change_priceclass', 'delete_priceclass', 'view_priceclass',
+                'change_event', 'view_event',
+                'view_location',
+                'view_priceclass',
                 'add_ticket', 'change_ticket', 'delete_ticket', 'view_ticket',
-                'add_order', 'change_order', 'delete_order', 'view_order'
+                'view_order'
             ]
 
             for perm in permissions:
