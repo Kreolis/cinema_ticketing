@@ -43,8 +43,11 @@
                             <a href="{% url 'admin_confirm_order' order.session_id %}" class="btn btn-primary">
                                 {% translate "Confirm Order" %}
                             </a>
-                            <a href="{% url 'ticket_list' order.session_id %}" class="btn btn-primary">
+                            <a href="{% url 'ticket_list' order.session_id %}" class="btn btn-secondary">
                                 {% translate "View Order" %}
+                            </a>
+                            <a href="{% url 'send_invoice' order.session_id %}" class="btn btn-secondary">
+                                {% translate "Resend Invoice" %}
                             </a>
                         </td>
                     </tr>
@@ -77,6 +80,9 @@
                         <td>
                             <a href="{% url 'ticket_list' order.session_id %}" class="btn btn-primary">
                                 {% translate "View Order" %}
+                            </a>
+                            <a href="{% url 'send_confirmation' order.session_id %}" class="btn btn-secondary">
+                                {% translate "Resend Confirmation" %}
                             </a>
                         </td>
                     </tr>

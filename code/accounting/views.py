@@ -226,6 +226,7 @@ def confirm_order(request, order_id):
         return redirect('payment_form')
     return redirect('ticket_list', order_id=order_id)
 
+
 def ticket_list(request, order_id):
     order = get_object_or_404(get_payment_model(), session_id=order_id)
 
@@ -311,6 +312,20 @@ def admin_confirm_order(request, order_id):
         # Send confirmation and invoice email
         order.send_confirmation_email()
 
+    return redirect('manage_orders')
+
+@login_required
+@user_passes_test(is_user_in_admin)
+def send_invoice(request, order_id):
+    order = get_object_or_404(get_payment_model(), session_id=order_id)
+    order.send_payment_instructions_email()
+    return redirect('manage_orders')
+
+@login_required
+@user_passes_test(is_user_in_ticket_managers_group_or_admin)
+def send_confirmation(request, order_id):
+    order = get_object_or_404(get_payment_model(), session_id=order_id)
+    order.send_confirmation_email()
     return redirect('manage_orders')
 
 @login_required
