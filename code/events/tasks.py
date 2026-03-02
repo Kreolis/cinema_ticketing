@@ -10,4 +10,5 @@ These tasks can be scheduled to run periodically or triggered asynchronously as 
 """
 @shared_task
 def send_global_statistics_report_task():
+    logger.info("Executing send_global_statistics_report_task.")
     return send_global_statistics_report()

@@ -3,15 +3,16 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ValidationError
+from django.db import OperationalError, ProgrammingError
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django_celery_beat.models import IntervalSchedule, PeriodicTask
 from PIL import Image
+import json
 
 import logging
 
 logger = logging.getLogger(__name__)
-
-from cinema_tickets.celery import app
 
 # model for contact form emails
 class Contact(models.Model):
@@ -85,19 +86,23 @@ class Branding(models.Model):
     
     # make sure only one branding is active at a time
     def save(self, *args, **kwargs):
+
+        print(f"Saving branding: {self.name}, is_active: {self.is_active}")
         if self.is_active:
             Branding.objects.filter(is_active=True).update(is_active=False)
 
-        update_statistics_task_schedule(instance=self)  # update the statistics task schedule whenever
         super(Branding, self).save(*args, **kwargs)
+        update_statistics_task_schedule(instance=self)  # update the statistics task schedule whenever
+        update_timed_out_orders_task_schedule(instance=self)  # update the timed out orders task schedule whenever
 
     # delete image files when object is deleted
     def delete(self, *args, **kwargs):
         self.logo.delete()
         self.favicon.delete()
         self.success_sound.delete()
-        update_statistics_task_schedule(instance=self) # update the statistics task schedule
         super(Branding, self).delete(*args, **kwargs)
+        update_statistics_task_schedule()  # update the statistics task schedule
+        update_timed_out_orders_task_schedule()  # update the timed out orders task schedule
 
     def clean(self):
         if self.favicon:
@@ -113,28 +118,107 @@ def get_active_branding():
             return Branding.objects.filter(is_active=True).first()
     return None
 
+def update_timed_out_orders_task_schedule(instance=None):
+    logger.info("Updating timed out orders task schedule.")
 
-def update_statistics_task_schedule(instance):
-    logger.info("Branding saved, updating statistics task schedule if needed.")
-    # check if statistics sending is enabled and update the Celery beat schedule accordingly
-    if instance.enable_ticket_statistics_sending:
-        # make sure if task already exists in beat schedule, if so remove it before adding the updated one
-        if 'send_global_statistics_report_task-every-X-hours' in app.conf.beat_schedule:
-            del app.conf.beat_schedule['send_global_statistics_report_task-every-X-hours']
+    task_name = 'delete_timed_out_orders_task-every-X-minutes'
 
-        # check if sedning period has started and has not ended yet before scheduling the task
+    try:
+        # During early migration phases these tables may not exist yet.
+        from django.db import connection
+        table_names = set(connection.introspection.table_names())
+        required_tables = {'branding_branding', 'django_celery_beat_periodictask', 'django_celery_beat_intervalschedule'}
+        if not required_tables.issubset(table_names):
+            return
+
+        # Prefer active branding if current instance is not active or not provided.
+        if instance is None or not instance.is_active:
+            instance = Branding.objects.filter(is_active=True).first()
+
+        task = PeriodicTask.objects.filter(name=task_name).first()
+        if instance is None:
+            if task and task.enabled:
+                task.enabled = False
+                task.save(update_fields=['enabled'])
+            return
+
         now = timezone.now()
-        if instance.ticket_statistics_start and now < instance.ticket_statistics_start:
-            return  # Do not schedule the task if the start date is in the future
-        if instance.ticket_statistics_end and now > instance.ticket_statistics_end:
-            return  # Do not schedule the task if the end date has passed
-        
-        app.conf.beat_schedule.update({
-            'send_global_statistics_report_task-every-X-hours': {
-                'task': 'events.tasks.send_global_statistics_report_task',
-                'schedule': instance.ticket_statistics_interval * 3600.0,  # convert hours to seconds
-            },
-        })
-    else:
-        if 'send_global_statistics_report_task-every-X-hours' in app.conf.beat_schedule:
-            del app.conf.beat_schedule['send_global_statistics_report_task-every-X-hours']
+        interval_minutes = max(1, int(instance.check_timeout_orders_interval or 30))
+
+        should_enable = (
+            bool(instance.check_timeout_orders_interval)
+        )
+
+        schedule, _ = IntervalSchedule.objects.get_or_create(
+            every=interval_minutes,
+            period=IntervalSchedule.MINUTES,
+        )
+
+        if task is None:
+            task = PeriodicTask(name=task_name)
+
+        task.task = 'accounting.tasks.delete_timed_out_orders_task'
+        task.interval = schedule
+        task.kwargs = json.dumps({})
+        task.enabled = should_enable
+        task.start_time = now
+        task.save()
+
+    except (ProgrammingError, OperationalError):
+        # DB tables can be unavailable while migrations are running.
+        return
+
+
+def update_statistics_task_schedule(instance=None):
+    logger.info("Updating statistics task schedule.")
+
+    task_name = 'send_global_statistics_report_task-every-X-hours'
+
+    try:
+        # During early migration phases these tables may not exist yet.
+        from django.db import connection
+        table_names = set(connection.introspection.table_names())
+        required_tables = {'branding_branding', 'django_celery_beat_periodictask', 'django_celery_beat_intervalschedule'}
+        if not required_tables.issubset(table_names):
+            return
+
+        # Prefer active branding if current instance is not active or not provided.
+        if instance is None or not instance.is_active:
+            instance = Branding.objects.filter(is_active=True).first()
+
+        task = PeriodicTask.objects.filter(name=task_name).first()
+        if instance is None:
+            if task and task.enabled:
+                task.enabled = False
+                task.save(update_fields=['enabled'])
+            return
+
+        now = timezone.now()
+        interval_hours = max(1, int(instance.ticket_statistics_interval or 1))
+
+        should_enable = (
+            instance.enable_ticket_statistics_sending
+            and bool(instance.ticket_statistics_email)
+            and (instance.ticket_statistics_end is None or now <= instance.ticket_statistics_end)
+        )
+
+        schedule, _ = IntervalSchedule.objects.get_or_create(
+            every=interval_hours,
+            period=IntervalSchedule.HOURS,
+        )
+
+        if task is None:
+            task = PeriodicTask(name=task_name)
+
+        task.task = 'events.tasks.send_global_statistics_report_task'
+        task.interval = schedule
+        task.kwargs = json.dumps({})
+        task.enabled = should_enable
+        task.start_time = instance.ticket_statistics_start
+        task.expires = instance.ticket_statistics_end
+        task.save()
+
+    except (ProgrammingError, OperationalError):
+        # DB tables can be unavailable while migrations are running.
+        return
+

@@ -16,14 +16,6 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks()
 
-# Define periodic tasks using Celery beat
-app.conf.beat_schedule = {
-    'delete_timed_out_orders_task-every-600-seconds': {
-        'task': 'accounting.tasks.delete_timed_out_orders_task',
-        'schedule': 600.0,
-    },
-}
-
 # Set the timezone for Celery
 app.conf.timezone = 'UTC'
 
