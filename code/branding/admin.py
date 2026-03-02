@@ -14,6 +14,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+from events.admin import is_admin_user, is_ticket_manager_user
+from accounting.admin import is_accountant_user
+
 class CSVImportForm(forms.Form):
     csv_file = forms.FileField(label='CSV file')
 
@@ -27,8 +30,8 @@ class ContactAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
         if request.user.is_superuser:
             return True
-        # Check if user is in 'admin' group
-        if request.user.groups.filter(name='admin').exists():
+        # Check if user is in 'admin' group or 'ticket managers' group or 'accountants' group
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user) or is_accountant_user(request.user):
             return True
         return False
 
@@ -36,7 +39,7 @@ class ContactAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to add."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 
@@ -44,7 +47,7 @@ class ContactAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to change."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 
@@ -52,7 +55,7 @@ class ContactAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to delete."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 @admin.register(Branding)
@@ -67,7 +70,7 @@ class BrandingAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return True
         # Check if user is in 'admin' group
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 
@@ -75,7 +78,7 @@ class BrandingAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to add."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 
@@ -83,7 +86,7 @@ class BrandingAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to change."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 
@@ -91,7 +94,7 @@ class BrandingAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to delete."""
         if request.user.is_superuser:
             return True
-        if request.user.groups.filter(name='admin').exists():
+        if is_admin_user(request.user):
             return True
         return False
 

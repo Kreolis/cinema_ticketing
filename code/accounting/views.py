@@ -19,7 +19,7 @@ from .forms import PaymentInfoForm
 from .forms import UpdateEmailsForm 
 
 from events.models import SoldAsStatus
-from events.views import is_user_in_ticket_managers_group_or_admin, is_user_in_admin
+from accounting.admin import is_admin_or_accountant_user
 
 logger = logging.getLogger(__name__)
 
@@ -295,7 +295,7 @@ def show_generated_invoice(request, order_id):
     return response
 
 @login_required
-@user_passes_test(is_user_in_admin)
+@user_passes_test(is_admin_or_accountant_user)
 def admin_confirm_order(request, order_id):
     order = get_object_or_404(get_payment_model(), session_id=order_id)
 
@@ -315,21 +315,21 @@ def admin_confirm_order(request, order_id):
     return redirect('manage_orders')
 
 @login_required
-@user_passes_test(is_user_in_admin)
+@user_passes_test(is_admin_or_accountant_user)
 def send_invoice(request, order_id):
     order = get_object_or_404(get_payment_model(), session_id=order_id)
     order.send_payment_instructions_email()
     return redirect('manage_orders')
 
 @login_required
-@user_passes_test(is_user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_admin_or_accountant_user)
 def send_confirmation(request, order_id):
     order = get_object_or_404(get_payment_model(), session_id=order_id)
     order.send_confirmation_email()
     return redirect('manage_orders')
 
 @login_required
-@user_passes_test(is_user_in_admin)
+@user_passes_test(is_admin_or_accountant_user)
 def manage_orders(request):
     # show all orders that require manual confirmation
     # order must be set to PaymentStatus.CONFIRMED but is_confirmed must be False

@@ -24,6 +24,26 @@ class Command(BaseCommand):
                 except Permission.DoesNotExist:
                     self.stdout.write(self.style.ERROR(f"Permission {perm} not found"))
 
+        # create accountants group
+        accountants_group, created = Group.objects.get_or_create(name='Accountants')
+        if created:
+            # Assign permissions for viewing orders and events
+            permissions = [
+                'view_order', 'change_order', 'delete_order', 'add_order',
+                'view_event',
+                'view_location',
+                'view_priceclass', 'change_priceclass', 'delete_priceclass', 'add_priceclass',
+                'view_ticket', 
+                'view_ticketmaster',
+            ]
+
+            for perm in permissions:
+                try:
+                    permission = Permission.objects.get(codename=perm)
+                    accountants_group.permissions.add(permission)
+                except Permission.DoesNotExist:
+                    self.stdout.write(self.style.ERROR(f"Permission {perm} not found"))
+
         # create admin group
         admins_group, created = Group.objects.get_or_create(name='Admins')
         if created:
