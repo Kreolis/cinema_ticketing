@@ -468,12 +468,6 @@ We welcome contributions to this project! To contribute:
 
 ### 📝 To-Do List
 
-Version 2:
-
-- [ ] global event picture generation from site name
-- [ ] custom event picture per event
-- [ ] Use shorter ids for urls and names
-
 Nice to have:
 
 - [ ] admin stays logged in forever
