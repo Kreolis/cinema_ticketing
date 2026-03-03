@@ -99,7 +99,7 @@
   {% block content %}
   {% endblock %}
 </div>
-</body>
+
 
 <footer class="mt-auto py-3">
   <div class="container d-flex justify-content-center">
@@ -109,12 +109,18 @@
 </footer>
 
 <script>
+const availableLanguageCodes = new Set([
+  {% for language in languages %}
+    '{{ language.code }}'{% if not forloop.last %},{% endif %}
+  {% endfor %}
+]);
+
 function changeLanguage(languageCode) {
   const currentPath = window.location.pathname;
   const pathSegments = currentPath.split('/').filter(segment => segment);
   
   // If the first segment is a language code, replace it
-  if (pathSegments.length > 0 && pathSegments[0].length === 2) {
+  if (pathSegments.length > 0 && availableLanguageCodes.has(pathSegments[0])) {
     pathSegments[0] = languageCode;
   } else {
     // Otherwise, prepend the language code
@@ -125,5 +131,6 @@ function changeLanguage(languageCode) {
   window.location.href = newPath;
 }
 </script>
+</body>
 
 </html>

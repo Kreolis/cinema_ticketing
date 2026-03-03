@@ -115,8 +115,21 @@ class BrandingAdmin(admin.ModelAdmin):
             try:
                 reader = csv.reader(csv_file.read().decode('utf-8').splitlines())
                 headers = next(reader)
+                file_field_columns = {
+                    "logo",
+                    "favicon",
+                    "success_sound",
+                    "ticket_background",
+                    "event_background",
+                    "invoice_background",
+                    "invoice_logo",
+                }
+                file_field_values_ignored = False
                 for row in reader:
                     branding_data = dict(zip(headers, row))
+
+                    if any(branding_data.get(field) for field in file_field_columns):
+                        file_field_values_ignored = True
                     
                     # Parse datetime fields
                     time_format = '%Y-%m-%d %H:%M:%S'
@@ -128,13 +141,8 @@ class BrandingAdmin(admin.ModelAdmin):
                         name=branding_data["name"],
                         site_name=branding_data.get("site_name", ""),
                         site_url=branding_data.get("site_url", ""),
-                        logo=branding_data.get("logo", ""),
-                        favicon=branding_data.get("favicon", ""),
                         order_timeout=int(branding_data.get("order_timeout", 15)),
-                        success_sound=branding_data.get("success_sound", ""),
-                        ticket_background=branding_data.get("ticket_background", ""),
                         display_seat_number=branding_data.get("display_seat_number", "").upper() == 'TRUE',
-                        event_background=branding_data.get("event_background", ""),
                         allow_presale=branding_data.get("allow_presale", "").upper() == 'TRUE',
                         presale_start=presale_start,
                         presale_ends_before=int(branding_data.get("presale_ends_before", 1)),
@@ -146,8 +154,6 @@ class BrandingAdmin(admin.ModelAdmin):
                         ticket_statistics_start=ticket_statistics_start,
                         ticket_statistics_end=ticket_statistics_end,
                         display_invoice_info=branding_data.get("display_invoice_info", "").upper() == 'TRUE',
-                        invoice_background=branding_data.get("invoice_background", ""),
-                        invoice_logo=branding_data.get("invoice_logo", ""),
                         invoice_company_name=branding_data.get("invoice_company_name", ""),
                         invoice_address_1=branding_data.get("invoice_address_1", ""),
                         invoice_address_2=branding_data.get("invoice_address_2", ""),
@@ -173,7 +179,14 @@ class BrandingAdmin(admin.ModelAdmin):
                     )
                     logger.info(f"Created branding: {branding}")
 
-                self.message_user(request, "Branding imported successfully.")
+                if file_field_values_ignored:
+                    logger.warning("CSV import ignored raw file/image path values for Branding file fields.")
+                    self.message_user(
+                        request,
+                        "Branding imported successfully. File/image columns (logo, favicon, success_sound, ticket_background, event_background, invoice_background, invoice_logo) were ignored; upload these files via the admin form.",
+                    )
+                else:
+                    self.message_user(request, "Branding imported successfully.")
                 return redirect("..")
             except Exception as e:
                 error_message = f"Error importing CSV file: {str(e)}"

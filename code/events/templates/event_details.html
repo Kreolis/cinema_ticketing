@@ -24,7 +24,7 @@
                 <p><a href="{{ event.program_link }}" target="_blank">{% translate "View Program" %}</a></p>
             {% endif %}
         </div>
-        <div class="col-md-6", style="padding: 1.5rem 1.5rem">
+        <div class="col-md-6" style="padding: 1.5rem 1.5rem">
             {% if event.event_background %}
                 <img src="{{ event.event_background.url }}" alt="{{ event.name }}" class="img-fluid rounded" style="max-height: 400px; object-fit: cover; width: 100%;">
             {% endif %}
@@ -32,7 +32,7 @@
     </div>
 
     {% if not event.is_sold_out %}
-        <div id="status_message", style="padding: 1.5rem 0rem"></div>
+        <div id="status_message" style="padding: 1.5rem 0rem"></div>
         {% if event.allow_presale %}
             <div id="presale_text" style="display: none;">
                 <p>{% translate "Presale starts at " %} <strong>{{ presale_start_time }}</strong> {% translate "Presale ends at " %} <strong>{{ presale_end_time }}</strong></p>

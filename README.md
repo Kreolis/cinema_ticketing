@@ -137,7 +137,7 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 5.2 Create user gorups and permissions
+### 5.2 Create user groups and permissions
 
 This project uses Django's built-in groups and permissions system to manage access control. To set up the necessary groups and permissions, run the following command:
 
@@ -226,7 +226,7 @@ processes       = 10
 # the socket (use the full path to be safe
 socket          = /path/to/your/event_venv/cinema_ticketing/cinema_tickets_uwsgi.sock
 # ... with appropriate permissions - may be needed
-chmod-socket    = 666
+chmod-socket    = 660
 uid             = www-data # or nginx (the user that governs your websites)
 gid             = www-data # or nginx (the user that governs your websites)
 

@@ -87,7 +87,7 @@ class Branding(models.Model):
     # make sure only one branding is active at a time
     def save(self, *args, **kwargs):
 
-        print(f"Saving branding: {self.name}, is_active: {self.is_active}")
+        logger.info(f"Saving branding: {self.name}, is_active: {self.is_active}")
         if self.is_active:
             Branding.objects.filter(is_active=True).update(is_active=False)
 

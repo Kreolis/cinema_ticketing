@@ -264,7 +264,7 @@ class TicketAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to add."""
         if request.user.is_superuser:
             return True
-        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+        if is_admin_user(request.user):
             return True
         return False
 
@@ -281,13 +281,6 @@ class TicketAdmin(admin.ModelAdmin):
             return True
         if is_admin_user(request.user):
             return True
-        if is_ticket_manager_user(request.user):
-            active_locations = get_user_active_locations(request.user)
-            if active_locations is None:
-                return True
-            if obj is None:
-                return True
-            return obj.event.location in active_locations
         return False
 
     def has_delete_permission(self, request, obj=None):
@@ -296,13 +289,6 @@ class TicketAdmin(admin.ModelAdmin):
             return True
         if is_admin_user(request.user):
             return True
-        if is_ticket_manager_user(request.user):
-            active_locations = get_user_active_locations(request.user)
-            if active_locations is None:
-                return True
-            if obj is None:
-                return True
-            return obj.event.location in active_locations
         return False
 
     # Add custom action buttons
@@ -357,7 +343,7 @@ class EventAdmin(admin.ModelAdmin):
         """Allow superusers and users in 'admin' group to add."""
         if request.user.is_superuser:
             return True
-        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+        if is_admin_user(request.user):
             return True
         return False
 

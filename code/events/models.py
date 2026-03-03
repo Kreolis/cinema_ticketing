@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 
 from django.core.mail import EmailMessage
@@ -409,12 +409,13 @@ class Event(models.Model):
     
     def get_color(self):
         """Return the color to use - either color from event or from location"""
-        if self.custom_displayed_color == "custom" and self.custom_color:
-            return self.custom_color
-        elif self.custom_displayed_color:
-            return self.custom_displayed_color
-        else:
+        if self.custom_displayed_color == "custom":
+            if self.custom_color:
+                return self.custom_color
             return self.location.get_color()
+        if self.custom_displayed_color:
+            return self.custom_displayed_color
+        return self.location.get_color()
     
     def get_color_rgb(self):
         """Convert hex color to RGB tuple as string (e.g., '13, 202, 240')"""
@@ -633,35 +634,36 @@ class TicketMaster(models.Model):
     
     # when saved add to Ticket Managers group and when deactivated remove from group
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # Call the original save method to save the instance first
+        with transaction.atomic():
+            super().save(*args, **kwargs)  # Call the original save method to save the instance first
 
-        from django.contrib.auth.models import Group
-        from django.contrib.auth import get_user_model
+            from django.contrib.auth.models import Group
+            from django.contrib.auth import get_user_model
 
-        User = get_user_model()
+            User = get_user_model()
 
-        # Get or create the 'Ticket Managers' group
-        ticket_managers_group, created = Group.objects.get_or_create(name='Ticket Managers')
+            # Get or create the 'Ticket Managers' group
+            ticket_managers_group, created = Group.objects.get_or_create(name='Ticket Managers')
 
-        # Find the user associated with this ticket master
-        try:
-            user = self.user or User.objects.get(email=self.email)
-            if self.is_active:
-                if not user.is_staff:
-                    user.is_staff = True
-                    user.save(update_fields=['is_staff'])
-                user.groups.add(ticket_managers_group)  # Add to group if active
-            else:
-                user.groups.remove(ticket_managers_group)  # Remove from group if not active
-                if (
-                    user.is_staff
-                    and not user.is_superuser
-                    and not user.groups.filter(name__in=['admin', 'Admins']).exists()
-                ):
-                    user.is_staff = False
-                    user.save(update_fields=['is_staff'])
-        except User.DoesNotExist:
-            pass  # If no user exists with this email, do nothing
+            # Find the user associated with this ticket master
+            try:
+                user = self.user or User.objects.get(email=self.email)
+                if self.is_active:
+                    if not user.is_staff:
+                        user.is_staff = True
+                        user.save(update_fields=['is_staff'])
+                    user.groups.add(ticket_managers_group)  # Add to group if active
+                else:
+                    user.groups.remove(ticket_managers_group)  # Remove from group if not active
+                    if (
+                        user.is_staff
+                        and not user.is_superuser
+                        and not user.groups.filter(name__in=['admin', 'Admins']).exists()
+                    ):
+                        user.is_staff = False
+                        user.save(update_fields=['is_staff'])
+            except User.DoesNotExist:
+                pass  # If no user exists with this email, do nothing
 
     def delete(self, *args, **kwargs):
         from django.contrib.auth.models import Group

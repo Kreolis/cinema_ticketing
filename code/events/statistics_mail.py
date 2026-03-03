@@ -13,6 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 def send_global_statistics_report():
+    """Send the periodic statistics report configured in active branding.
+
+    This scheduled report is intentionally global (all locations).
+    If location-scoped mailing is introduced later, pass the appropriate
+    queryset/list to ``generate_global_statistics_pdf(locations=...)``.
+    """
     try:
         branding = get_active_branding()
 
@@ -30,7 +36,9 @@ def send_global_statistics_report():
 
         site_name = branding.site_name or "Cinema Ticketing"
 
-        pdf = generate_global_statistics_pdf()
+        # Intentionally global: no location filter is configured for the
+        # branding-level scheduled statistics email.
+        pdf = generate_global_statistics_pdf(locations=None)
         pdf_output = pdf.output(dest='S')
 
         subject = _('All Events Statistics - {site_name}').format(site_name=site_name)
