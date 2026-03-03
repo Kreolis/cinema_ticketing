@@ -19,6 +19,18 @@ logger = logging.getLogger(__name__)
 
 from branding.models import get_active_branding
 
+BOOTSTRAP_COLORS = [
+    ("#0d6efd", _("Blue")),
+    ("#6c757d", _("Gray")),
+    ("#198754", _("Green")),
+    ("#dc3545", _("Red")),
+    ("#ffc107", _("Warning")),
+    ("#0dcaf0", _("Cyan")),
+    ("#d63384", _("Pink")),
+    ("#fd7e14", _("Orange")),
+    ("#6610f2", _("Indigo")),
+    ("custom", _("Custom Color")),
+]
 class SoldAsStatus:
     WAITING = "waiting"
     PRESALE_ONLINE = "presale_online"
@@ -48,12 +60,42 @@ class Location(models.Model):
     house_number = models.IntegerField(_("house number"), default=0)
     city = models.CharField(_("city"), max_length=64, default="Landshut")
     zip_code = models.CharField(_("zip code"), max_length=5, default="84028")
+    
+    displayed_color = models.CharField(
+        _("displayed color"),
+        max_length=7,
+        default="#0d6efd",
+        choices=BOOTSTRAP_COLORS,
+        help_text=_("Selected the color for the card view of all events at this location. A custom color for each event can be selected in the event. If 'Custom Color' is selected, enter a hex color code in the 'Custom Color' field.")
+    )
+    custom_color = models.CharField(
+        _("custom color"),
+        max_length=7,
+        blank=True,
+        null=True,
+        help_text=_("Hex color code if 'Custom Color' is selected (e.g., #007bff)")
+    )
 
     def __str__(self):
         return self.name
     
     def get_address(self):
         return f"{self.street} {self.house_number}, {self.zip_code} {self.city}"
+    
+    def get_color(self):
+        """Return the color to use - either custom_color or displayed_color"""
+        if self.displayed_color == "custom" and self.custom_color:
+            return self.custom_color
+        return self.displayed_color
+    
+    def get_color_rgb(self):
+        """Convert hex color to RGB tuple as string (e.g., '13, 202, 240')"""
+        color = self.get_color()
+        # Remove # if present
+        color = color.lstrip('#')
+        # Convert hex to RGB
+        r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+        return f"{r}, {g}, {b}"
 
 class PriceClass(models.Model):
     """
@@ -281,6 +323,21 @@ class Event(models.Model):
     # Optional field to customize the number of seats for this event
     custom_seats = models.PositiveIntegerField(_("custom seats"), null=True, blank=True)  # If None, use total_seats from location
 
+    custom_displayed_color = models.CharField(
+        _("custom displayed color"),
+        max_length=7,
+        blank=True,
+        null=True,
+        choices=BOOTSTRAP_COLORS,
+        help_text=_("Selected the color for the card view of the event. If 'Custom Color' is selected, enter a hex color code in the 'Custom Color' field.")
+    )
+    custom_color = models.CharField(
+        _("custom color"),
+        max_length=7,
+        blank=True,
+        null=True,
+        help_text=_("Hex color code if 'Custom Color' is selected (e.g., #007bff)")
+    )
 
     branding = get_active_branding()
     
@@ -349,6 +406,24 @@ class Event(models.Model):
             self.is_active = False
             self.save()
         return self.is_active
+    
+    def get_color(self):
+        """Return the color to use - either color from event or from location"""
+        if self.custom_displayed_color == "custom" and self.custom_color:
+            return self.custom_color
+        elif self.custom_displayed_color:
+            return self.custom_displayed_color
+        else:
+            return self.location.get_color()
+    
+    def get_color_rgb(self):
+        """Convert hex color to RGB tuple as string (e.g., '13, 202, 240')"""
+        color = self.get_color()
+        # Remove # if present
+        color = color.lstrip('#')
+        # Convert hex to RGB
+        r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+        return f"{r}, {g}, {b}"
 
     def calculate_statistics(self):
         """

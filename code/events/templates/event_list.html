@@ -49,11 +49,11 @@
                        style="border: none; margin-bottom: 0;
                             {% if event.event_background %} 
                             background: linear-gradient(rgba(var(--bs-light-rgb), 0.5), 
-                            rgba(var(--bs-info-rgb), 0.5)), 
+                            rgba({{ event.get_color_rgb }}, 0.5)), 
                             url('{{ event.event_background.url }}'); 
                             background-size: cover; background-position: center;
                             {% else %} 
-                            background: linear-gradient(rgba(var(--bs-light-rgb), 1), rgba(var(--bs-info-rgb), 1));
+                            background: linear-gradient(rgba(var(--bs-light-rgb), 1), rgba({{ event.get_color_rgb }}, 1));
                             {% endif %}
                             ">
                         <div class="card-body" style="background-color: transparent;">
