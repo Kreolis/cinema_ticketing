@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-02 10:30+0200\n"
-"PO-Revision-Date: 2026-03-02 08:41+0000\n"
+"POT-Creation-Date: 2026-03-03 16:16+0200\n"
+"PO-Revision-Date: 2026-03-03 14:21+0000\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Translated-Using: django-rosetta 0.10.1\n"
+"X-Translated-Using: django-rosetta 0.10.3\n"
 
 #: accounting/admin.py:18
 msgid "Timed Out"
@@ -141,7 +141,6 @@ msgstr ""
 "Geben Sie die E-Mail-Adresse ein, an die alle Tickets gesendet werden."
 
 #: accounting/models.py:48
-#| msgid "Payment Form"
 msgid "Payment Is Confirmed"
 msgstr "Zahlung bestätigt"
 
@@ -427,7 +426,7 @@ msgstr "Veranstaltungsname"
 #: accounting/templates/order_payment_overview.html:28
 #: accounting/templates/ticket_list.html:30
 #: events/templates/all_event_statistics.html:95
-#: events/templates/event_details.html:18 events/templates/event_list.html:51
+#: events/templates/event_details.html:20 events/templates/event_list.html:62
 #: events/templates/event_statistics.html:12
 msgid "Start Time"
 msgstr "Startzeit"
@@ -436,8 +435,8 @@ msgstr "Startzeit"
 #: accounting/templates/order_payment_overview.html:29
 #: accounting/templates/ticket_list.html:31
 #: events/templates/all_event_statistics.html:96
-#: events/templates/event_details.html:19 events/templates/event_list.html:18
-#: events/templates/event_list.html:52
+#: events/templates/event_details.html:21 events/templates/event_list.html:18
+#: events/templates/event_list.html:63
 #: events/templates/event_statistics.html:13
 msgid "Location"
 msgstr "Ort"
@@ -544,12 +543,10 @@ msgstr "Bestellung bestätigen"
 
 #: accounting/templates/manage_orders.html:47
 #: accounting/templates/manage_orders.html:82
-#| msgid "Paid Orders"
 msgid "View Order"
 msgstr "Bestellung ansehen"
 
 #: accounting/templates/manage_orders.html:50
-#| msgid "Show Invoice"
 msgid "Resend Invoice"
 msgstr "Rechnung erneut senden"
 
@@ -713,28 +710,28 @@ msgstr ""
 "Wählen Sie eine Veranstaltung aus, auf die sich Ihre Nachricht bezieht "
 "(optional)."
 
-#: branding/models.py:18 events/models.py:527
+#: branding/models.py:19 events/models.py:602
 msgid "Enter the first name"
 msgstr "Geben Sie den Vornamen ein"
 
-#: branding/models.py:19 events/models.py:528
+#: branding/models.py:20 events/models.py:603
 msgid "Enter the last name"
 msgstr "Geben Sie den Nachnamen ein"
 
-#: branding/models.py:20
+#: branding/models.py:21
 msgid "Enter the email address to which the contact form is sent"
 msgstr ""
 "Geben Sie die E-Mail-Adresse ein, an die das Kontaktformular gesendet wird"
 
-#: branding/models.py:21 events/models.py:530
+#: branding/models.py:22 events/models.py:605
 msgid "Indicates if the contact is active"
 msgstr "Gibt an, ob der Kontakt aktiv ist"
 
-#: branding/models.py:28
+#: branding/models.py:29
 msgid "Enter the name of your branding"
 msgstr "Geben Sie den Namen Ihres Brandings ein"
 
-#: branding/models.py:29
+#: branding/models.py:30
 msgid ""
 "Enter the name of your site. This will be used as the title of the site and "
 "in communications."
@@ -742,34 +739,34 @@ msgstr ""
 "Geben Sie den Namen Ihrer Site ein. Dies wird als Titel der Website und in "
 "der Kommunikation verwendet."
 
-#: branding/models.py:30
+#: branding/models.py:31
 msgid "Enter the URL of your site. This will be used in communications."
 msgstr ""
 "Geben Sie die URL Ihrer Website ein. Dies wird in der Kommunikation "
 "verwendet."
 
-#: branding/models.py:31
+#: branding/models.py:32
 msgid "Upload the logo image"
 msgstr "Laden Sie das Logo-Bild hoch"
 
-#: branding/models.py:32
+#: branding/models.py:33
 msgid "Upload the favicon image (max 64x64 pixels)"
 msgstr "Laden Sie das Favicon-Bild hoch (max. 64x64 Pixel)"
 
-#: branding/models.py:33
+#: branding/models.py:34
 msgid "Timeout in minutes until user needs to start fresh with their order"
 msgstr ""
 "Timeout in Minuten, bis der Benutzer seine Bestellung neu starten muss"
 
-#: branding/models.py:34
+#: branding/models.py:35
 msgid "Upload the success sound file for ticket scanner"
 msgstr "Laden Sie die Erfolgs-Sounddatei für den Ticket-Scanner hoch"
 
-#: branding/models.py:37
+#: branding/models.py:38
 msgid "Upload the global ticket background image"
 msgstr "Laden Sie das globale Ticket-Hintergrundbild hoch"
 
-#: branding/models.py:38
+#: branding/models.py:39
 msgid ""
 "Indicates if seat numbers are displayed for customers, if not free seating "
 "text is displayed"
@@ -777,19 +774,19 @@ msgstr ""
 "Gibt an, ob Sitzplatznummern für Kunden angezeigt werden, wenn keine freien "
 "Sitzplätze vorhanden sind, wird Text angezeigt"
 
-#: branding/models.py:39
+#: branding/models.py:40
 msgid "Upload the global event background image"
 msgstr "Laden Sie das globale Veranstaltungs-Hintergrundbild hoch"
 
-#: branding/models.py:40
+#: branding/models.py:41
 msgid "Indicates if presale is allowed"
 msgstr "Gibt an, ob der Vorverkauf erlaubt ist"
 
-#: branding/models.py:41
+#: branding/models.py:42
 msgid "Enter the date and time when presale starts"
 msgstr "Geben Sie Datum und Uhrzeit an, wann der Vorverkauf beginnt"
 
-#: branding/models.py:42
+#: branding/models.py:43
 msgid ""
 "Number of hours before event start when presale ends and door (not presale) "
 "selling starts"
@@ -797,130 +794,126 @@ msgstr ""
 "Anzahl der Stunden vor Veranstaltungsbeginn, wenn der Vorverkauf endet und "
 "der Verkauf an der Tür (nicht Vorverkauf) beginnt"
 
-#: branding/models.py:43
+#: branding/models.py:44
 msgid "Indicates if selling tickets at the door is allowed"
 msgstr "Gibt an, ob der Verkauf von Tickets an der Tür erlaubt ist"
 
-#: branding/models.py:44
+#: branding/models.py:45
 msgid "Interval in minutes for checking timed out orders"
 msgstr "Intervall in Minuten für die Überprüfung abgelaufener Bestellungen"
 
-#: branding/models.py:47
-#| msgid "Indicates if the contact is active"
+#: branding/models.py:48
 msgid "Indicates if ticket statistics are sent via email"
 msgstr "Gibt an, ob Ticketstatistiken per E-Mail versendet werden."
 
-#: branding/models.py:48
-#| msgid "Enter the email address to which all ticket sales are sent"
+#: branding/models.py:49
 msgid "Enter the email address to receive ticket statistics"
 msgstr "Geben Sie Ihre E-Mail-Adresse ein, um Ticketstatistiken zu erhalten."
 
-#: branding/models.py:49
+#: branding/models.py:50
 msgid "Enter the interval in hours for sending ticket statistics"
 msgstr ""
 "Geben Sie das Intervall in Stunden für den Versand der Ticketstatistik ein."
 
-#: branding/models.py:50
-#| msgid "Enter the date and time when presale starts"
+#: branding/models.py:51
 msgid "Enter the date and time when ticket statistics should start sending"
 msgstr ""
 "Geben Sie Datum und Uhrzeit ein, ab wann die Ticketstatistiken versendet "
 "werden sollen."
 
-#: branding/models.py:51
-#| msgid "Enter the date and time when presale starts"
+#: branding/models.py:52
 msgid "Enter the date and time when ticket statistics should stop sending"
 msgstr ""
 "Geben Sie Datum und Uhrzeit ein, ab wann die Ticketstatistik nicht mehr "
 "gesendet werden soll."
 
-#: branding/models.py:54
+#: branding/models.py:55
 msgid ""
 "Indicates if invoice information is displayed on auto generated invoices"
 msgstr ""
 "Gibt an, ob Rechnungsinformationen auf automatisch generierten Rechnungen "
 "angezeigt werden"
 
-#: branding/models.py:55
+#: branding/models.py:56
 msgid "Upload the global invoice background image"
 msgstr "Laden Sie das globale Rechnungs-Hintergrundbild hoch"
 
-#: branding/models.py:56
+#: branding/models.py:57
 msgid "Upload the logo image for invoices"
 msgstr "Laden Sie das Logo-Bild für Rechnungen hoch"
 
-#: branding/models.py:57
+#: branding/models.py:58
 msgid "Enter your name to appear on invoices"
 msgstr "Geben Sie Ihren Namen ein, der auf Rechnungen erscheinen soll"
 
-#: branding/models.py:58 branding/models.py:59
+#: branding/models.py:59 branding/models.py:60
 msgid "Enter your address to appear on invoices"
 msgstr "Geben Sie Ihre Adresse ein, die auf Rechnungen erscheinen soll"
 
-#: branding/models.py:60
+#: branding/models.py:61
 msgid "Enter your city to appear on invoices"
 msgstr "Geben Sie Ihre Stadt ein, die auf Rechnungen erscheinen soll"
 
-#: branding/models.py:61
+#: branding/models.py:62
 msgid "Enter your postal code to appear on invoices"
 msgstr "Geben Sie Ihre Postleitzahl ein, die auf Rechnungen erscheinen soll"
 
-#: branding/models.py:62
+#: branding/models.py:63
 msgid "Enter your country to appear on invoices"
 msgstr "Geben Sie Ihr Land ein, das auf Rechnungen erscheinen soll"
 
-#: branding/models.py:63
+#: branding/models.py:64
 msgid "Enter your email address to appear on invoices"
 msgstr "Geben Sie Ihre E-Mail-Adresse ein, die auf Rechnungen erscheinen soll"
 
-#: branding/models.py:64
+#: branding/models.py:65
 msgid "Enter your phone number to appear on invoices"
 msgstr "Geben Sie Ihre Telefonnummer ein, die auf Rechnungen erscheinen soll"
 
-#: branding/models.py:65
+#: branding/models.py:66
 msgid "Enter your VAT number to appear on invoices"
 msgstr ""
 "Geben Sie Ihre Umsatzsteuer-Identifikationsnummer ein, die auf Rechnungen "
 "erscheinen soll"
 
-#: branding/models.py:66
+#: branding/models.py:67
 msgid "Enter the tax rate in percent to appear on invoices"
 msgstr ""
 "Geben Sie den Steuersatz in Prozent ein, der auf Rechnungen erscheinen soll"
 
-#: branding/models.py:68
+#: branding/models.py:69
 msgid "Enter the padding in cm for the top of the invoice"
 msgstr "Geben Sie den Abstand in cm für die Oberseite der Rechnung ein"
 
-#: branding/models.py:69
+#: branding/models.py:70
 msgid "Enter the padding in cm for the left of the invoice"
 msgstr "Geben Sie den Abstand in cm für die linke Seite der Rechnung ein"
 
-#: branding/models.py:70
+#: branding/models.py:71
 msgid "Enter the padding in cm for the right of the invoice"
 msgstr "Geben Sie den Abstand in cm für die rechte Seite der Rechnung ein"
 
-#: branding/models.py:71
+#: branding/models.py:72
 msgid "Enter the padding in cm for the bottom of the invoice"
 msgstr "Geben Sie den Abstand in cm für die Unterseite der Rechnung ein"
 
-#: branding/models.py:73
+#: branding/models.py:74
 msgid "Enter the bank account name for advanced payments"
 msgstr "Geben Sie den Kontonamen für Vorauszahlungen ein"
 
-#: branding/models.py:74
+#: branding/models.py:75
 msgid "Enter the bank name for advanced payments"
 msgstr "Geben Sie den Banknamen für Vorauszahlungen ein"
 
-#: branding/models.py:75
+#: branding/models.py:76
 msgid "Enter the IBAN for advanced payments"
 msgstr "Geben Sie die IBAN für Vorauszahlungen ein"
 
-#: branding/models.py:76
+#: branding/models.py:77
 msgid "Enter the SWIFT code for advanced payments"
 msgstr "Geben Sie den SWIFT-Code für Vorauszahlungen ein"
 
-#: branding/models.py:77
+#: branding/models.py:78
 msgid ""
 "Enter the reference for advanced payments. This is also used as invoice "
 "number."
@@ -928,22 +921,22 @@ msgstr ""
 "Geben Sie den Verwendungszweck für Vorauszahlungen ein. Dies wird auch als "
 "Rechnungsnummer verwendet."
 
-#: branding/models.py:78
+#: branding/models.py:79
 msgid "Enter the number of days until payment is due for advanced payments"
 msgstr ""
 "Geben Sie die Anzahl der Tage ein, bis die Zahlung für Vorauszahlungen "
 "fällig ist"
 
-#: branding/models.py:79
+#: branding/models.py:80
 msgid "Enter the message to appear on advanced payment emails"
 msgstr ""
 "Geben Sie die Nachricht ein, die in Vorauszahlungs-E-Mails erscheinen soll"
 
-#: branding/models.py:81
+#: branding/models.py:82
 msgid "Indicates if this branding is active"
 msgstr "Gibt an, ob dieses Branding aktiv ist"
 
-#: branding/models.py:106
+#: branding/models.py:111
 msgid "Favicon size should not exceed 64x64 pixels."
 msgstr "Die Größe des Favicons sollte 64x64 Pixel nicht überschreiten."
 
@@ -964,27 +957,27 @@ msgstr "Absenden"
 msgid "Message sent successfully!"
 msgstr "Nachricht erfolgreich gesendet!"
 
-#: cinema_tickets/settings.py:165
+#: cinema_tickets/settings.py:167
 msgid "English"
 msgstr "Englisch"
 
-#: cinema_tickets/settings.py:166
+#: cinema_tickets/settings.py:168
 msgid "German"
 msgstr "Deutsch"
 
-#: cinema_tickets/settings.py:307
+#: cinema_tickets/settings.py:309
 msgid "Stripe (Credit Card)"
 msgstr "Stripe (Kreditkarte)"
 
-#: cinema_tickets/settings.py:308
+#: cinema_tickets/settings.py:310
 msgid "Paypal"
 msgstr "Paypal"
 
-#: cinema_tickets/settings.py:309
+#: cinema_tickets/settings.py:311
 msgid "Advance Payment"
 msgstr "Vorauszahlung"
 
-#: cinema_tickets/settings.py:310
+#: cinema_tickets/settings.py:312
 msgid "Dummy Payment"
 msgstr "Dummy-Zahlung"
 
@@ -1014,129 +1007,194 @@ msgid "Generate and send global event statistics to mail"
 msgstr ""
 "Generieren und versenden Sie globale Veranstaltungsstatistiken per E-Mail."
 
+#: events/models.py:23
+msgid "Blue"
+msgstr "Blue"
+
+#: events/models.py:24
+msgid "Gray"
+msgstr "Grau"
+
+#: events/models.py:25
+msgid "Green"
+msgstr "Grün"
+
+#: events/models.py:26
+msgid "Red"
+msgstr "Rot"
+
+#: events/models.py:27
+msgid "Warning"
+msgstr "Warnung"
+
+#: events/models.py:28
+msgid "Cyan"
+msgstr "Cyan"
+
+#: events/models.py:29
+msgid "Pink"
+msgstr "Pink"
+
+#: events/models.py:30
+msgid "Orange"
+msgstr "Orange"
+
 #: events/models.py:31
+msgid "Indigo"
+msgstr "Indigo"
+
+#: events/models.py:32
+#| msgid "Customer Email"
+msgid "Custom Color"
+msgstr "Benutzerdefinierte Farbe"
+
+#: events/models.py:43
 msgid "Ticket not yet sold"
 msgstr "Ticket noch nicht verkauft"
 
-#: events/models.py:32
+#: events/models.py:44
 msgid "Ticket was sold in online presale"
 msgstr "Ticket wurde im Online-Vorverkauf verkauft"
 
-#: events/models.py:33
+#: events/models.py:45
 msgid "Ticket was sold in online presale, but not yet confirmed"
 msgstr ""
 "Das Ticket wurde im Online-Vorverkauf verkauft, aber noch nicht bestätigt"
 
-#: events/models.py:34
+#: events/models.py:46
 msgid "Ticket was sold in door presale"
 msgstr "Ticket wurde im Tür-Vorverkauf verkauft"
 
-#: events/models.py:35
+#: events/models.py:47
 msgid "Ticket was sold at the door"
 msgstr "Ticket wurde an der Tür verkauft"
 
-#: events/models.py:36
+#: events/models.py:48
 msgid "Ticket refunded"
 msgstr "Ticket erstattet"
 
-#: events/models.py:43 events/models.py:62 events/models.py:270
+#: events/models.py:55 events/models.py:104 events/models.py:312
 msgid "name"
 msgstr "Name"
 
-#: events/models.py:44
+#: events/models.py:56
 msgid "total seats"
 msgstr "Gesamtsitze"
 
-#: events/models.py:47
+#: events/models.py:59
 msgid "street"
 msgstr "Straße"
 
-#: events/models.py:48
+#: events/models.py:60
 msgid "house number"
 msgstr "Hausnummer"
 
-#: events/models.py:49
+#: events/models.py:61
 msgid "city"
 msgstr "Stadt"
 
-#: events/models.py:50
+#: events/models.py:62
 msgid "zip code"
 msgstr "Postleitzahl"
 
-#: events/models.py:64
+#: events/models.py:65
+msgid "displayed color"
+msgstr "angezeigte Farbe"
+
+#: events/models.py:69
+msgid ""
+"Selected the color for the card view of all events at this location. A "
+"custom color for each event can be selected in the event. If 'Custom Color' "
+"is selected, enter a hex color code in the 'Custom Color' field."
+msgstr ""
+"Selektiert die Farbe für die Kartenansicht aller Veranstaltungen an diesem "
+"Standort. Für jede Veranstaltung kann eine individuelle Farbe festgelegt "
+"werden. Wenn Sie „Benutzerdefinierte Farbe“ auswählen, geben Sie im Feld "
+"„Benutzerdefinierte Farbe“ einen Hexadezimal-Farbcode ein."
+
+#: events/models.py:72 events/models.py:335
+msgid "custom color"
+msgstr "Benutzerdefinierte Farbe"
+
+#: events/models.py:76 events/models.py:339
+msgid "Hex color code if 'Custom Color' is selected (e.g., #007bff)"
+msgstr ""
+"Hex-Farbcode, wenn „Benutzerdefinierte Farbe“ ausgewählt ist (z. B. #007bff)"
+
+#: events/models.py:106
 msgid "notification message"
 msgstr "Benachrichtigungsnachricht"
 
-#: events/models.py:67
+#: events/models.py:109
 msgid "secret"
 msgstr "Geheimnis"
 
-#: events/models.py:78
+#: events/models.py:120
 msgid "price class"
 msgstr "Preisklasse"
 
-#: events/models.py:79
+#: events/models.py:121
 msgid "event"
 msgstr "Veranstaltung"
 
-#: events/models.py:80
+#: events/models.py:122
 msgid "seat number"
 msgstr "Sitznummer"
 
-#: events/models.py:81
+#: events/models.py:123
 msgid "sold as"
 msgstr "verkauft als"
 
-#: events/models.py:83
+#: events/models.py:125
 msgid "first name"
 msgstr "Vorname"
 
-#: events/models.py:84
+#: events/models.py:126
 msgid "last name"
 msgstr "Nachname"
 
-#: events/models.py:86
+#: events/models.py:128
 msgid "email"
 msgstr "E-Mail"
 
-#: events/models.py:89
+#: events/models.py:131
 msgid "activated"
 msgstr "aktiviert"
 
-#: events/models.py:146 events/models.py:434 events/views.py:452
+#: events/models.py:188 events/models.py:509 events/views.py:452
 msgid "Start:"
 msgstr "Start:"
 
-#: events/models.py:149
+#: events/models.py:191
 msgid "Duration:"
 msgstr "Dauer:"
 
-#: events/models.py:153 events/models.py:437 events/views.py:455
+#: events/models.py:195 events/models.py:512 events/views.py:455
 msgid "Venue:"
 msgstr "Veranstaltungsort:"
 
-#: events/models.py:158
+#: events/models.py:200
 msgid "Seat Number:"
 msgstr "Sitznummer:"
 
-#: events/models.py:161 events/models.py:203 events/models.py:230
+#: events/models.py:203 events/models.py:245 events/models.py:272
 msgid "Free Seating"
 msgstr "Freie Platzwahl"
 
-#: events/models.py:165
+#: events/models.py:207
 msgid "Price Class:"
 msgstr "Preisklasse:"
 
-#: events/models.py:176
+#: events/models.py:218
 msgid "Price:"
 msgstr "Preis:"
 
-#: events/models.py:225
+#: events/models.py:267
 #, python-brace-format
 msgid "Your Ticket for {event_name} - {site_name}"
 msgstr "Ihr Ticket für {event_name} - {site_name}"
 
-#: events/models.py:232
+#: events/models.py:274
 #, python-brace-format
 msgid ""
 "Dear Customer,\n"
@@ -1165,77 +1223,90 @@ msgstr ""
 "Mit freundlichen Grüßen,\n"
 "Event-Team"
 
-#: events/models.py:264
+#: events/models.py:306
 msgid "No email address associated with this ticket."
 msgstr "Keine E-Mail-Adresse mit diesem Ticket verknüpft."
 
-#: events/models.py:271
+#: events/models.py:313
 msgid "start time"
 msgstr "Startzeit"
 
-#: events/models.py:272
+#: events/models.py:314
 msgid "duration"
 msgstr "Dauer"
 
-#: events/models.py:273
+#: events/models.py:315
 msgid "location"
 msgstr "Ort"
 
-#: events/models.py:274
+#: events/models.py:316
 msgid "price classes"
 msgstr "Preisklassen"
 
-#: events/models.py:275
+#: events/models.py:317
 msgid "program link"
 msgstr "Programmlink"
 
-#: events/models.py:279
+#: events/models.py:321
 msgid "is active"
 msgstr "ist aktiv"
 
-#: events/models.py:282
+#: events/models.py:324
 msgid "custom seats"
 msgstr "benutzerdefinierte Sitze"
 
-#: events/models.py:288
+#: events/models.py:327
+msgid "custom displayed color"
+msgstr "Benutzerdefinierte Anzeigefarbe"
+
+#: events/models.py:332
+msgid ""
+"Selected the color for the card view of the event. If 'Custom Color' is "
+"selected, enter a hex color code in the 'Custom Color' field."
+msgstr ""
+"Die Farbe für die Kartenansicht des Events. Wenn „Benutzerdefinierte Farbe“ "
+"ausgewählt ist, geben Sie einen Hexadezimal-Farbcode in das Feld "
+"„Benutzerdefinierte Farbe“ ein."
+
+#: events/models.py:345
 msgid "ticket background"
 msgstr "Ticket-Hintergrund"
 
-#: events/models.py:296
+#: events/models.py:353
 msgid "display seat number"
 msgstr "Sitznummer anzeigen"
 
-#: events/models.py:301
+#: events/models.py:358
 msgid "event background"
 msgstr "Veranstaltungs-Hintergrund"
 
-#: events/models.py:309
+#: events/models.py:366
 msgid "allow presale"
 msgstr "Vorverkauf erlauben"
 
-#: events/models.py:314
+#: events/models.py:371
 msgid "presale start"
 msgstr "Vorverkaufsstart"
 
-#: events/models.py:319
+#: events/models.py:376
 msgid "presale ends before and door (not presale) selling starts"
 msgstr "Vorverkauf endet und Türverkauf (nicht Vorverkauf) beginnt"
 
-#: events/models.py:324
+#: events/models.py:381
 msgid "allow door selling"
 msgstr "Türverkauf erlauben"
 
-#: events/models.py:525
+#: events/models.py:600
 msgid "Optional direct link to the Django user for this ticket manager."
 msgstr ""
 "Optionaler direkter Link zum Django-Benutzer für diesen Ticketmanager."
 
-#: events/models.py:529
+#: events/models.py:604
 msgid "Enter the email address to which all ticket sales are sent"
 msgstr ""
 "Geben Sie die E-Mail-Adresse ein, an die alle Ticketverkäufe gesendet werden"
 
-#: events/models.py:532
+#: events/models.py:607
 msgid ""
 "Select the locations for which this ticket master is responsible. If no "
 "location is selected this ticket master will be responsible for all "
@@ -1247,7 +1318,6 @@ msgstr ""
 
 #: events/statistics_mail.py:36
 #, python-brace-format
-#| msgid "Event Statistics"
 msgid "All Events Statistics - {site_name}"
 msgstr "Veranstaltungsstatistik - {site_name}"
 
@@ -1284,13 +1354,11 @@ msgstr ""
 "angezeigten Statistiken aus."
 
 #: events/templates/all_event_statistics.html:20
-#| msgid "Location"
 msgid "Event Location"
 msgstr "Veranstaltungsort"
 
 #: events/templates/all_event_statistics.html:22
 #: events/templates/event_list.html:20
-#| msgid "Location"
 msgid "All Locations"
 msgstr "Alle Veranstaltungsorte"
 
@@ -1451,72 +1519,72 @@ msgstr "Verkauft als"
 msgid "Event is not active or is in the past."
 msgstr "Veranstaltung ist nicht aktiv oder liegt in der Vergangenheit."
 
-#: events/templates/event_details.html:20 events/templates/event_list.html:53
+#: events/templates/event_details.html:22 events/templates/event_list.html:64
 msgid "Duration"
 msgstr "Dauer"
 
-#: events/templates/event_details.html:22
+#: events/templates/event_details.html:24
 msgid "View Program"
 msgstr "Programm anzeigen"
 
-#: events/templates/event_details.html:29
+#: events/templates/event_details.html:38
 #: events/templates/event_door_selling.html:18
 msgid "Presale starts at "
 msgstr "Vorverkauf beginnt um "
 
-#: events/templates/event_details.html:29
+#: events/templates/event_details.html:38
 #: events/templates/event_door_selling.html:18
 msgid "Presale ends at "
 msgstr "Vorverkauf endet um "
 
-#: events/templates/event_details.html:34
+#: events/templates/event_details.html:43
 #: events/templates/event_door_selling.html:21
 msgid ""
 "Tickets are sold at the door. Tickets at the door will be available for"
 msgstr ""
 "Tickets werden an der Tür verkauft. Tickets an der Tür sind verfügbar für"
 
-#: events/templates/event_details.html:34
+#: events/templates/event_details.html:43
 #: events/templates/event_door_selling.html:21
 msgid "before the event starts at "
 msgstr "bevor die Veranstaltung beginnt um "
 
-#: events/templates/event_details.html:39
+#: events/templates/event_details.html:48
 msgid "This event is sold out."
 msgstr "Diese Veranstaltung ist ausverkauft."
 
-#: events/templates/event_details.html:44
+#: events/templates/event_details.html:53
 #: events/templates/event_statistics.html:24
 msgid "Go to Ticket Check-In"
 msgstr "Zum Ticket-Check-In gehen"
 
-#: events/templates/event_details.html:45
+#: events/templates/event_details.html:54
 #: events/templates/event_statistics.html:25
 msgid "Go to Ticket Door Selling"
 msgstr "Zum Ticket-Türverkauf gehen"
 
-#: events/templates/event_details.html:46
+#: events/templates/event_details.html:55
 msgid "Go to Statistics"
 msgstr "Zur Statistik gehen"
 
-#: events/templates/event_details.html:50
+#: events/templates/event_details.html:59
 msgid "Select Tickets"
 msgstr "Tickets auswählen"
 
-#: events/templates/event_details.html:71
+#: events/templates/event_details.html:80
 msgid "Add to Cart"
 msgstr "In den Warenkorb legen"
 
-#: events/templates/event_details.html:72
+#: events/templates/event_details.html:81
 msgid "Go to cart"
 msgstr "Zum Warenkorb gehen"
 
-#: events/templates/event_details.html:98
+#: events/templates/event_details.html:107
 #: events/templates/event_door_selling.html:115
 msgid "Presale will become active later."
 msgstr "Vorverkauf wird später aktiv."
 
-#: events/templates/event_details.html:103
+#: events/templates/event_details.html:112
 msgid "Presale has ended."
 msgstr "Vorverkauf ist beendet."
 
@@ -1561,19 +1629,19 @@ msgstr "Alle Tage"
 msgid "Go to Global Statistics"
 msgstr "Zur globalen Statistik gehen"
 
-#: events/templates/event_list.html:54
+#: events/templates/event_list.html:65
 msgid "Price Classes"
 msgstr "Preisklassen"
 
-#: events/templates/event_list.html:63
+#: events/templates/event_list.html:75
 msgid "View program"
 msgstr "Programm anzeigen"
 
-#: events/templates/event_list.html:65
+#: events/templates/event_list.html:77
 msgid "Buy tickets"
 msgstr "Tickets kaufen"
 
-#: events/templates/event_list.html:71
+#: events/templates/event_list.html:83
 msgid "Currently there are no events available for purchase."
 msgstr "Derzeit sind keine Veranstaltungen zum Kauf verfügbar."
 
@@ -1622,15 +1690,20 @@ msgstr "Türverkauf ist für diese Veranstaltung nicht erlaubt."
 msgid "Event is not active."
 msgstr "Veranstaltung ist nicht aktiv."
 
-#: templates/403.html:6 templates/admin/403.html:5
+#: templates/403.html:9
+#| msgid "Permission denied"
+msgid "Permission Denied"
+msgstr "Zugriff verweigert"
+
+#: templates/403.html:14 templates/admin/403.html:5
 msgid "Permission denied"
 msgstr "Zugriff verweigert"
 
-#: templates/403.html:7 templates/admin/403.html:6
+#: templates/403.html:15 templates/admin/403.html:6
 msgid "You do not have permission to access this page."
 msgstr "Sie haben keine Berechtigung, auf diese Seite zuzugreifen."
 
-#: templates/403.html:8 templates/admin/403.html:7
+#: templates/403.html:16 templates/admin/403.html:7
 msgid "If you think this is a mistake, please contact an administrator."
 msgstr ""
 "Falls Sie der Meinung sind, dass es sich hierbei um einen Fehler handelt, "
@@ -1640,11 +1713,11 @@ msgstr ""
 msgid "Page Not Found"
 msgstr "Seite nicht gefunden"
 
-#: templates/404.html:12
+#: templates/404.html:13
 msgid "404 - Page Not Found"
 msgstr "404 - Seite nicht gefunden"
 
-#: templates/404.html:13
+#: templates/404.html:14
 msgid "Sorry, the page you are looking for does not exist."
 msgstr "Entschuldigung, die Seite, die Sie suchen, existiert nicht."
 
@@ -1652,11 +1725,11 @@ msgstr "Entschuldigung, die Seite, die Sie suchen, existiert nicht."
 msgid "Server Error"
 msgstr "Serverfehler"
 
-#: templates/500.html:12
+#: templates/500.html:13
 msgid "500 - Server Error"
 msgstr "500 - Serverfehler"
 
-#: templates/500.html:13
+#: templates/500.html:14
 msgid "Sorry, something went wrong on our end. Please try again later."
 msgstr ""
 "Entschuldigung, etwas ist auf unserer Seite schief gelaufen. Bitte versuchen"
@@ -1683,7 +1756,6 @@ msgid "Display Backend"
 msgstr "Backend anzeigen"
 
 #: templates/master.html:60
-#| msgid "duration"
 msgid "Translations"
 msgstr "Übersetzungen"
 
