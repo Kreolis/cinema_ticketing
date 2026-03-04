@@ -34,7 +34,7 @@
             <tbody>
                 {% for order in manual_orders %}
                     <tr>
-                        <td>{{ order.id }}</td>
+                        <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>
@@ -42,9 +42,6 @@
                         <td>
                             <a href="{% url 'admin_confirm_order' order.session_id %}" class="btn btn-primary">
                                 {% translate "Confirm Order" %}
-                            </a>
-                            <a href="{% url 'ticket_list' order.session_id %}" class="btn btn-secondary">
-                                {% translate "View Order" %}
                             </a>
                             <a href="{% url 'send_invoice' order.session_id %}" class="btn btn-secondary">
                                 {% translate "Resend Invoice" %}
@@ -72,15 +69,12 @@
             <tbody>
                 {% for order in paid_orders %}
                     <tr>
-                        <td>{{ order.id }}</td>
+                        <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>
                         <td>{{ order.total }} {{ currency }}</td>
                         <td>
-                            <a href="{% url 'ticket_list' order.session_id %}" class="btn btn-primary">
-                                {% translate "View Order" %}
-                            </a>
                             <a href="{% url 'send_confirmation' order.session_id %}" class="btn btn-secondary">
                                 {% translate "Resend Confirmation" %}
                             </a>
@@ -107,7 +101,7 @@
             <tbody>
                 {% for order in all_orders %}
                     <tr>
-                        <td>{{ order.id }}</td>
+                        <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>
