@@ -64,7 +64,7 @@ class Location(models.Model):
     displayed_color = models.CharField(
         _("displayed color"),
         max_length=7,
-        default="#0d6efd",
+        default=BOOTSTRAP_COLORS[0][0],
         choices=BOOTSTRAP_COLORS,
         help_text=_("Selected the color for the card view of all events at this location. A custom color for each event can be selected in the event. If 'Custom Color' is selected, enter a hex color code in the 'Custom Color' field.")
     )
@@ -84,8 +84,11 @@ class Location(models.Model):
     
     def get_color(self):
         """Return the color to use - either custom_color or displayed_color"""
-        if self.displayed_color == "custom" and self.custom_color:
-            return self.custom_color
+        if self.displayed_color == "custom":
+            if self.custom_color:
+                return self.custom_color
+            # Fallback to default color if custom is selected but no custom_color is set
+            return BOOTSTRAP_COLORS[0][0]  # Default blue color
         return self.displayed_color
     
     def get_color_rgb(self):
@@ -412,7 +415,8 @@ class Event(models.Model):
         if self.custom_displayed_color == "custom":
             if self.custom_color:
                 return self.custom_color
-            return self.location.get_color()
+            # Fallback to default color if custom is selected but no custom_color is set
+            return BOOTSTRAP_COLORS[0][0]  # Default blue color
         if self.custom_displayed_color:
             return self.custom_displayed_color
         return self.location.get_color()
@@ -620,7 +624,7 @@ class TicketMaster(models.Model):
             return ticket_master
 
         if user.email:
-            return cls.objects.filter(email=user.email).first()
+            return cls.objects.filter(email=user.email, is_active=True).first()
         return None
     
     def get_active_locations(self):
@@ -634,20 +638,31 @@ class TicketMaster(models.Model):
     
     # when saved add to Ticket Managers group and when deactivated remove from group
     def save(self, *args, **kwargs):
+        from django.contrib.auth.models import Group
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
         with transaction.atomic():
-            super().save(*args, **kwargs)  # Call the original save method to save the instance first
-
-            from django.contrib.auth.models import Group
-            from django.contrib.auth import get_user_model
-
-            User = get_user_model()
-
-            # Get or create the 'Ticket Managers' group
+            # Get or create the 'Ticket Managers' group before saving the instance
             ticket_managers_group, created = Group.objects.get_or_create(name='Ticket Managers')
 
-            # Find the user associated with this ticket master
-            try:
-                user = self.user or User.objects.get(email=self.email)
+            # Update user groups and staff status before saving the ticket master
+            user = None
+            if self.user:
+                # Prefer direct FK link to user
+                user = self.user
+            elif self.email:
+                # Fall back to email lookup only if no direct user link
+                try:
+                    user = User.objects.get(email=self.email)
+                except User.DoesNotExist:
+                    logger.debug(f"No user found with email {self.email} for ticket master {self.firstname} {self.lastname}")
+                except User.MultipleObjectsReturned:
+                    logger.warning(f"Multiple users found with email {self.email} for ticket master {self.firstname} {self.lastname}. Using user FK only.")
+
+            # Update user's group and is_staff status
+            if user:
                 if self.is_active:
                     if not user.is_staff:
                         user.is_staff = True
@@ -662,8 +677,9 @@ class TicketMaster(models.Model):
                     ):
                         user.is_staff = False
                         user.save(update_fields=['is_staff'])
-            except User.DoesNotExist:
-                pass  # If no user exists with this email, do nothing
+
+            # Save the ticket master instance only after user operations succeed
+            super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         from django.contrib.auth.models import Group

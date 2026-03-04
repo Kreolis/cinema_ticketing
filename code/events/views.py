@@ -73,6 +73,16 @@ def event_list(request):
 def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
+    # Check ticket manager access early, before any POST processing
+    is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
+    if is_ticket_manager and not is_user_in_admin(request.user):
+        ticket_master = get_ticketmaster_for_user(request.user)
+        if not ticket_master:
+            return redirect('event_list')
+        active_locations = ticket_master.active_locations.all()
+        if active_locations.exists() and event.location not in active_locations:
+            return redirect('event_list')
+
     # select all price classes for the event apart from secret ones
     price_classes = event.price_classes.all().exclude(secret=True)
 
@@ -112,17 +122,6 @@ def event_detail(request, event_id):
             
     else:
         form = TicketSelectionForm(price_classes=price_classes)
-
-    is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
-
-    # restrict the events shown to ticket managers to only those that are in their active locations if they have any
-    if is_ticket_manager and not is_user_in_admin(request.user):
-        ticket_master = get_ticketmaster_for_user(request.user)
-        if not ticket_master:
-            return redirect('event_list')
-        active_locations = ticket_master.active_locations.all()
-        if active_locations.exists() and event.location not in active_locations:
-            return redirect('event_list')
 
     return render(request, 'event_details.html', {
         'event': event,

@@ -1,9 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
 from django.urls import reverse
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login as auth_login 
-from django.contrib.auth import logout as auth_logout 
+from django.contrib.auth import logout as auth_logout
+from django.utils.translation import gettext_lazy as _ 
 
 import io
 import logging
@@ -317,6 +319,8 @@ def admin_confirm_order(request, order_id):
 @login_required
 @user_passes_test(is_admin_or_accountant_user)
 def send_invoice(request, order_id):
+    if request.method != 'POST':
+        return redirect('manage_orders')
     order = get_object_or_404(get_payment_model(), session_id=order_id)
     order.send_payment_instructions_email()
     return redirect('manage_orders')
@@ -324,8 +328,19 @@ def send_invoice(request, order_id):
 @login_required
 @user_passes_test(is_admin_or_accountant_user)
 def send_confirmation(request, order_id):
+    if request.method != 'POST':
+        return redirect('manage_orders')
     order = get_object_or_404(get_payment_model(), session_id=order_id)
-    order.send_confirmation_email()
+    
+    if order.status != PaymentStatus.CONFIRMED:
+        messages.error(request, _("Cannot resend confirmation email: order is not in CONFIRMED status. Current status: {status}").format(status=order.status))
+    else:
+        try:
+            order.send_confirmation_email()
+            messages.success(request, _("Confirmation email sent successfully to {email}").format(email=order.billing_email))
+        except Exception as e:
+            messages.error(request, _("Failed to send confirmation email: {error}").format(error=str(e)))
+    
     return redirect('manage_orders')
 
 @login_required

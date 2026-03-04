@@ -148,7 +148,7 @@ python manage.py create_groups
 The following groups will be created:
 
 - **Admin**: Full access to all features and permissions.
-- **Accountant**: Can manage orders and send confirmation emails.
+- **Accountant**: Can manage orders, price classes, and send confirmation emails.
 - **Ticket Managers**: Can manage events and tickets for their assigned locations.
 
 For ticket managers you need to assign the user to the TicketMaster Model in the admin panel. This model is used to link users to the locations they manage. Make sure to set the `is_active` field to `True` for the user and the TicketMaster object.
