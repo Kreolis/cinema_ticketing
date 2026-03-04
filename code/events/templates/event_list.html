@@ -68,9 +68,9 @@
                                 </p>
                             </div>
                         </a>
-                        <div class="d-flex gap-2">
+                        <div class="d-flex flex-column flex-sm-row gap-2">
                             {% if event.program_link %}
-                                <a href="{{ event.program_link }}" class="btn btn-secondary" target="_blank">{% translate "View program" %}</a>
+                                <a href="{{ event.program_link }}" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">{% translate "View program" %}</a>
                             {% endif %}
                             <a href="{% url 'event_details' event.id %}" class="btn btn-primary">{% translate "Buy tickets" %}</a>
                         </div>
