@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-04 21:18+0200\n"
+"POT-Creation-Date: 2026-03-04 22:19+0200\n"
 "PO-Revision-Date: 2026-03-04 19:21+0000\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -137,8 +137,7 @@ msgstr "Bitte beweisen Sie, dass Sie ein Mensch sind."
 
 #: accounting/forms.py:93
 msgid "Enter the email address where all tickets will be sent to."
-msgstr ""
-"Geben Sie die E-Mail-Adresse ein, an die alle Tickets gesendet werden."
+msgstr "Geben Sie die E-Mail-Adresse ein, an die alle Tickets gesendet werden."
 
 #: accounting/models.py:48
 msgid "Payment Is Confirmed"
@@ -170,8 +169,8 @@ msgstr ""
 "<strong>{account_name}</strong><br>IBAN: <strong>{iban}</strong><br>SWIFT: "
 "<strong>{swift}</strong></p><p>Bitte verwenden Sie den folgenden "
 "Verwendungszweck für Ihre Zahlung: <strong>{reference}</strong><br>Die "
-"Zahlung ist innerhalb von <strong>{due_days}</strong> Tagen "
-"fällig.</p><p>Vielen Dank für Ihren Einkauf!</p>"
+"Zahlung ist innerhalb von <strong>{due_days}</strong> Tagen fällig.</"
+"p><p>Vielen Dank für Ihren Einkauf!</p>"
 
 #: accounting/models.py:194
 #, python-brace-format
@@ -190,7 +189,8 @@ msgstr ""
 "Kontoname: {account_name}\n"
 "IBAN: {iban}\n"
 "SWIFT: {swift}\n"
-"Bitte verwenden Sie den folgenden Verwendungszweck für Ihre Zahlung: {reference}\n"
+"Bitte verwenden Sie den folgenden Verwendungszweck für Ihre Zahlung: "
+"{reference}\n"
 "Die Zahlung ist innerhalb von {due_days} Tagen fällig.\n"
 "Vielen Dank für Ihren Einkauf!"
 
@@ -279,7 +279,8 @@ msgstr "Ihre Rechnung für die Bestellung {order_id} – {site_name}"
 msgid ""
 "Dear Customer,\n"
 "\n"
-"Thank you for your purchase! You can find the invoice of your ticket purchase attached.\n"
+"Thank you for your purchase! You can find the invoice of your ticket "
+"purchase attached.\n"
 "\n"
 "Please find your tickets and purchase details under the following link:\n"
 "\n"
@@ -292,7 +293,8 @@ msgid ""
 msgstr ""
 "Sehr geehrter Kunde,\n"
 "\n"
-"Vielen Dank für Ihren Einkauf! Sie finden die Rechnung Ihres Ticketkaufs im Anhang.\n"
+"Vielen Dank für Ihren Einkauf! Sie finden die Rechnung Ihres Ticketkaufs im "
+"Anhang.\n"
 "\n"
 "Ihre Tickets und Kaufdetails finden Sie unter folgendem Link:\n"
 "\n"
@@ -313,7 +315,8 @@ msgstr "Zahlungsanweisungen für Ihre Bestellung {order_id} auf {site_name}"
 msgid ""
 "Dear Customer,\n"
 "\n"
-"Thank you for your purchase! Please find the payment instructions for your order below.\n"
+"Thank you for your purchase! Please find the payment instructions for your "
+"order below.\n"
 "\n"
 "{payment_instructions}\n"
 "\n"
@@ -326,7 +329,8 @@ msgid ""
 msgstr ""
 "Sehr geehrter Kunde,\n"
 "\n"
-"Vielen Dank für Ihren Einkauf! Nachfolgend finden Sie die Zahlungsanweisungen für Ihre Bestellung.\n"
+"Vielen Dank für Ihren Einkauf! Nachfolgend finden Sie die "
+"Zahlungsanweisungen für Ihre Bestellung.\n"
 "\n"
 "{payment_instructions}\n"
 "\n"
@@ -426,7 +430,7 @@ msgstr "Veranstaltungsname"
 #: accounting/templates/order_payment_overview.html:28
 #: accounting/templates/ticket_list.html:30
 #: events/templates/all_event_statistics.html:95
-#: events/templates/event_details.html:20 events/templates/event_list.html:62
+#: events/templates/event_details.html:20 events/templates/event_list.html:59
 #: events/templates/event_statistics.html:12
 msgid "Start Time"
 msgstr "Startzeit"
@@ -436,7 +440,7 @@ msgstr "Startzeit"
 #: accounting/templates/ticket_list.html:31
 #: events/templates/all_event_statistics.html:96
 #: events/templates/event_details.html:21 events/templates/event_list.html:18
-#: events/templates/event_list.html:63
+#: events/templates/event_list.html:60
 #: events/templates/event_statistics.html:13
 msgid "Location"
 msgstr "Ort"
@@ -463,8 +467,7 @@ msgstr "Preis"
 msgid "Price Class"
 msgstr "Preisklasse"
 
-#: accounting/templates/cart.html:53
-#: accounting/templates/manage_orders.html:31
+#: accounting/templates/cart.html:53 accounting/templates/manage_orders.html:31
 #: accounting/templates/manage_orders.html:69
 #: accounting/templates/ticket_list.html:37
 msgid "Actions"
@@ -655,8 +658,7 @@ msgid "Proceed to Checkout"
 msgstr "Zur Kasse gehen"
 
 #: accounting/templates/payment_form.html:37
-msgid ""
-"You will be redirected to the payment gateway to complete your payment."
+msgid "You will be redirected to the payment gateway to complete your payment."
 msgstr ""
 "Sie werden zum Zahlungs-Gateway weitergeleitet, um Ihre Zahlung "
 "abzuschließen."
@@ -693,12 +695,11 @@ msgid ""
 "Cannot resend confirmation email: order is not in CONFIRMED status. Current "
 "status: {status}"
 msgstr ""
-"Die Bestätigungs-E-Mail kann nicht gesendet werden: Die Bestellung hat nicht"
-" den Status „BESTÄTIGT“. Aktueller Status: {status}"
+"Die Bestätigungs-E-Mail kann nicht gesendet werden: Die Bestellung hat nicht "
+"den Status „BESTÄTIGT“. Aktueller Status: {status}"
 
 #: accounting/views.py:340
 #, python-brace-format
-#| msgid "Email sent successfully."
 msgid "Confirmation email sent successfully to {email}"
 msgstr "Bestätigungs-E-Mail erfolgreich an {email} gesendet"
 
@@ -770,8 +771,7 @@ msgstr "Laden Sie das Favicon-Bild hoch (max. 64x64 Pixel)"
 
 #: branding/models.py:34
 msgid "Timeout in minutes until user needs to start fresh with their order"
-msgstr ""
-"Timeout in Minuten, bis der Benutzer seine Bestellung neu starten muss"
+msgstr "Timeout in Minuten, bis der Benutzer seine Bestellung neu starten muss"
 
 #: branding/models.py:35
 msgid "Upload the success sound file for ticket scanner"
@@ -1312,8 +1312,7 @@ msgstr "Türverkauf erlauben"
 
 #: events/models.py:605
 msgid "Optional direct link to the Django user for this ticket manager."
-msgstr ""
-"Optionaler direkter Link zum Django-Benutzer für diesen Ticketmanager."
+msgstr "Optionaler direkter Link zum Django-Benutzer für diesen Ticketmanager."
 
 #: events/models.py:609
 msgid "Enter the email address to which all ticket sales are sent"
@@ -1341,8 +1340,8 @@ msgid ""
 "Attached you will find the all event statistics for the last {interval} "
 "hours."
 msgstr ""
-"Im Anhang finden Sie die vollständigen Veranstaltungsstatistiken der letzten"
-" {interval} Stunden."
+"Im Anhang finden Sie die vollständigen Veranstaltungsstatistiken der letzten "
+"{interval} Stunden."
 
 #: events/templates/all_event_statistics.html:8
 #: events/templates/all_event_statistics.html:11
@@ -1533,12 +1532,12 @@ msgstr "Verkauft als"
 msgid "Event is not active or is in the past."
 msgstr "Veranstaltung ist nicht aktiv oder liegt in der Vergangenheit."
 
-#: events/templates/event_details.html:22 events/templates/event_list.html:64
+#: events/templates/event_details.html:22 events/templates/event_list.html:61
 msgid "Duration"
 msgstr "Dauer"
 
-#: events/templates/event_details.html:24
-msgid "View Program"
+#: events/templates/event_details.html:24 events/templates/event_list.html:73
+msgid "View program"
 msgstr "Programm anzeigen"
 
 #: events/templates/event_details.html:38
@@ -1553,8 +1552,7 @@ msgstr "Vorverkauf endet um "
 
 #: events/templates/event_details.html:43
 #: events/templates/event_door_selling.html:21
-msgid ""
-"Tickets are sold at the door. Tickets at the door will be available for"
+msgid "Tickets are sold at the door. Tickets at the door will be available for"
 msgstr ""
 "Tickets werden an der Tür verkauft. Tickets an der Tür sind verfügbar für"
 
@@ -1639,23 +1637,15 @@ msgstr "Tag"
 msgid "All Days"
 msgstr "Alle Tage"
 
-#: events/templates/event_list.html:43
-msgid "Go to Global Statistics"
-msgstr "Zur globalen Statistik gehen"
-
-#: events/templates/event_list.html:65
+#: events/templates/event_list.html:62
 msgid "Price Classes"
 msgstr "Preisklassen"
 
 #: events/templates/event_list.html:75
-msgid "View program"
-msgstr "Programm anzeigen"
-
-#: events/templates/event_list.html:77
 msgid "Buy tickets"
 msgstr "Tickets kaufen"
 
-#: events/templates/event_list.html:83
+#: events/templates/event_list.html:81
 msgid "Currently there are no events available for purchase."
 msgstr "Derzeit sind keine Veranstaltungen zum Kauf verfügbar."
 
@@ -1745,8 +1735,8 @@ msgstr "500 - Serverfehler"
 #: templates/500.html:10
 msgid "Sorry, something went wrong on our end. Please try again later."
 msgstr ""
-"Entschuldigung, etwas ist auf unserer Seite schief gelaufen. Bitte versuchen"
-" Sie es später erneut."
+"Entschuldigung, etwas ist auf unserer Seite schief gelaufen. Bitte versuchen "
+"Sie es später erneut."
 
 #: templates/admin/403.html:8
 msgid "Back to admin dashboard"
@@ -1783,6 +1773,12 @@ msgstr "Sprache"
 #: templates/master.html:89
 msgid "Logout"
 msgstr "Logout"
+
+#~ msgid "View Program"
+#~ msgstr "Programm anzeigen"
+
+#~ msgid "Go to Global Statistics"
+#~ msgstr "Zur globalen Statistik gehen"
 
 #~ msgid "View Order"
 #~ msgstr "Bestellung ansehen"
