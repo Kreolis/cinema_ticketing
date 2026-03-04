@@ -21,7 +21,7 @@
             <p><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
             <p><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
             {% if event.program_link %}
-                <p><a href="{{ event.program_link }}" target="_blank">{% translate "View Program" %}</a></p>
+                <p><a href="{{ event.program_link }}" target="_blank" rel="noopener noreferrer">{% translate "View program" %}</a></p>
             {% endif %}
         </div>
         <div class="col-md-6" style="padding: 1.5rem 1.5rem">
