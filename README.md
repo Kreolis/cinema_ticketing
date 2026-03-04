@@ -130,13 +130,28 @@ Additionally, add flower credentials for monitoring celery tasks:
   FLOWER_PASSWORD='your-flower-password'
 ```
 
-### 5. Apply Migrations
+### 5.1 Apply Migrations
 
 ```bash
 python manage.py makemigrations
 python manage.py migrate
+```
+
+### 5.2 Create user groups and permissions
+
+This project uses Django's built-in groups and permissions system to manage access control. To set up the necessary groups and permissions, run the following command:
+
+```bash
 python manage.py create_groups
 ```
+
+The following groups will be created:
+
+- **Admin**: Full access to all features and permissions.
+- **Accountant**: Can manage orders, price classes, and send confirmation emails.
+- **Ticket Managers**: Can manage events and tickets for their assigned locations.
+
+For ticket managers you need to assign the user to the TicketMaster Model in the admin panel. This model is used to link users to the locations they manage. Make sure to set the `is_active` field to `True` for the user and the TicketMaster object.
 
 ### 6. Run the Development Server
 
@@ -188,23 +203,48 @@ Create a file called `cinema_ticketing.ini` inside the `vassals` folder.
 
 ```ini
 [uwsgi]
-project = cinema_ticketing
-uid = www-data # or nginx (the user that governs your websites)
-base = /path/to/your/cinema_ticketing_folder
+# Requires PCRE support compiled into uWSGI
+route-run       = fixpathinfo:
+plugins         = python
 
-chdir = %(base)/%(project)
-home = %(base)/event_venv
-module = %(project).wsgi:application
+# Django-related settings
+# the base directory (full path)
+chdir           = /path/to/your/event_venv/cinema_ticketing/code
+# Django's wsgi file
+module          = cinema_tickets.wsgi:application
+# the virtualenv (full path)
+home            = /path/to/your/event_venv
+virtualenv      = /path/to/your/event_venv
 
-master = true
-processes = 5
+py-autoreload = 1
 
-socket = /run/uwsgi/%(project).sock
-chown-socket = www-data:www-data # or nginx (the user that governs your websites)
-chmod-socket = 660
-vacuum = true
+# process-related settings
+# master
+master          = true
+# maximum number of worker processes
+processes       = 10
+# the socket (use the full path to be safe
+socket          = /path/to/your/event_venv/cinema_ticketing/cinema_tickets_uwsgi.sock
+# ... with appropriate permissions - may be needed
+chmod-socket    = 660
+uid             = www-data # or nginx (the user that governs your websites)
+gid             = www-data # or nginx (the user that governs your websites)
 
-daemonize = /var/log/uwsgi/%(project).log
+# clear environment on exit
+vacuum          = true
+
+# set an environment variable
+env             = DJANGO_SETTINGS_MODULE=cinema_tickets.settings
+# respawn processes taking more than 20 seconds
+harakiri        = 20
+# limit the project to 128 MB
+#limit-as = 128
+# respawn processes after serving 5000 requests
+max-requests    = 4999
+
+#buffer-size        = 32768
+
+daemonize       = /var/log/uwsgi/cinema_ticketing.log
 ```
 
 Enable and start the uWSGI emperor service to start serving the side.
@@ -294,7 +334,7 @@ Then access Flower at `http://your-server:5555` using the credentials from your 
 
 #### Manage Translation and Static
 
-If you want to translate your application to a different language or want to modify the strings used in this website you have to generate a new translation locale with rosetta. Run this in your `cinema_ticketing` application folder.
+If you want to translate your application to a different language or want to modify the strings used in this website you have to generate a new translation locale with rosetta. Run this in your `cinema_ticketing/code` application folder.
 
 ```bash
 django-admin makemessages -l <language_code>
@@ -306,7 +346,7 @@ Do not forget to compile your translations:
 python manage.py compilemessages
 ```
 
-Make sure to collect your static files like .css so that your website is properly styled. Run this in your `cinema_ticketing` application folder.
+Make sure to collect your static files like .css so that your website is properly styled. Run this in your `cinema_ticketing/code` application folder.
 
 ```bash
 python manage.py collectstatic
@@ -321,14 +361,16 @@ server {
     listen 80;
     server_name your_domain_or_IP;
 
+    root /path/to/your/event_venv/cinema_ticketing/code;
+
     location = /favicon.ico { access_log off; log_not_found off; }
-    location /static/ {
-        root /path/to/your/cinema_ticketing_folder;
+    location /static {
+        alias /path/to/your/event_venv/cinema_ticketing/code/static;
     }
 
     location / {
         include         uwsgi_params;
-        uwsgi_pass      unix:/run/uwsgi/cinema_ticketing.sock;
+        uwsgi_pass      unix:/path/to/your/event_venv/cinema_ticketing/cinema_tickets_uwsgi.sock;
     }
 
     error_log /var/log/nginx/cinema_ticketing_error.log;
@@ -426,23 +468,28 @@ We welcome contributions to this project! To contribute:
 
 ### 📝 To-Do List
 
-Version 2:
-
-- [ ] Add user authentication for ticket buyers.
-- [ ] Add support for refunds or cancellations.
-- [ ] global event picture generation from name
-- [ ] custom event picture per event
-- [ ] language toggle with redirect to current page
-- [ ] Use shorter ids for urls and names
-- [ ] location and price import
-- [ ] make setting upload with csv
-- [ ] Branding Logo
-- [ ] Branding Page Name
-
 Nice to have:
 
-- [ ] location based ticket manager
 - [ ] admin stays logged in forever
+
+Version 3:
+
+- [ ] Option to: Add user authentication for ticket buyers.
+- [ ] Add support for refunds or cancellations.
+
+### Handy Developing Things
+
+It possible to display all permissions that are currently managed by django with the following command.
+
+```bash
+python manage.py show_permissions
+```
+
+Additionally, a command can be used to send the global statistics email:
+
+```bash
+python manage.py send_statistics_as_mail
+```
 
 ### 👨‍💼 Main Contributors
 

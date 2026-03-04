@@ -11,25 +11,77 @@ from fpdf import FPDF
 
 from payments import get_payment_model
 
-from .models import Event, Ticket, SoldAsStatus
+from .models import Event, Ticket, SoldAsStatus, TicketMaster, Location
 from branding.models import Branding
 from .forms import TicketSelectionForm
+
+# check if user is in ticket managers group or admin
+def is_user_in_ticket_managers_group_or_admin(user):
+    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins', 'Ticket Managers']).exists()
+
+# check if user is in ticket managers group or admin
+def is_user_in_admin(user):
+    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins']).exists()
+
+# get ticket manager for user
+def get_ticketmaster_for_user(user):
+    return TicketMaster.for_user(user)
 
 def event_list(request):
     # Retrieve all events, you can filter if they are active
     events = Event.objects.filter(is_active=True).order_by('start_time')
+    selected_location_id = request.GET.get('location')
+    selected_day = request.GET.get('day')
 
-    ticket_manager = user_in_ticket_managers_group_or_admin(request.user)
+    is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
+
+    # restrict the events shown to ticket managers to only those that are in their active locations if they have any
+    if is_ticket_manager and not is_user_in_admin(request.user):
+        ticket_master = get_ticketmaster_for_user(request.user)
+        if not ticket_master:
+            events = events.none()
+        else:
+            active_locations = ticket_master.active_locations.all()
+            if active_locations.exists():
+                events = events.filter(location__in=active_locations)
+
+    location_options = Location.objects.filter(event__in=events).distinct().order_by('name')
+
+    if selected_location_id:
+        events = events.filter(location_id=selected_location_id)
+
+    day_options = events.values_list('start_time__date', flat=True).distinct().order_by('start_time__date')
+
+    if selected_day:
+        try:
+            day_date = datetime.strptime(selected_day, '%Y-%m-%d').date()
+            events = events.filter(start_time__date=day_date)
+        except ValueError:
+            selected_day = ''
 
     return render(request, 'event_list.html', {
         'events': events,
         'currency': settings.DEFAULT_CURRENCY,
-        'ticket_manager': ticket_manager
+        'is_ticket_manager': is_ticket_manager,
+        'location_options': location_options,
+        'selected_location_id': selected_location_id,
+        'selected_day': selected_day,
+        'day_options': day_options
     })
 
 # Event detail view with ticket selection
 def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
+
+    # Check ticket manager access early, before any POST processing
+    is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
+    if is_ticket_manager and not is_user_in_admin(request.user):
+        ticket_master = get_ticketmaster_for_user(request.user)
+        if not ticket_master:
+            return redirect('event_list')
+        active_locations = ticket_master.active_locations.all()
+        if active_locations.exists() and event.location not in active_locations:
+            return redirect('event_list')
 
     # select all price classes for the event apart from secret ones
     price_classes = event.price_classes.all().exclude(secret=True)
@@ -71,14 +123,12 @@ def event_detail(request, event_id):
     else:
         form = TicketSelectionForm(price_classes=price_classes)
 
-    ticket_manager = user_in_ticket_managers_group_or_admin(request.user)
-
     return render(request, 'event_details.html', {
         'event': event,
         'event_active': event.check_active(),
         'price_classes': price_classes,
         'form': form,
-        'ticket_manager': ticket_manager,
+        'is_ticket_manager': is_ticket_manager,
         'presale_end_time': presale_end_time,
         'presale_start_time': event.presale_start,
         'currency': settings.DEFAULT_CURRENCY,
@@ -131,13 +181,8 @@ def send_ticket_email(request, ticket_id):
             return JsonResponse({'status': 'error', 'message': _('An error occurred while sending the Email.')}, status=500)
     return JsonResponse({"status": "error", "message": _("No email address provided.")})
 
-
-# ticket scanning
-def user_in_ticket_managers_group_or_admin(user):
-    return user.groups.filter(name='admin_user_group').exists() or user.groups.filter(name='ticket_managers_group').exists() or user.is_superuser
-
 @login_required
-@user_passes_test(user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def event_check_in(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     # filter out waiting tickets = not sold yet, SoldAsStatus.PRESALE_ONLINE_WAITING and SoldAsStatus.WAITING
@@ -152,7 +197,7 @@ def event_check_in(request, event_id):
     })
 
 @login_required
-@user_passes_test(user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def handle_qr_result(request, event_id):
     if request.method == "POST":
         qr_code_data = request.POST.get('qr_code')
@@ -168,7 +213,7 @@ def handle_qr_result(request, event_id):
     return JsonResponse({"status": "error", "message": "Invalid request"})
 
 @login_required
-@user_passes_test(user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def toggle_ticket_activation(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
     ticket.activated = not ticket.activated
@@ -176,7 +221,7 @@ def toggle_ticket_activation(request, ticket_id):
     return JsonResponse({"status": "success", "activated": ticket.activated})
 
 @login_required
-@user_passes_test(user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def event_door_selling(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     price_classes = event.price_classes.all()
@@ -241,7 +286,7 @@ def event_door_selling(request, event_id):
     })
 
 @login_required
-@user_passes_test(user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def event_statistics(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     total_stats, price_class_stats = event.calculate_statistics()
@@ -253,7 +298,7 @@ def event_statistics(request, event_id):
     })
 
 @login_required
-@user_passes_test(user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def show_generated_statistics_pdf(request, event_id):
     # Fetch the event by ID
     event = Event.objects.get(pk=event_id)
@@ -269,8 +314,13 @@ def show_generated_statistics_pdf(request, event_id):
     
     return response
 
-def get_all_event_statistics():
+def get_all_event_statistics(locations=None):
     events = Event.objects.all().order_by('start_time')
+
+    # filter event by locations if provided
+    if locations is not None:
+        events = events.filter(location__in=locations)
+
     events_stats = []
 
     overall_total_stats = {
@@ -316,18 +366,38 @@ def get_all_event_statistics():
     return events_stats, overall_total_stats
 
 @login_required
-@user_passes_test(user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def all_events_statistics(request):
-    events_stats, overall_total_stats = get_all_event_statistics()
+    is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
+    selected_location_id = request.GET.get('location')
+    locations = None
+
+    # restrict the events shown to ticket managers to only those that are in their active locations if they have any
+    if is_ticket_manager and not is_user_in_admin(request.user):
+        ticket_master = get_ticketmaster_for_user(request.user)
+        locations = ticket_master.active_locations.all() if ticket_master else Location.objects.none()
+
+        if selected_location_id:
+            locations = locations.filter(id=selected_location_id)
+
+        events_stats, overall_total_stats = get_all_event_statistics(locations=locations)
+        location_options = ticket_master.active_locations.all().order_by('name') if ticket_master else Location.objects.none()
+    else:
+        location_options = Location.objects.filter(event__isnull=False).distinct().order_by('name')
+        if selected_location_id:
+            locations = location_options.filter(id=selected_location_id)
+        events_stats, overall_total_stats = get_all_event_statistics(locations=locations)
 
     return render(request, 'all_event_statistics.html', {
         'events_stats': events_stats,
         'overall_total_stats': overall_total_stats,
-        'currency': settings.DEFAULT_CURRENCY
+        'currency': settings.DEFAULT_CURRENCY,
+        'location_options': location_options,
+        'selected_location_id': selected_location_id
     })
 
 
-def generate_global_statistics_pdf():
+def generate_global_statistics_pdf(locations=None):
     # Generate statistics for all events
     # Create the PDF
     pdf = FPDF(unit="cm", format=(21.0, 29.7))  # A4 format
@@ -344,7 +414,7 @@ def generate_global_statistics_pdf():
     pdf.ln(0.6)
 
     # add global statistics
-    events_stats, overall_total_stats = get_all_event_statistics()
+    events_stats, overall_total_stats = get_all_event_statistics(locations=locations)
 
     pdf.set_font(font, size=12, style='B')
     pdf.cell(19.0, 0.8, text="Global Statistics", border=0, align='L')
@@ -363,12 +433,15 @@ def generate_global_statistics_pdf():
         pdf.ln(0.6)
     
 
-    for event in Event.objects.all().order_by('start_time'):
+    for event_stats in events_stats:
         # Add a new page for each event
         pdf.add_page()
 
+        event = event_stats['event']
+
         # Fetch statistics
-        total_stats, price_class_stats = event.calculate_statistics()
+        total_stats = event_stats['total_stats']
+        price_class_stats = event_stats['price_class_stats']
 
         # Add event name
         pdf.set_font(font, size=14, style='B')
@@ -427,10 +500,22 @@ def generate_global_statistics_pdf():
     return pdf
 
 @login_required
-@user_passes_test(user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def show_generated_global_statistics_pdf(request):
+    selected_location_id = request.GET.get('location')
+    locations = None
+
+    if is_user_in_ticket_managers_group_or_admin(request.user) and not is_user_in_admin(request.user):
+        ticket_master = get_ticketmaster_for_user(request.user)
+        locations = ticket_master.active_locations.all() if ticket_master else Location.objects.none()
+
+        if selected_location_id:
+            locations = locations.filter(id=selected_location_id)
+    elif selected_location_id:
+        locations = Location.objects.filter(id=selected_location_id)
+
     # Generate PDF for the selected ticket
-    pdf = generate_global_statistics_pdf()
+    pdf = generate_global_statistics_pdf(locations=locations)
     # Create a BytesIO stream to hold
     file_stream = io.BytesIO(pdf.output())
     # Create a FileResponse to send the PDF file

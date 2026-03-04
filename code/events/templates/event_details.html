@@ -13,17 +13,26 @@
     <!-- Include jQuery library via CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <h1>{{ event.name }}</h1>
-    
-    <p><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
-    <p><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
-    <p><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
-    {% if event.program_link %}
-        <p><a href="{{ event.program_link }}" target="_blank">{% translate "View Program" %}</a></p>
-    {% endif %}
+    <div class="row">
+        <div class="col-md-6" style="padding: 1.5rem 1.5rem">
+            <h1 class="mt-4">{{ event.name }}</h1>
+            
+            <p><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
+            <p><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
+            <p><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
+            {% if event.program_link %}
+                <p><a href="{{ event.program_link }}" target="_blank">{% translate "View Program" %}</a></p>
+            {% endif %}
+        </div>
+        <div class="col-md-6" style="padding: 1.5rem 1.5rem">
+            {% if event.event_background %}
+                <img src="{{ event.event_background.url }}" alt="{{ event.name }}" class="img-fluid rounded" style="max-height: 400px; object-fit: cover; width: 100%;">
+            {% endif %}
+        </div>
+    </div>
 
     {% if not event.is_sold_out %}
-        <div id="status_message"></div>
+        <div id="status_message" style="padding: 1.5rem 0rem"></div>
         {% if event.allow_presale %}
             <div id="presale_text" style="display: none;">
                 <p>{% translate "Presale starts at " %} <strong>{{ presale_start_time }}</strong> {% translate "Presale ends at " %} <strong>{{ presale_end_time }}</strong></p>
@@ -40,7 +49,7 @@
     {% endif %}
 
 
-    {% if ticket_manager %}
+    {% if is_ticket_manager %}
         <a href="{% url 'event_check_in' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Check-In" %}</a>
         <a href="{% url 'event_door_selling' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Door Selling" %}</a>
         <a href="{% url 'event_statistics' event.id %}" class="btn btn-secondary">{% translate "Go to Statistics" %}</a>

@@ -9,7 +9,7 @@
     {% translate "Manage Orders" %}
 {% endblock %}
 {% block content %}
-    <h1>{% translate "Manage Orders" %}</h1>
+    <h1 class="mt-4">{% translate "Manage Orders" %}</h1>
 
     <!-- Include jQuery library via CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -34,7 +34,7 @@
             <tbody>
                 {% for order in manual_orders %}
                     <tr>
-                        <td>{{ order.id }}</td>
+                        <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>
@@ -43,9 +43,12 @@
                             <a href="{% url 'admin_confirm_order' order.session_id %}" class="btn btn-primary">
                                 {% translate "Confirm Order" %}
                             </a>
-                            <a href="{% url 'ticket_list' order.session_id %}" class="btn btn-primary">
-                                {% translate "View Order" %}
-                            </a>
+                            <form method="POST" action="{% url 'send_invoice' order.session_id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary">
+                                    {% translate "Resend Invoice" %}
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 {% endfor %}
@@ -69,15 +72,18 @@
             <tbody>
                 {% for order in paid_orders %}
                     <tr>
-                        <td>{{ order.id }}</td>
+                        <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>
                         <td>{{ order.total }} {{ currency }}</td>
                         <td>
-                            <a href="{% url 'ticket_list' order.session_id %}" class="btn btn-primary">
-                                {% translate "View Order" %}
-                            </a>
+                            <form method="POST" action="{% url 'send_confirmation' order.session_id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary">
+                                    {% translate "Resend Confirmation" %}
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 {% endfor %}
@@ -101,7 +107,7 @@
             <tbody>
                 {% for order in all_orders %}
                     <tr>
-                        <td>{{ order.id }}</td>
+                        <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>

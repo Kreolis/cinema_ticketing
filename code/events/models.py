@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 
 from django.core.mail import EmailMessage
@@ -19,6 +19,18 @@ logger = logging.getLogger(__name__)
 
 from branding.models import get_active_branding
 
+BOOTSTRAP_COLORS = [
+    ("#0d6efd", _("Blue")),
+    ("#6c757d", _("Gray")),
+    ("#198754", _("Green")),
+    ("#dc3545", _("Red")),
+    ("#ffc107", _("Warning")),
+    ("#0dcaf0", _("Cyan")),
+    ("#d63384", _("Pink")),
+    ("#fd7e14", _("Orange")),
+    ("#6610f2", _("Indigo")),
+    ("custom", _("Custom Color")),
+]
 class SoldAsStatus:
     WAITING = "waiting"
     PRESALE_ONLINE = "presale_online"
@@ -48,12 +60,45 @@ class Location(models.Model):
     house_number = models.IntegerField(_("house number"), default=0)
     city = models.CharField(_("city"), max_length=64, default="Landshut")
     zip_code = models.CharField(_("zip code"), max_length=5, default="84028")
+    
+    displayed_color = models.CharField(
+        _("displayed color"),
+        max_length=7,
+        default=BOOTSTRAP_COLORS[0][0],
+        choices=BOOTSTRAP_COLORS,
+        help_text=_("Selected the color for the card view of all events at this location. A custom color for each event can be selected in the event. If 'Custom Color' is selected, enter a hex color code in the 'Custom Color' field.")
+    )
+    custom_color = models.CharField(
+        _("custom color"),
+        max_length=7,
+        blank=True,
+        null=True,
+        help_text=_("Hex color code if 'Custom Color' is selected (e.g., #007bff)")
+    )
 
     def __str__(self):
         return self.name
     
     def get_address(self):
         return f"{self.street} {self.house_number}, {self.zip_code} {self.city}"
+    
+    def get_color(self):
+        """Return the color to use - either custom_color or displayed_color"""
+        if self.displayed_color == "custom":
+            if self.custom_color:
+                return self.custom_color
+            # Fallback to default color if custom is selected but no custom_color is set
+            return BOOTSTRAP_COLORS[0][0]  # Default blue color
+        return self.displayed_color
+    
+    def get_color_rgb(self):
+        """Convert hex color to RGB tuple as string (e.g., '13, 202, 240')"""
+        color = self.get_color()
+        # Remove # if present
+        color = color.lstrip('#')
+        # Convert hex to RGB
+        r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+        return f"{r}, {g}, {b}"
 
 class PriceClass(models.Model):
     """
@@ -281,6 +326,21 @@ class Event(models.Model):
     # Optional field to customize the number of seats for this event
     custom_seats = models.PositiveIntegerField(_("custom seats"), null=True, blank=True)  # If None, use total_seats from location
 
+    custom_displayed_color = models.CharField(
+        _("custom displayed color"),
+        max_length=7,
+        blank=True,
+        null=True,
+        choices=BOOTSTRAP_COLORS,
+        help_text=_("Selected the color for the card view of the event. If 'Custom Color' is selected, enter a hex color code in the 'Custom Color' field.")
+    )
+    custom_color = models.CharField(
+        _("custom color"),
+        max_length=7,
+        blank=True,
+        null=True,
+        help_text=_("Hex color code if 'Custom Color' is selected (e.g., #007bff)")
+    )
 
     branding = get_active_branding()
     
@@ -349,6 +409,26 @@ class Event(models.Model):
             self.is_active = False
             self.save()
         return self.is_active
+    
+    def get_color(self):
+        """Return the color to use - either color from event or from location"""
+        if self.custom_displayed_color == "custom":
+            if self.custom_color:
+                return self.custom_color
+            # Fallback to default color if custom is selected but no custom_color is set
+            return BOOTSTRAP_COLORS[0][0]  # Default blue color
+        if self.custom_displayed_color:
+            return self.custom_displayed_color
+        return self.location.get_color()
+    
+    def get_color_rgb(self):
+        """Convert hex color to RGB tuple as string (e.g., '13, 202, 240')"""
+        color = self.get_color()
+        # Remove # if present
+        color = color.lstrip('#')
+        # Convert hex to RGB
+        r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+        return f"{r}, {g}, {b}"
 
     def calculate_statistics(self):
         """
@@ -514,3 +594,116 @@ class Event(models.Model):
         Return the total number of seats available for the event (either from the location or customized).
         """
         return self.custom_seats if self.custom_seats is not None else self.location.total_seats
+
+class TicketMaster(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='ticket_master_profile',
+        help_text=_("Optional direct link to the Django user for this ticket manager."),
+    )
+    firstname = models.CharField(max_length=100, help_text=_("Enter the first name"))
+    lastname = models.CharField(max_length=100, help_text=_("Enter the last name"))
+    email = models.EmailField(help_text=_("Enter the email address to which all ticket sales are sent"))
+    is_active = models.BooleanField(default=False, help_text=_("Indicates if the contact is active"))
+
+    active_locations = models.ManyToManyField(Location, blank=True, help_text=_("Select the locations for which this ticket master is responsible. If no location is selected this ticket master will be responsible for all locations."))
+
+    def __str__(self):
+        return f"{self.firstname} {self.lastname}"    
+
+    @classmethod
+    def for_user(cls, user):
+        if not user or not user.is_authenticated:
+            return None
+
+        ticket_master = cls.objects.filter(user=user).first()
+        if ticket_master:
+            return ticket_master
+
+        if user.email:
+            return cls.objects.filter(email=user.email, is_active=True).first()
+        return None
+    
+    def get_active_locations(self):
+        """
+        Return the active locations for this ticket master. If no location is selected, return all locations.
+        """
+        if self.active_locations.exists():
+            return self.active_locations.all()
+        else:
+            return Location.objects.all()
+    
+    # when saved add to Ticket Managers group and when deactivated remove from group
+    def save(self, *args, **kwargs):
+        from django.contrib.auth.models import Group
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        with transaction.atomic():
+            # Get or create the 'Ticket Managers' group before saving the instance
+            ticket_managers_group, created = Group.objects.get_or_create(name='Ticket Managers')
+
+            # Update user groups and staff status before saving the ticket master
+            user = None
+            if self.user:
+                # Prefer direct FK link to user
+                user = self.user
+            elif self.email:
+                # Fall back to email lookup only if no direct user link
+                try:
+                    user = User.objects.get(email=self.email)
+                except User.DoesNotExist:
+                    logger.debug(f"No user found with email {self.email} for ticket master {self.firstname} {self.lastname}")
+                except User.MultipleObjectsReturned:
+                    logger.warning(f"Multiple users found with email {self.email} for ticket master {self.firstname} {self.lastname}. Using user FK only.")
+
+            # Update user's group and is_staff status
+            if user:
+                if self.is_active:
+                    if not user.is_staff:
+                        user.is_staff = True
+                        user.save(update_fields=['is_staff'])
+                    user.groups.add(ticket_managers_group)  # Add to group if active
+                else:
+                    user.groups.remove(ticket_managers_group)  # Remove from group if not active
+                    if (
+                        user.is_staff
+                        and not user.is_superuser
+                        and not user.groups.filter(name__in=['admin', 'Admins']).exists()
+                    ):
+                        user.is_staff = False
+                        user.save(update_fields=['is_staff'])
+
+            # Save the ticket master instance only after user operations succeed
+            super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        from django.contrib.auth.models import Group
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        # Get the 'Ticket Managers' group
+        ticket_managers_group = Group.objects.filter(name='Ticket Managers').first()
+
+        # Find the user associated with this ticket master
+        try:
+            user = self.user or User.objects.get(email=self.email)
+            if ticket_managers_group:
+                user.groups.remove(ticket_managers_group)  # Remove from group when ticket master is deleted
+            if (
+                user.is_staff
+                and not user.is_superuser
+                and not user.groups.filter(name__in=['admin', 'Admins']).exists()
+            ):
+                user.is_staff = False
+                user.save(update_fields=['is_staff'])
+        except User.DoesNotExist:
+            pass  # If no user exists with this email, do nothing
+
+        super().delete(*args, **kwargs)  # Call the original delete method to delete the instance
+        

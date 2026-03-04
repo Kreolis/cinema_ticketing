@@ -43,6 +43,9 @@ def restart_celery():
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        logger.info('Starting celery worker with autoreload...')
-
-        autoreload.run_with_reloader(restart_celery) 
+        self.stdout.write(self.style.SUCCESS('Starting celery worker with autoreload...'))
+        try:
+            autoreload.run_with_reloader(restart_celery)
+        except Exception as error:
+            self.stderr.write(self.style.ERROR(f'Celery command failed: {error}'))
+            raise

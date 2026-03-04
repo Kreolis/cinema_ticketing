@@ -10,17 +10,37 @@ class Command(BaseCommand):
         if created:
             # Assign permissions ticket and events management
             permissions = [
-                'add_event', 'change_event', 'delete_event', 'view_event',
-                'add_location', 'change_location', 'delete_location', 'view_location',
-                'add_priceclass', 'change_priceclass', 'delete_priceclass', 'view_priceclass',
+                'change_event', 'view_event',
+                'view_location',
+                'view_priceclass',
                 'add_ticket', 'change_ticket', 'delete_ticket', 'view_ticket',
-                'add_order', 'change_order', 'delete_order', 'view_order'
+                'view_order'
             ]
 
             for perm in permissions:
                 try:
                     permission = Permission.objects.get(codename=perm)
                     ticket_managers_group.permissions.add(permission)
+                except Permission.DoesNotExist:
+                    self.stdout.write(self.style.ERROR(f"Permission {perm} not found"))
+
+        # create accountants group
+        accountants_group, created = Group.objects.get_or_create(name='Accountants')
+        if created:
+            # Assign permissions for viewing orders and events
+            permissions = [
+                'view_order', 'change_order', 'delete_order', 'add_order',
+                'view_event',
+                'view_location',
+                'view_priceclass', 'change_priceclass', 'delete_priceclass', 'add_priceclass',
+                'view_ticket', 
+                'view_ticketmaster',
+            ]
+
+            for perm in permissions:
+                try:
+                    permission = Permission.objects.get(codename=perm)
+                    accountants_group.permissions.add(permission)
                 except Permission.DoesNotExist:
                     self.stdout.write(self.style.ERROR(f"Permission {perm} not found"))
 

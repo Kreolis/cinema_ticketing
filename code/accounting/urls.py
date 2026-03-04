@@ -6,6 +6,8 @@ from .views import (
     order_payment_overview,
     confirm_order,
     admin_confirm_order,
+    send_confirmation,
+    send_invoice,
     payment_failed,
     ticket_list,
     show_generated_invoice,
@@ -25,6 +27,8 @@ urlpatterns = [
     path('order_invoice_<str:order_id>.pdf', show_generated_invoice, name='show_generated_invoice'),
     path('manage_orders/', manage_orders, name='manage_orders'),
     path('admin_confirm_order/<str:order_id>', admin_confirm_order, name='admin_confirm_order'),
+    path('send_confirmation/<str:order_id>', send_confirmation, name='send_confirmation'),
+    path('send_invoice/<str:order_id>', send_invoice, name='send_invoice'),
     path('login/', login, name='login'),
     path('logout/', logout, name='logout')
 ]

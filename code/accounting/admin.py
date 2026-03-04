@@ -6,6 +6,14 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.admin import SimpleListFilter
 from .models import Order
 
+from events.admin import is_admin_user, is_ticket_manager_user
+
+def is_accountant_user(user):
+    return user.groups.filter(name='Accountants').exists()
+
+def is_admin_or_accountant_user(user):
+    return is_admin_user(user) or is_accountant_user(user)
+
 class TimedOutFilter(SimpleListFilter):
     title = _('Timed Out')
     parameter_name = 'timed_out'
@@ -33,6 +41,38 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created', 'is_confirmed', 'variant', TimedOutFilter)
     search_fields = ('id', 'total', 'status')
     actions = ['custom_delete_selected']
+
+    def has_view_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user) or is_accountant_user(request.user):
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_accountant_user(request.user):
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_accountant_user(request.user):
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_accountant_user(request.user):
+            return True
+        return False
 
     def show_invoice_pdf(self, obj):
         return format_html(

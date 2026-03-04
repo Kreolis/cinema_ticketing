@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Location, PriceClass, Event, Ticket
+from .models import Location, PriceClass, Event, Ticket, TicketMaster
 
 from django.urls import reverse
 from django.utils.html import format_html
@@ -8,6 +8,7 @@ from django.shortcuts import redirect, render
 from django.urls import path
 from django import forms
 from django.http import HttpResponse
+from django.core.exceptions import PermissionDenied
 from datetime import datetime, timedelta
 from django.utils import timezone
 
@@ -15,16 +16,228 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+def is_admin_user(user):
+    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins']).exists()
+
+
+def is_ticket_manager_user(user):
+    return user.groups.filter(name='Ticket Managers').exists()
+
+
+def get_ticketmaster_for_user(user):
+    return TicketMaster.for_user(user)
+
+
+def get_user_active_locations(user):
+    if is_admin_user(user):
+        return None
+    if not is_ticket_manager_user(user):
+        return Location.objects.none()
+
+    ticket_master = get_ticketmaster_for_user(user)
+    if not ticket_master:
+        return Location.objects.none()
+
+    active_locations = ticket_master.active_locations.all()
+    if active_locations.exists():
+        return active_locations
+    return None
+
 class CSVImportForm(forms.Form):
     csv_file = forms.FileField(label='CSV file')
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     list_display = ('name', 'total_seats')
+    change_list_template = "admin_locations_custom.html"
+
+    def has_view_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('import-csv/', self.import_csv, name='import_locations_csv'),
+            path('download-template-csv/', self.download_template_csv, name='download_locations_template_csv'),
+        ]
+        return custom_urls + urls
+
+    def import_csv(self, request):
+        if not self.has_add_permission(request):
+            raise PermissionDenied
+        if request.method == "POST":
+            csv_file = request.FILES["csv_file"]
+            try:
+                reader = csv.reader(csv_file.read().decode('utf-8').splitlines())
+                headers = next(reader)
+                for row in reader:
+                    location_data = dict(zip(headers, row))
+                    
+                    location = Location.objects.create(
+                        name=location_data["name"],
+                        total_seats=int(location_data["total_seats"]),
+                        street=location_data.get("street", ""),
+                        house_number=location_data.get("house_number", ""),
+                        city=location_data.get("city", ""),
+                        zip_code=location_data.get("zip_code", ""),
+                    )
+                    logger.info(f"Created location: {location}")
+
+                self.message_user(request, "Locations imported successfully.")
+                return redirect("..")
+            except Exception as e:
+                error_message = f"Error importing CSV file: {str(e)}"
+                form = CSVImportForm()
+                payload = {"form": form, "error_message": error_message}
+                logger.error(error_message)
+                return render(request, "locations_import_csv_form.html", payload)
+            
+        form = CSVImportForm()
+        payload = {"form": form}
+        return render(request, "locations_import_csv_form.html", payload)
+
+    def download_template_csv(self, request):
+        response = HttpResponse(
+            content_type='text/csv',
+            headers={'Content-Disposition': 'attachment; filename="location_import_template.csv"'},
+        )
+        writer = csv.writer(response)
+        writer.writerow(['name', 'total_seats', 'street', 'house_number', 'city', 'zip_code'])
+        writer.writerow(['Sample Location 1', '100', 'Main Street', '123', 'Helsinki', '00100'])
+        writer.writerow(['Sample Location 2', '150', 'Park Avenue', '456', 'Espoo', '02100'])
+        
+        if Location.objects.count() != 0:
+            locations = Location.objects.all()
+            for location in locations:
+                writer.writerow([location.name, location.total_seats, location.street, location.house_number, location.city, location.zip_code])
+        
+        return response
 
 @admin.register(PriceClass)
 class PriceClassAdmin(admin.ModelAdmin):
     list_display = ('name', 'price')
+    change_list_template = "admin_price_classes_custom.html"
+
+    def has_view_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('import-csv/', self.import_csv, name='import_price_classes_csv'),
+            path('download-template-csv/', self.download_template_csv, name='download_price_classes_template_csv'),
+        ]
+        return custom_urls + urls
+
+    def import_csv(self, request):
+        if not self.has_add_permission(request):
+            raise PermissionDenied
+        if request.method == "POST":
+            csv_file = request.FILES["csv_file"]
+            try:
+                reader = csv.reader(csv_file.read().decode('utf-8').splitlines())
+                headers = next(reader)
+                for row in reader:
+                    price_class_data = dict(zip(headers, row))
+                    
+                    price_class = PriceClass.objects.create(
+                        name=price_class_data["name"],
+                        price=float(price_class_data["price"]),
+                        notification_message=price_class_data.get("notification_message", ""),
+                        secret=price_class_data.get("secret", "").upper() == 'TRUE',
+                    )
+                    logger.info(f"Created price class: {price_class}")
+
+                self.message_user(request, "Price classes imported successfully.")
+                return redirect("..")
+            except Exception as e:
+                error_message = f"Error importing CSV file: {str(e)}"
+                form = CSVImportForm()
+                payload = {"form": form, "error_message": error_message}
+                logger.error(error_message)
+                return render(request, "price_classes_import_csv_form.html", payload)
+            
+        form = CSVImportForm()
+        payload = {"form": form}
+        return render(request, "price_classes_import_csv_form.html", payload)
+
+    def download_template_csv(self, request):
+        response = HttpResponse(
+            content_type='text/csv',
+            headers={'Content-Disposition': 'attachment; filename="price_class_import_template.csv"'},
+        )
+        writer = csv.writer(response)
+        writer.writerow(['name', 'price', 'notification_message', 'secret'])
+        writer.writerow(['Standard', '15.00', 'Standard ticket', 'True'])
+        writer.writerow(['Premium', '25.00', 'Premium ticket with extras', 'False'])
+        
+        if PriceClass.objects.count() != 0:
+            price_classes = PriceClass.objects.all()
+            for price_class in price_classes:
+                writer.writerow([price_class.name, price_class.price, price_class.notification_message, price_class.secret])
+        
+        return response
 
 class TicketInline(admin.TabularInline):
     model = Ticket
@@ -37,6 +250,46 @@ class TicketAdmin(admin.ModelAdmin):
     actions = ['send_ticket_email_selected']
     list_filter = ('sold_as', 'activated')
     search_fields = ('id', 'event__name', 'sold_as')  # Updated search_fields
+
+    def has_view_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        active_locations = get_user_active_locations(request.user)
+        if active_locations is None:
+            return queryset
+        return queryset.filter(event__location__in=active_locations)
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
 
     # Add custom action buttons
     def show_pdf_action(self, obj):
@@ -77,15 +330,71 @@ class EventAdmin(admin.ModelAdmin):
 
     change_list_template = "admin_events_custom.html"
 
+    def has_view_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        active_locations = get_user_active_locations(request.user)
+        if active_locations is None:
+            return queryset
+        return queryset.filter(location__in=active_locations)
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        if is_ticket_manager_user(request.user):
+            active_locations = get_user_active_locations(request.user)
+            if active_locations is None:
+                return True
+            if obj is None:
+                return True
+            return obj.location in active_locations
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        if is_ticket_manager_user(request.user):
+            active_locations = get_user_active_locations(request.user)
+            if active_locations is None:
+                return True
+            if obj is None:
+                return True
+            return obj.location in active_locations
+        return False
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('import-csv/', self.import_csv, name='import_csv'),
-            path('download-template-csv/', self.download_template_csv, name='download_template_csv'),
+            path('import-csv/', self.import_csv, name='import_events_csv'),
+            path('download-template-csv/', self.download_template_csv, name='download_events_template_csv'),
         ]
         return custom_urls + urls
 
     def import_csv(self, request):        
+        if not self.has_add_permission(request):
+            raise PermissionDenied
         if request.method == "POST":
             csv_file = request.FILES["csv_file"]
             try:
@@ -121,34 +430,34 @@ class EventAdmin(admin.ModelAdmin):
                             event.price_classes.add(PriceClass.objects.get_or_create(name=price_class, defaults={'price': 0})[0])
                     
                     if event_data.get("program_link"):
-                        event.program_link = event_data["program_link"]
+                        event.program_link = event_data.get("program_link")
                     
-                    if event_data.get("is_active") == 'TRUE':
-                        event.is_active = event_data["is_active"] == 'TRUE'
+                    if event_data.get("is_active"):
+                        event.is_active = event_data.get("is_active", "").upper() == 'TRUE'
 
                     if event_data.get("custom_seats"):
-                        event.custom_seats = int(event_data["custom_seats"])
+                        event.custom_seats = int(event_data.get("custom_seats"))
 
                     if event_data.get("ticket_background"):
-                        event.ticket_background = event_data["ticket_background"]
+                        event.ticket_background = event_data.get("ticket_background")
 
                     if event_data.get("display_seat_number"):
-                        event.display_seat_number = event_data["display_seat_number"]
+                        event.display_seat_number = event_data.get("display_seat_number", "").upper() == 'TRUE'
                     
                     if event_data.get("event_background"):
-                        event.event_background = event_data["event_background"]
+                        event.event_background = event_data.get("event_background")
 
-                    if event_data.get("allow_presale") == 'TRUE':
-                        event.allow_presale = event_data["allow_presale"] == 'TRUE'
+                    if event_data.get("allow_presale"):
+                        event.allow_presale = event_data.get("allow_presale", "").upper() == 'TRUE'
 
                     if presale_start:
                         event.presale_start = presale_start
 
                     if event_data.get("presale_ends_before"):
-                        event.presale_ends_before = int(event_data["presale_ends_before"])
+                        event.presale_ends_before = int(event_data.get("presale_ends_before"))
 
-                    if event_data.get("allow_door_selling") == 'TRUE':
-                        event.allow_door_selling = event_data["allow_door_selling"] == 'TRUE'
+                    if event_data.get("allow_door_selling"):
+                        event.allow_door_selling = event_data.get("allow_door_selling", "").upper() == 'TRUE'
 
                     event.save()
                     logger.info(f"Event saved: {event}")
@@ -203,3 +512,42 @@ class EventAdmin(admin.ModelAdmin):
                     event.presale_start, event.presale_ends_before, event.allow_door_selling
                 ])
         return response
+
+@admin.register(TicketMaster)
+class TicketMasterAdmin(admin.ModelAdmin):
+    list_display = ('firstname', 'lastname', 'email', 'user', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('firstname', 'lastname', 'email', 'user__username', 'user__email')
+
+    def has_view_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user):
+            return True
+        return False
