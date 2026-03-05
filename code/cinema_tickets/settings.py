@@ -138,9 +138,10 @@ AUTH_PASSWORD_VALIDATORS = [
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default=None)
 CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='django-db')
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-CELERY_TIMEZONE = "UTC"
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_TIMEZONE = "UTC" # use the same 
+CELERY_TASK_TRACK_STARTED = True # enable task tracking to set status to "started" when a task begins execution
+CELERY_TASK_TIME_LIMIT = 30 * 60 # 30 minutes time limit for tasks to prevent hanging
+CELERY_RESULT_EXPIRES = 3 * 24 * 60 * 60 # rotate task results after 3 days
 
 # Flower Configuration
 FLOWER_USER = config('FLOWER_USER', default='admin')
