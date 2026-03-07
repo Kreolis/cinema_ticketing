@@ -450,9 +450,11 @@ class Order(BasePayment):
         # form recipient list 
         recipient_list = []
 
-        # get all email address from users in admin group and superusers
+        # get all email address from users in admin group and superusers and accountant group
         admin_users = User.objects.filter(models.Q(is_superuser=True) | models.Q(groups__name='admin')).distinct()
+        accountant_users = User.objects.filter(groups__name='accountant').distinct()
         recipient_list.extend(admin_users.values_list('email', flat=True))
+        recipient_list.extend(accountant_users.values_list('email', flat=True))
         
         # now add ticket master emails based on location of tickets for events bought in this order
         # inform ticket masters emails about new order
@@ -471,6 +473,10 @@ class Order(BasePayment):
                     continue
             recipient_list.append(ticket_master.email)
 
+        # make sure recipient list is unique
+        recipient_list = list(set(recipient_list))
+
+        # send email to ticket masters with order details and pdf invoice attached
         subject = _("New Order {order_id} on {site_name}").format(order_id=self.id, site_name=site_name)
         message = _("Dear Ticket Master,\n\n"
                     "A new order has been placed on {site_name}.\n\n"
