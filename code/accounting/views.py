@@ -299,6 +299,9 @@ def show_generated_invoice(request, order_id):
 @login_required
 @user_passes_test(is_admin_or_accountant_user)
 def admin_confirm_order(request, order_id):
+    if request.method != 'POST':
+        return redirect('manage_orders')
+    
     order = get_object_or_404(get_payment_model(), session_id=order_id)
 
     if order.status == PaymentStatus.CONFIRMED:
@@ -350,13 +353,14 @@ def manage_orders(request):
     # order must be set to PaymentStatus.CONFIRMED but is_confirmed must be False
     manual_orders = get_payment_model().objects.filter(status=PaymentStatus.CONFIRMED, is_confirmed=False)
     paid_orders = get_payment_model().objects.filter(status=PaymentStatus.CONFIRMED, is_confirmed=True)
-
+    refunded_orders = get_payment_model().objects.filter(status=PaymentStatus.REFUNDED)
     all_orders = get_payment_model().objects.all()
 
     return render(request, 'manage_orders.html', {
         'manual_orders': manual_orders,
         'paid_orders': paid_orders,
         'all_orders': all_orders,
+        'refunded_orders': refunded_orders,
         'currency': settings.DEFAULT_CURRENCY
     })
 
