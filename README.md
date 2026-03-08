@@ -104,6 +104,35 @@ If you want to use the Stripe payment gateway, add your Stripe keys:
   STRIPE_WEBHOOK_SECRET=whsec_test_secret
 ```
 
+For Stripe support one needs to install the following
+
+```bash
+  pip install django-payments[stripe]
+```
+
+Paypal gateway support can be added with the following variables:
+
+```bash
+  USE_PAYPAL=True
+  PAYPAL_CLIENT_ID=your-paypal-client-id
+  PAYPAL_SECRET_KEY=your-paypal-secret-key
+```
+
+For SOFORT / KLARNA support add the following variables:
+
+```bash
+  USE_SOFORT=True
+  SOFORT_KLARNA_ID=your-sofort-klarna-id
+  SOFORT_KLARNA_KEY=your-sofort-klarna-key
+  SOFORT_KLARNA_PROJECT_ID=your-sofort-klarna-project-id
+```
+
+For Klarna support one needs to install the following
+
+```bash
+  pip install xmltodict
+```
+
 For ReCAPTCHA support add `YourMyRecaptchaKey` / `YourRecaptchaPrivateKey`. 
 
 If you want to use a postgres database set `USE_POSTGRES` to `True` and add the following variables:
@@ -476,6 +505,12 @@ Version 3:
 
 - [ ] Option to: Add user authentication for ticket buyers.
 - [ ] Add support for refunds or cancellations.
+
+Version 4:
+
+- [ ] test and verify paypal integration
+- [ ] test and verify sofort/klarna integration
+- [ ] test and verify custom wero payment gateway integration
 
 ### Handy Developing Things
 
