@@ -501,13 +501,9 @@ Nice to have:
 
 - [ ] admin stays logged in forever
 
-Version 3:
-
-- [ ] Option to: Add user authentication for ticket buyers.
-- [ ] Add support for refunds or cancellations.
-
 Version 4:
 
+- [ ] Option to: Add user authentication for ticket buyers.
 - [ ] test and verify paypal integration
 - [ ] test and verify sofort/klarna integration
 - [ ] test and verify custom wero payment gateway integration
