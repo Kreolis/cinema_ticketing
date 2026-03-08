@@ -1,7 +1,5 @@
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.contrib.auth.models import Group, Permission
+
 from django.core.exceptions import ValidationError
 from django.db import OperationalError, ProgrammingError
 from django.utils import timezone
