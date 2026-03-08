@@ -11,16 +11,52 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from fpdf import FPDF
 import os
 
 from branding.models import get_active_branding
-from events.models import Ticket, TicketMaster
+from events.models import Ticket, PriceClass, TicketMaster
 
 import logging
 
 logger = logging.getLogger(__name__)
+
+# service fee types choices
+SERVICE_FEE_TYPE_CHOICES = [
+    ('fixed_total', _("Fixed Amount on Total")),
+    ('percentage_total', _("Percentage on Total")),
+    ('fixed_ticket', _("Fixed Amount per Ticket")),
+    ('percentage_ticket', _("Percentage per Ticket")),
+]
+
+# class for service fee settings for each payment method
+class ServiceFee(models.Model):
+    payment_method = models.CharField(max_length=255, 
+                                      choices=[(key, settings.HUMANIZED_PAYMENT_VARIANT[key]) for key in settings.PAYMENT_VARIANTS.keys()], 
+                                      verbose_name=_("Payment Method"))
+    price_classes = models.ManyToManyField(PriceClass, 
+                                           verbose_name=_("price classes"), 
+                                           related_name="service_fees",
+                                           blank=True,
+                                           help_text=_("Select the price classes to which this service fee should be applied. If no price class is selected, the service fee will be applied to all tickets sold with the selected payment method.")) 
+    display_name = models.CharField(max_length=255, verbose_name=_("Display Name"), 
+                                    help_text=_("The name of the service fee that will be displayed to customers during checkout."))
+    fee_type = models.CharField(max_length=20, 
+                                        choices=SERVICE_FEE_TYPE_CHOICES, 
+                                        default='fixed', 
+                                        help_text=_("Select the type of service fee to apply to ticket sales"))
+    fee_amount = models.DecimalField(max_digits=10, 
+                                             decimal_places=2, 
+                                             default=0, 
+                                             help_text=_("Enter the amount of service fee to apply to ticket sales. If type is percentage, enter the percentage (e.g. 5 for 5%)"))
+
+    is_active = models.BooleanField(default=False, help_text=_("Indicates if this service fee is active."))
+    
+    def save(self, *args, **kwargs):
+        logger.info(f"Saving ticket fee: {self.payment_method}, is_active: {self.is_active}")
+        super(ServiceFee, self).save(*args, **kwargs)
+
 
 # class for holding one sessions order until payment is completed
 class Order(BasePayment):
@@ -43,6 +79,11 @@ class Order(BasePayment):
 
     failure_url = models.URLField(max_length=255, blank=True, null=True)
     success_url = models.URLField(max_length=255, blank=True, null=True)
+
+    # persisted service fees for display/invoice purposes
+    # format: {"<fee_id>": {"display_name": "...", "amount": "12.34"}}
+    applied_service_fees_ticket_level = models.JSONField(default=dict, blank=True)
+    applied_service_fees_total = models.JSONField(default=dict, blank=True)
 
     # boolean field to indicate if order is confirmed by the ticket master or not, default is false
     is_confirmed = models.BooleanField(default=False, verbose_name=_("Payment Is Confirmed"), help_text=_("Indicates whether the order has been confirmed by the ticket master."))
@@ -67,6 +108,106 @@ class Order(BasePayment):
                 sku=ticket.id,
                 tax_rate=tax_rate,
             )
+
+    def compute_service_fees(self, variant=None):
+        store_fees = False
+        if variant is None:
+            variant = self.variant
+            store_fees = True
+        
+        service_fees_ticket_level = {}
+        service_fees_total = {}
+    
+        # get all services fees applicable for the order's payment method and tickets
+        service_fees = ServiceFee.objects.filter(is_active=True, payment_method=variant)
+        
+        # get service fees that are applied on ticket level (fixed amount or percentage per ticket)
+        service_fees_applied_to_tickets = service_fees.filter(fee_type="fixed_ticket") | service_fees.filter(fee_type="percentage_ticket")
+        # iterate over all tickets in the order and apply service fees on ticket or price class level
+        for fee in service_fees_applied_to_tickets:
+            fee_amount = 0
+            for ticket in self.tickets.all():
+                if fee.price_classes.exists() and ticket.price_class in fee.price_classes.all():
+                    # if fee has price classes assigned and ticket price class is not in it, skip fee for this ticket
+                    # or fee is applied to all tickets if no price class is assigned
+                    continue
+                else:
+                    if fee.fee_type == "fixed_ticket":
+                        fee_amount += fee.fee_amount
+                    elif fee.fee_type == "percentage_ticket":
+                        percentage_fee = ticket.price_class.price * (fee.fee_amount / Decimal(100.0))
+                        fee_amount += percentage_fee
+            
+            service_fees_ticket_level[fee] = fee_amount
+
+        subtotal = sum(ticket.price_class.price for ticket in self.tickets.all())
+        for fee, amount in service_fees_ticket_level.items():
+            subtotal += amount
+
+        # calculate service fees that are applied on total level (fixed amount or percentage on total)
+        service_fees_applied_to_total = service_fees.filter(fee_type="fixed_total") | service_fees.filter(fee_type="percentage_total")
+        for fee in service_fees_applied_to_total:
+            if fee.fee_type == "fixed_total":
+                fee_amount = fee.fee_amount
+            elif fee.fee_type == "percentage_total":
+                fee_amount = subtotal * (fee.fee_amount / Decimal(100.0))
+            
+            service_fees_total[fee] = fee_amount
+
+        if store_fees:
+            self.applied_service_fees_ticket_level = self._serialize_service_fees(service_fees_ticket_level)
+            self.applied_service_fees_total = self._serialize_service_fees(service_fees_total)
+            self.save(update_fields=["applied_service_fees_ticket_level", "applied_service_fees_total"])
+
+        return service_fees_ticket_level, service_fees_total
+
+    def _serialize_service_fees(self, service_fees):
+        serialized_service_fees = {}
+        for fee, amount in service_fees.items():
+            serialized_service_fees[str(fee.id)] = {
+                "display_name": fee.display_name,
+                "amount": str(amount),
+            }
+        return serialized_service_fees
+
+    def _deserialize_service_fees(self, serialized_service_fees):
+        deserialized_service_fees = {}
+        for fee_data in (serialized_service_fees or {}).values():
+            display_name = fee_data.get("display_name")
+            amount_raw = fee_data.get("amount", "0")
+            if not display_name:
+                continue
+            try:
+                amount = Decimal(str(amount_raw))
+            except (InvalidOperation, TypeError, ValueError):
+                amount = Decimal("0")
+            deserialized_service_fees[display_name] = deserialized_service_fees.get(display_name, Decimal("0")) + amount
+        return deserialized_service_fees
+    
+    def get_service_fees(self, variant=None):
+        if variant is None:
+            if not self.applied_service_fees_ticket_level and not self.applied_service_fees_total:
+                self.compute_service_fees()
+            return (
+                self._deserialize_service_fees(self.applied_service_fees_ticket_level),
+                self._deserialize_service_fees(self.applied_service_fees_total),
+            )
+        else:
+            service_fees_ticket_level, service_fees_total = self.compute_service_fees(variant)
+            return (
+                self._deserialize_service_fees(self._serialize_service_fees(service_fees_ticket_level)),
+                self._deserialize_service_fees(self._serialize_service_fees(service_fees_total)),
+            )
+
+    def get_total_service_fee_amount(self, variant=None):
+        if variant is None:
+            service_fees_ticket_level, service_fees_total = self.get_service_fees()
+            total_service_fee = sum(service_fees_ticket_level.values()) + sum(service_fees_total.values())
+        else:
+            service_fees_ticket_level, service_fees_total = self.compute_service_fees(variant)
+            total_service_fee = sum(service_fees_ticket_level.values()) + sum(service_fees_total.values())
+
+        return total_service_fee
 
     def get_failure_url(self) -> str:
         """URL where users will be redirected after a failed payment.
@@ -128,14 +269,23 @@ class Order(BasePayment):
         
         super().save(*args, **kwargs)
 
-    def update_tickets(self, new_tickets):
+    def update_tickets(self, new_tickets = None):
         # add new tickets to order
-        self.tickets.add(*new_tickets)
+        if new_tickets is not None:
+            self.tickets.add(*new_tickets)
         # calculate new total amount
         self.total = sum(ticket.price_class.price for ticket in self.tickets.all())  # Sum ticket prices
         self.modified = timezone.now()
         self.save()
-    
+
+    def compute_total(self, with_service_fees = False):
+        self.total = sum(ticket.price_class.price for ticket in self.tickets.all())
+        if with_service_fees:
+            service_fees_ticket_level, service_fees_total = self.compute_service_fees()
+            self.total += sum(service_fees_ticket_level.values()) + sum(service_fees_total.values())
+        self.save()
+        return self.total
+
     def delete_ticket(self, ticket):
         # remove ticket from order
         self.tickets.remove(ticket)
@@ -266,8 +416,16 @@ class Order(BasePayment):
         else:
             tax_rate = Decimal(0.0)
 
-        # Calculate totals
+        # Calculate totals with tax and service fees
+        service_fees_ticket_level, service_fees_total = self.get_service_fees()
         items = [{"description": ticket.event.name, "qty": 1, "unit_price": ticket.price_class.price, "datetime": ticket.event.start_time} for ticket in self.tickets.all()]
+
+        fees = []
+        for fee_name, amount in service_fees_ticket_level.items():
+            fees.append({"description": fee_name, "qty": 1, "unit_price": amount})
+        for fee_name, amount in service_fees_total.items():
+            fees.append({"description": fee_name, "qty": 1, "unit_price": amount})
+
         subtotal_with_tax = sum(item["qty"] * item["unit_price"] for item in items)
         tax = subtotal_with_tax * tax_rate
         subtotal = subtotal_with_tax - tax
@@ -328,6 +486,22 @@ class Order(BasePayment):
             pdf.cell(2.5, 0.6, str(item["qty"]), border=1, align="C")
             pdf.cell(2.5, 0.6, f"{item['unit_price']:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
             pdf.cell(2.5, 0.6, f"{item['qty'] * item['unit_price']:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
+            pdf.ln()
+
+        # if service fees add spacer row before fees
+        if fees:
+            pdf.cell(15 - invoice_padding_left - invoice_padding_right, 0.1, "", border=0)
+            pdf.ln()
+
+            # add service fees as separate line items in the invoice
+            for fee in fees:
+                pdf.cell(10 - invoice_padding_left - invoice_padding_right, 0.6, fee["description"], border=1)
+                pdf.cell(2.5, 0.6, str(fee["qty"]), border=1, align="C")
+                pdf.cell(2.5, 0.6, f"{fee['unit_price']:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
+                pdf.cell(2.5, 0.6, f"{fee['qty'] * fee['unit_price']:.2f} {settings.DEFAULT_CURRENCY}", border=1, align="C")
+                pdf.ln()
+
+            pdf.cell(15 - invoice_padding_left - invoice_padding_right, 0.1, "", border=0)
             pdf.ln()
 
         # Add totals
@@ -511,8 +685,128 @@ class Order(BasePayment):
         except Exception as e:
             logger.error(f"Error sending confirmation email: {e}")
             raise e
+            
 
+    def send_refund_cancel_notification_email(self):
+        branding = get_active_branding()
+        if branding and branding.invoice_tax_rate:
+            site_name = branding.site_name
+        else:
+            site_name = "Cinema Ticketing"
 
+        subject = _("Your Order {order_id} has been Refunded or Cancelled - {site_name}").format(order_id=self.id, site_name=site_name)
+        message = _("Dear Customer,\n\nWe regret to inform you that your order with ID {order_id} has been refunded or cancelled.\n\n"
+                    "If you have already transferred the payment the amount of {total_amount} {currency} will be returned to your original payment method ({payment_method}).\n\n"
+                    "Please note that it may take a few business days for the refund to be processed and reflected in your account, depending on your bank or payment provider.\n\n"
+                    "If you have any questions or concerns regarding this refund or cancellation, please do not hesitate to contact our support team.\n\n"
+                    "Best regards,\nThe Event Team").format(
+                        order_id=self.id,
+                        total_amount=self.total,
+                        currency=self.currency,
+                        payment_method=self.variant
+                    )
+        
+        email = EmailMessage(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [self.billing_email]
+        )
+        try:
+            email.send()
+        except Exception as e:
+            logger.error(f"Error sending refund notification email: {e}")
+            raise e
+        
+        ### Inform ticket masters about new order via email with pdf invoice attached
+        # form recipient list 
+        recipient_list = []
+
+        # get all email address from users in admin group and superusers and accountant group
+        admin_users = User.objects.filter(models.Q(is_superuser=True) | models.Q(groups__name='admin')).distinct()
+        accountant_users = User.objects.filter(groups__name='accountant').distinct()
+        recipient_list.extend(admin_users.values_list('email', flat=True))
+        recipient_list.extend(accountant_users.values_list('email', flat=True))
+
+        # now add ticket master emails based on location of tickets for events bought in this order
+        # inform ticket masters emails about new order
+        # get all ticket masters emails that are active
+        ticket_masters = TicketMaster.objects.filter(is_active=True)
+
+        # filter ticket master by location and only give access to orders of their location if they have one assigned
+        for ticket_master in ticket_masters:
+            active_locations = ticket_master.active_locations.all()
+            # if ticket master has active locations, check if order contains tickets for events in those locations, 
+            # if not skip sending email to this ticket master
+            # if ticket master does not have active locations, they should receive email for all orders, so do not skip them
+            if active_locations.exists():
+                if not self.tickets.filter(event__location__in=active_locations).exists():
+                    # if order does not contain tickets for events in ticket masters active locations, skip sending email to this ticket master
+                    continue
+            recipient_list.append(ticket_master.email)
+
+        # make sure recipient list is unique
+        recipient_list = list(set(recipient_list))
+
+        subject = _("Order {order_id} has been Refunded or Cancelled on {site_name}").format(order_id=self.id, site_name=site_name)
+        message = _("Dear Ticket Master,\n\nWe inform you that the order with ID {order_id} has been refunded or cancelled.\n\n"
+                    "Please find the order details below:\n\n"
+                    "Order ID: {order_id}\n"
+                    "Order Date: {order_date}\n"
+                    "Customer: {customer_name}\n"
+                    "Customer Email: {customer_email}\n"
+                    "Total Amount: {total_amount} {currency}\n\n"
+                    "Best regards,\nThe Event Team").format(
+                        order_id=self.id,
+                        site_name=site_name,
+                        order_date=self.created.strftime('%Y-%m-%d %H:%M'),
+                        customer_name=f"{self.billing_first_name} {self.billing_last_name}",
+                        customer_email=self.billing_email,
+                        total_amount=self.total,
+                        currency=self.currency
+                    )
+        
+        email = EmailMessage(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            recipient_list
+        )
+        try:
+            email.send()
+        except Exception as e:
+            logger.error(f"Error sending refund notification email: {e}")
+            raise e
+        
+    def refund(self):
+        super().refund()
+
+        logger.info(f"Order {self.id} has been refunded.")
+        # delete associated tickets
+        for ticket in self.tickets.all():
+            ticket_to_delete = Ticket.objects.get(id=ticket.id)
+            ticket_to_delete.delete()
+            logger.info(f"Deleted ticket {ticket.id} for event {ticket.event.name}")
+
+        self.send_refund_cancel_notification_email()
+
+    def cancel(self):
+        # only allow cancellation if order is in waiting or preauth status
+        if self.status not in [PaymentStatus.CONFIRMED, PaymentStatus.PREAUTH]:
+            raise Exception(_("Cannot cancel order: order is not in CONFIRMED or PREAUTH status. Current status: {status}").format(status=self.status))
+        
+        # set status to cancelled and save
+        self.status = PaymentStatus.REFUNDED
+        self.save()
+
+        logger.info(f"Order {self.id} has been cancelled.")
+        # delete associated tickets
+        for ticket in self.tickets.all():
+            ticket_to_delete = Ticket.objects.get(id=ticket.id)
+            ticket_to_delete.delete()
+            logger.info(f"Deleted ticket {ticket.id} for event {ticket.event.name}")
+
+        self.send_refund_cancel_notification_email()
 
     # delete order and associated tickets
     def delete(self, *args, **kwargs):
