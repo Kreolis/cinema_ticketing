@@ -96,6 +96,14 @@
 
     <p>{% translate "Your order is valid for another" %} <span id="timeout-time-remaining">{{ time_remaining }}:00</span> {% translate "minutes" %}.</p>
 
+        <!-- Proceed to payment button -->
+    <div class="mt-3">
+        {% if order.tickets.count > 0 %}
+        <a href="{% url 'order_information_form' %}" class="btn btn-primary">{% translate "Proceed to Order Information" %}</a>
+        {% endif %}
+        <a href="{% url 'event_list' %}" class="btn btn-secondary">{% translate "Continue ticket selection" %}</a>
+    </div>
+
     <script>
         // Function to update the cart badge in the navbar
         function updateCartBadge(count) {
@@ -211,14 +219,5 @@
             });
         }
     </script>
-
-   
-    <!-- Proceed to payment button -->
-    <div class="mt-3">
-        {% if order.tickets.count > 0 %}
-        <a href="{% url 'payment_form' %}" class="btn btn-primary">{% translate "Proceed to Payment" %}</a>
-        {% endif %}
-        <a href="{% url 'event_list' %}" class="btn btn-secondary">{% translate "Continue ticket selection" %}</a>
-    </div>
    
 {% endblock %}
