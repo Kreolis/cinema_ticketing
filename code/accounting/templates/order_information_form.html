@@ -6,10 +6,10 @@
 {% load i18n %}
 
 {% block title %}
-    {% translate "Payment Form" %}
+    {% translate "Order Information Form" %}
 {% endblock %}
 {% block content %}
-    <h1 class="mt-4">{% translate "Payment Form" %}</h1>
+    <h1 class="mt-4">{% translate "Order Information Form" %}</h1>
 
     <!-- Include jQuery library via CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -32,8 +32,7 @@
             <a href="{% url 'cart_view' %}" class="btn btn-secondary">{% translate "Go back to cart" %}</a>
         </div>
     </form>
-   
-    
+        
     <script>
         $(document).ready(function() {
             
