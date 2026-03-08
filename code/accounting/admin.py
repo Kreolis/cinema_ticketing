@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 from django.contrib.admin import SimpleListFilter
-from .models import Order
+from .models import Order, ServiceFee
 
 from events.admin import is_admin_user, is_ticket_manager_user
 
@@ -127,3 +127,44 @@ class OrderAdmin(admin.ModelAdmin):
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
+
+
+@admin.register(ServiceFee)
+class ServiceFeeAdmin(admin.ModelAdmin):
+    list_display = ('payment_method', 'display_name', 'fee_type', 'fee_amount', 'is_active')
+    list_filter = ('payment_method', 'price_classes', 'fee_type', 'is_active')
+    search_fields = ('payment_method', 'display_name', 'fee_type')
+
+    def has_view_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user) or is_accountant_user(request.user):
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_accountant_user(request.user):
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_accountant_user(request.user):
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_accountant_user(request.user):
+            return True
+        return False
+
+
