@@ -1,10 +1,12 @@
 from django.contrib import admin
+from django import forms
 from django.utils.html import format_html
 from django.urls import reverse
 from django.contrib import messages
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.contrib.admin import SimpleListFilter
-from .models import Order
+from .models import Order, ServiceFee
 
 from events.admin import is_admin_user, is_ticket_manager_user
 
@@ -13,6 +15,20 @@ def is_accountant_user(user):
 
 def is_admin_or_accountant_user(user):
     return is_admin_user(user) or is_accountant_user(user)
+
+
+class ServiceFeeAdminForm(forms.ModelForm):
+    class Meta:
+        model = ServiceFee
+        fields = "__all__"
+
+    def clean_payment_method(self):
+        payment_method = self.cleaned_data["payment_method"]
+        if payment_method not in settings.PAYMENT_VARIANTS:
+            raise forms.ValidationError(
+                _("The selected payment method is currently disabled in settings.")
+            )
+        return payment_method
 
 class TimedOutFilter(SimpleListFilter):
     title = _('Timed Out')
@@ -127,3 +143,45 @@ class OrderAdmin(admin.ModelAdmin):
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
+
+
+@admin.register(ServiceFee)
+class ServiceFeeAdmin(admin.ModelAdmin):
+    form = ServiceFeeAdminForm
+    list_display = ('payment_method', 'display_name', 'fee_type', 'fee_amount', 'is_active')
+    list_filter = ('payment_method', 'price_classes', 'fee_type', 'is_active')
+    search_fields = ('payment_method', 'display_name', 'fee_type')
+
+    def has_view_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user) or is_accountant_user(request.user):
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_accountant_user(request.user):
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_accountant_user(request.user):
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_accountant_user(request.user):
+            return True
+        return False
+
+

@@ -7,15 +7,15 @@ The project tracks available seats for each event, handles ticket purchases, and
 
 - **Event Management**: Create, update, and display events with customizable seat limits and price classes.
 - **Ticketing**: Dynamically assign unique seat numbers to tickets and track their availability.
-- **Payments**: Secure Stripe integration for handling payments via `django-payments`.
+- **Payments**: Secure Stripe integration for handling payments via `django-payments`. Custom payment in advance payment gateway support.
 - **UUIDs for Tickets**: Non-obvious unique ticket identifiers for security.
 - **Admin Dashboard**: Group tickets by event and manage them in the Django Admin panel.
 
 ## 🧰 Tech Stack
 
-- **Backend**: Django 4.x
+- **Backend**: Django 5.x
 - **Frontend**: HTML, CSS (basic templates)
-- **Payment Integration**: Stripe via `django-payments`
+- **Payment Integration**: `django-payments`
 - **Database**: SQLite (default, configurable for other DBs)
 - **Human Identification**: ReCAPTCHA via `django-reCAPTCHA`
 
@@ -102,6 +102,41 @@ If you want to use the Stripe payment gateway, add your Stripe keys:
   STRIPE_SECRET_KEY=your-stripe-secret-key
   STRIPE_PUBLIC_KEY=your-stripe-public-key
   STRIPE_WEBHOOK_SECRET=whsec_test_secret
+```
+
+For Stripe support one needs to install the following
+
+```bash
+  pip install django-payments[stripe]
+```
+
+> ⚠️ **Warning:** Currently PayPal is untested and might not work out of the box. If you want to use it, make sure to test it properly before using it in production.
+
+Paypal gateway support can be added with the following variables:
+
+```bash
+  USE_PAYPAL=True
+  PAYPAL_CLIENT_ID=your-paypal-client-id
+  PAYPAL_SECRET_KEY=your-paypal-secret-key
+```
+
+> ⚠️ **Warning:** Currently SOFORT / KLARNA is untested and might not work out of the box. If you want to use it, make sure to test it properly before using it in production.
+
+For SOFORT / KLARNA support add the following variables:
+(currently untested!)
+
+
+```bash
+  USE_SOFORT=True
+  SOFORT_KLARNA_ID=your-sofort-klarna-id
+  SOFORT_KLARNA_KEY=your-sofort-klarna-key
+  SOFORT_KLARNA_PROJECT_ID=your-sofort-klarna-project-id
+```
+
+For Klarna support one needs to install the following
+
+```bash
+  pip install xmltodict
 ```
 
 For ReCAPTCHA support add `YourMyRecaptchaKey` / `YourRecaptchaPrivateKey`. 
@@ -472,10 +507,12 @@ Nice to have:
 
 - [ ] admin stays logged in forever
 
-Version 3:
+Version 4:
 
 - [ ] Option to: Add user authentication for ticket buyers.
-- [ ] Add support for refunds or cancellations.
+- [ ] test and verify paypal integration
+- [ ] test and verify sofort/klarna integration
+- [ ] test and verify custom wero payment gateway integration
 
 ### Handy Developing Things
 

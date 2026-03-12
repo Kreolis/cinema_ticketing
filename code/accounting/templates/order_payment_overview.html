@@ -53,9 +53,42 @@
         </table>
     </div>
 
+    <div class="table-responsive">
+        <table id="service-fees-table" class="table table-striped mt-3">
+            <tr>
+                {% with ticket_level_fees=service_fees.0 total_fees=service_fees.1 %}
+                    {% if ticket_level_fees or total_fees %}
+                        <th>{% translate "Service Fees" %}</th>
+                        <td>
+                            {% if ticket_level_fees %}
+                                {% for fee_name, amount in ticket_level_fees.items %}
+                                    {{ fee_name }}: {{ amount|floatformat:2 }} {{ order.currency }}<br>
+                                {% endfor %}
+                            {% endif %}
+                            {% if total_fees %}
+                                {% for fee_name, amount in total_fees.items %}
+                                    {{ fee_name }}: {{ amount|floatformat:2 }} {{ order.currency }}<br>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <th>{% translate "Service Fees" %}</th>
+                        <td>{% translate "No service fees applied" %}</td>
+                    {% endif %}
+                {% endwith %}
+                <th>{% translate "Total Price" %}</th>
+                <td>{{ order.total }} {{ order.currency }}</td>
+            </tr>
+        </table>
+    </div>
+
     <h2>{% translate "Payment Details" %}</h2>
     <div class="table-responsive">
         <table class="table table-striped">
+            <tr>
+                <th>{% translate "Creation Date" %}</th>
+                <td>{{ order.modified }}</td>
+            </tr>
             <tr>
                 <th>{% translate "Payment Amount" %}</th>
                 <td>{{ order.total }} {{ order.currency }}</td>
@@ -63,6 +96,7 @@
             <tr>
                 <th>{% translate "Payment Method" %}</th>
                 <td>{{ humanzied_payment_variant }}</td>
+            </tr>
             <tr>
                 <th>{% translate "Billing First Name" %}</th>
                 <td>{{ order.billing_first_name }}</td>
@@ -105,13 +139,20 @@
     <p>{% translate "Your order is valid for another" %} <span id="timeout-time-remaining">{{ time_remaining }}:00</span> {% translate "minutes" %}.</p>
     
     <div class="mt-3">
-        <a href="{% url 'confirm_order' order.session_id %}" class="btn btn-primary">{% translate "Confirm order order with payment obligation" %}</a>
+        <form method="post" action="{% url 'user_confirm_order' order.session_id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">
+                {% translate "Confirm order with payment obligation" %}
+            </button>
+        </form>
     </div>
 
+    {% translate "Your order has expired." as order_expired_message %}
     <script>
-        $(document).ready(function() {
-            $('#tickets-table').DataTable();
+        const orderExpiredMessage = "{{ order_expired_message|escapejs }}";
 
+        $(document).ready(function() {
+            
             // Initialize countdown with the time_remaining value
             var initialTimeRemaining = parseInt($('#initial-time-remaining').text().split(':')[0]);
             var timeoutTimeRemaining = parseInt($('#timeout-time-remaining').text().split(':')[0]);
@@ -132,7 +173,7 @@
                 var remainingTime = Math.max(0, Math.round((endTime - Date.now()) / 1000));
                 if (remainingTime <= 0) {
                     $(elementId).text('0:00');
-                    alert(_("Your order has expired."));
+                    alert(orderExpiredMessage);
                     return false;
                 }
                 var minutesLeft = Math.floor(remainingTime / 60);

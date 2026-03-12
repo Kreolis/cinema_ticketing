@@ -9,7 +9,28 @@
     {% translate "Manage Orders" %}
 {% endblock %}
 {% block content %}
+    {% translate "Are you sure you want to cancel this order? This action cannot be undone." as cancel_order_confirm_message %}
+    {% translate "Are you sure you want to refund this order? This action cannot be undone." as refund_order_confirm_message %}
+
     <h1 class="mt-4">{% translate "Manage Orders" %}</h1>
+
+    <!-- Django Messages Display -->
+    {% if messages %}
+        <div class="messages-container mt-3">
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {% elif message.tags == 'debug' %}
+                    <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                {% else %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {% endif %}
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <!-- Include jQuery library via CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -24,6 +45,7 @@
             <thead>
                 <tr>
                     <th>{% translate "Order ID" %}</th>
+                    <th>{% translate "Created" %}</th>
                     <th>{% translate "Customer Email" %}</th>
                     <th>{% translate "Customer First Name" %}</th>
                     <th>{% translate "Customer Last Name" %}</th>
@@ -35,18 +57,28 @@
                 {% for order in manual_orders %}
                     <tr>
                         <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
+                        <td>{{ order.modified }}</td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>
                         <td>{{ order.total }} {{ currency }}</td>
                         <td>
-                            <a href="{% url 'admin_confirm_order' order.session_id %}" class="btn btn-primary">
-                                {% translate "Confirm Order" %}
-                            </a>
+                            <form method="POST" action="{% url 'admin_confirm_order' order.session_id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">
+                                    {% translate "Confirm Order" %}
+                                </button>
+                            </form>
                             <form method="POST" action="{% url 'send_invoice' order.session_id %}" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-secondary">
                                     {% translate "Resend Invoice" %}
+                                </button>
+                            </form>
+                            <form method="POST" action="{% url 'cancel_order' order.session_id %}" style="display:inline;" onsubmit="return confirm('{{ cancel_order_confirm_message|escapejs }}');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">
+                                    {% translate "Cancel Order" %}
                                 </button>
                             </form>
                         </td>
@@ -62,6 +94,7 @@
             <thead>
                 <tr>
                     <th>{% translate "Order ID" %}</th>
+                    <th>{% translate "Created" %}</th>
                     <th>{% translate "Customer Email" %}</th>
                     <th>{% translate "Customer First Name" %}</th>
                     <th>{% translate "Customer Last Name" %}</th>
@@ -73,6 +106,7 @@
                 {% for order in paid_orders %}
                     <tr>
                         <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
+                        <td>{{ order.modified }}</td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>
@@ -82,6 +116,49 @@
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-secondary">
                                     {% translate "Resend Confirmation" %}
+                                </button>
+                            </form>
+                            <form method="POST" action="{% url 'refund_order' order.session_id %}" style="display:inline;" onsubmit="return confirm('{{ refund_order_confirm_message|escapejs }}');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">
+                                    {% translate "Refund Order" %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2>{% translate "Refunded Orders" %}</h2>
+    <div class="table-responsive">
+        <table id="refunded-orders-table" class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>{% translate "Order ID" %}</th>
+                    <th>{% translate "Created" %}</th>
+                    <th>{% translate "Customer Email" %}</th>
+                    <th>{% translate "Customer First Name" %}</th>
+                    <th>{% translate "Customer Last Name" %}</th>
+                    <th>{% translate "Total Amount" %}</th>
+                    <th>{% translate "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in refunded_orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.modified }}</td>
+                        <td>{{ order.billing_email }}</td>
+                        <td>{{ order.billing_first_name }}</td>
+                        <td>{{ order.billing_last_name }}</td>
+                        <td>{{ order.total }} {{ currency }}</td>
+                        <td>
+                            <form method="POST" action="{% url 'send_refund_notification' order.session_id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary">
+                                    {% translate "Resend Refund Notification" %}
                                 </button>
                             </form>
                         </td>
@@ -97,6 +174,7 @@
             <thead>
                 <tr>
                     <th>{% translate "Order ID" %}</th>
+                    <th>{% translate "Created" %}</th>
                     <th>{% translate "Customer Email" %}</th>
                     <th>{% translate "Customer First Name" %}</th>
                     <th>{% translate "Customer Last Name" %}</th>
@@ -108,6 +186,7 @@
                 {% for order in all_orders %}
                     <tr>
                         <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
+                        <td>{{ order.modified }}</td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>
@@ -123,6 +202,7 @@
         $(document).ready(function() {
             $('#manual-orders-table').DataTable();
             $('#paid-orders-table').DataTable();
+            $('#refunded-orders-table').DataTable();
             $('#all-orders-table').DataTable();
         });
     </script>

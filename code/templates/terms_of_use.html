@@ -1,0 +1,134 @@
+{% extends "master.html" %}
+{% load i18n %}
+
+{% block title %}
+    {% translate "Terms of Use" %}
+{% endblock %}
+
+{% block content %}
+    <div class="mt-4 mb-5">
+        <h1 class="mb-4">{% translate "Terms of Use" %}</h1>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "1. Acceptance of Terms" %}</h2>
+            <p>
+                {% translate "By accessing or using this cinema ticketing system, you agree to be bound by these Terms of Use and all applicable laws and regulations. If you do not agree, you must not use this website or its services." %}
+            </p>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "2. Description of Service" %}</h2>
+            <p>
+                {% translate "This website provides information about events and allows users to browse events, reserve or purchase tickets, and manage related bookings. We may modify, suspend, or discontinue any part of the service at any time without prior notice." %}
+            </p>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "3. Eligibility and Account Responsibility" %}</h2>
+            <p>
+                {% translate "You are responsible for ensuring that the information you provide is accurate and up to date. If you create an account, you are responsible for maintaining the confidentiality of your login credentials and for all activity under your account." %}
+            </p>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "4. Ticket Orders and Payments" %}</h2>
+            <ul>
+                <li>{% translate "All ticket orders are subject to availability and confirmation." %}</li>
+                <li>{% translate "Prices, fees, and taxes displayed at checkout are the amounts payable for your order unless otherwise stated." %}</li>
+                <li>{% translate "You agree to provide valid and complete payment information when making a purchase." %}</li>
+                <li>{% translate "We reserve the right to refuse or cancel orders in cases of suspected fraud, payment issues, pricing errors, or technical problems." %}</li>
+            </ul>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "5. Cancellations, Refunds, and Changes" %}</h2>
+            <p>
+                {% translate "Refunds, cancellations, and ticket changes are subject to the rules applicable to the specific event, organizer, or applicable law. Some tickets may be non-refundable unless an event is cancelled or materially changed." %}
+            </p>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "6. Permitted Use" %}</h2>
+            <p>{% translate "You agree to use this website only for lawful purposes. You must not:" %}</p>
+            <ul>
+                <li>{% translate "Use the service in a way that violates any applicable law or regulation." %}</li>
+                <li>{% translate "Attempt to gain unauthorized access to accounts, systems, or data." %}</li>
+                <li>{% translate "Interfere with the operation, security, or availability of the website." %}</li>
+                <li>{% translate "Use automated means to scrape, copy, or exploit content or ticket inventory without permission." %}</li>
+                <li>{% translate "Submit false, misleading, or fraudulent information." %}</li>
+            </ul>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "7. Intellectual Property" %}</h2>
+            <p>
+                {% translate "All content on this website, including text, graphics and logos, is owned by or licensed to the service operator unless otherwise stated. You may not reproduce, distribute, modify, or create derivative works from this content without prior written permission, except as permitted by law." %}
+            </p>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "8. Event Information" %}</h2>
+            <p>
+                {% translate "We aim to ensure that event descriptions, schedules, venues, and availability are accurate. However, event information may be provided by third parties or may change without notice. We are not responsible for inaccuracies, cancellations, postponements, or changes made by event organizers." %}
+            </p>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "9. Limitation of Liability" %}</h2>
+            <p>
+                {% translate "To the fullest extent permitted by law, this website and its services are provided on an 'as is' and 'as available' basis. We do not guarantee uninterrupted or error-free operation. We are not liable for any indirect, incidental, special, consequential, or punitive damages, including loss of data, profits, or business opportunities arising from your use of the service." %}
+            </p>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "10. Indemnification" %}</h2>
+            <p>
+                {% translate "You agree to indemnify and hold harmless the service operator, its affiliates, and their respective personnel from any claims, liabilities, damages, losses, and expenses arising out of your misuse of the website, your violation of these Terms, or your infringement of any rights of another person or entity." %}
+            </p>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "11. Third-Party Services and Links" %}</h2>
+            <p>
+                {% translate "This website may contain links to third-party websites or use third-party services such as payment processors. We are not responsible for the content, policies, or practices of those third parties. Your use of third-party services may be subject to their own terms and policies." %}
+            </p>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "12. Suspension or Termination" %}</h2>
+            <p>
+                {% translate "We may suspend or terminate your access to the website at our discretion if we believe you have violated these Terms, engaged in fraudulent activity, or created risk for the service, other users, or third parties." %}
+            </p>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "13. Governing Law" %}</h2>
+            <p>
+                {% translate "These Terms of Use are governed by the laws applicable in the jurisdiction of the service operator, unless mandatory consumer protection laws provide otherwise." %}
+            </p>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "14. Changes to These Terms" %}</h2>
+            <p>
+                {% translate "We may update these Terms of Use from time to time. Updated terms become effective when posted on this page unless otherwise stated. Your continued use of the website after changes are posted constitutes acceptance of the revised Terms." %}
+            </p>
+        </section>
+
+        <section class="mb-4">
+            <h2 class="h5">{% translate "15. Contact" %}</h2>
+            <p>
+                {% translate "If you have any questions about these Terms of Use, please contact us using the contact form available on this website." %}
+            </p>
+            <div class="alert alert-info">
+                <p class="mb-0">
+                    <a href="{% url 'contact_form' %}" class="alert-link">{% translate "Use our contact form" %}</a>
+                </p>
+            </div>
+        </section>
+
+        <p class="text-muted small mt-5">
+            {% translate "Last Updated" %}: March 12, 2026
+        </p>
+    </div>
+{% endblock %}

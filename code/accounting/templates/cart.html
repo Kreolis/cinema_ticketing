@@ -96,7 +96,19 @@
 
     <p>{% translate "Your order is valid for another" %} <span id="timeout-time-remaining">{{ time_remaining }}:00</span> {% translate "minutes" %}.</p>
 
+        <!-- Proceed to payment button -->
+    <div class="mt-3">
+        {% if order.tickets.count > 0 %}
+        <a href="{% url 'order_information_form' %}" class="btn btn-primary">{% translate "Proceed to Order Information" %}</a>
+        {% endif %}
+        <a href="{% url 'event_list' %}" class="btn btn-secondary">{% translate "Continue ticket selection" %}</a>
+    </div>
+
+    {% translate "Your order has expired." as order_expired_message %}
+
     <script>
+        const orderExpiredMessage = "{{ order_expired_message|escapejs }}";
+        
         // Function to update the cart badge in the navbar
         function updateCartBadge(count) {
             var badge = document.querySelector('a[href*="cart"] .badge');
@@ -177,6 +189,7 @@
             });
         });
 
+
         // Countdown timer
         function startCountdown(minutes, elementId) {
             var endTime = Date.now() + (minutes * 60 * 1000);
@@ -185,7 +198,7 @@
                 var remainingTime = Math.max(0, Math.round((endTime - Date.now()) / 1000));
                 if (remainingTime <= 0) {
                     $(elementId).text('0:00');
-                    alert(_("Your order has expired."));
+                    alert(orderExpiredMessage);
                     return false;
                 }
                 var minutesLeft = Math.floor(remainingTime / 60);
@@ -211,14 +224,5 @@
             });
         }
     </script>
-
-   
-    <!-- Proceed to payment button -->
-    <div class="mt-3">
-        {% if order.tickets.count > 0 %}
-        <a href="{% url 'payment_form' %}" class="btn btn-primary">{% translate "Proceed to Payment" %}</a>
-        {% endif %}
-        <a href="{% url 'event_list' %}" class="btn btn-secondary">{% translate "Continue ticket selection" %}</a>
-    </div>
    
 {% endblock %}

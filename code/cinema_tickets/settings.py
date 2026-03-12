@@ -225,8 +225,8 @@ else:
 # Mail settings
 # Email backend configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#if DEBUG:
-#    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+EMAILS_ASYNC = config('EMAILS_ASYNC', default=not DEBUG, cast=bool)
+
     
 EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 EMAIL_PORT = config('EMAIL_PORT', default=587)  # Typically 587 for TLS, 465 for SSL
@@ -246,7 +246,7 @@ PAYMENT_HOST = 'localhost:8000'
 
 # Whether to use TLS (HTTPS). If false, will use plain-text HTTP.
 # Defaults to ``not settings.DEBUG``.
-PAYMENT_USES_SSL = False
+PAYMENT_USES_SSL = not DEBUG
 
 # A dotted path to the Payment class.
 PAYMENT_MODEL = 'accounting.Order'
@@ -274,16 +274,28 @@ if config('USE_PAYPAL', default=False, cast=bool):
         'payments.paypal.PaypalProvider',
         {
             'client_id': config('PAYPAL_CLIENT_ID'),
-            'secret': config('PAYPAL_SECRET'),
+            'secret': config('PAYPAL_SECRET_KEY'),
             'endpoint': 'https://api.paypal.com', # for production
             'capture': False,
         }
     )
+
+if config('USE_SOFORT', default=False, cast=bool):
+    PAYMENT_VARIANTS['sofort_klarna'] = (
+        'payments.sofort.SofortProvider',
+        {
+            'id': config('SOFORT_KLARNA_ID'),
+            'key': config('SOFORT_KLARNA_KEY'),
+            'project_id': config('SOFORT_KLARNA_PROJECT_ID'),
+            'endpoint': 'https://api.sofort.com/api/xml',
+        }
+    )
+
 if config('USE_ADVANCE_PAYMENT', default=False, cast=bool):
     PAYMENT_VARIANTS['advance_payment'] = (
         'accounting.custom_advance_payment_provider.AdvancePaymentProvider',
         {
-            'capture': True,
+            'capture': False,
         }
     )
 
@@ -309,6 +321,7 @@ if DEFAULT_PAYMENT_VARIANT not in PAYMENT_VARIANTS:
 HUMANIZED_PAYMENT_VARIANT = {
     'stripe': _('Stripe (Credit Card)'),
     'paypal': _('Paypal'),
+    'sofort_klarna': _('Sofort/Klarna'),
     'advance_payment': _('Advance Payment'),
     'dummy': _('Dummy Payment'),
 }

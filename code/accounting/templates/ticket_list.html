@@ -41,7 +41,7 @@
             <tbody>
                 {% for ticket in order.tickets.all %}
                     <tr>
-                        <td>{{ ticket.event.name }}</td>
+                        <td><a href="{% url 'event_details' ticket.event.id %}">{{ ticket.event.name }}</a></td>
                         <td>{{ ticket.event.start_time }}</td>
                         <td>{{ ticket.event.location.name }}</td>
                         {% if ticket.event.display_seat_number %}
@@ -73,6 +73,36 @@
             </tbody>
         </table>
     </div>
+
+    <div class="table-responsive">
+        <table id="service-fees-table" class="table table-striped mt-3">
+            <tr>
+                {% with ticket_level_fees=service_fees.0 total_fees=service_fees.1 %}
+                    {% if ticket_level_fees or total_fees %}
+                        <th>{% translate "Service Fees" %}</th>
+                        <td>
+                            {% if ticket_level_fees %}
+                                {% for fee_name, amount in ticket_level_fees.items %}
+                                    {{ fee_name }}: {{ amount|floatformat:2 }} {{ order.currency }}<br>
+                                {% endfor %}
+                            {% endif %}
+                            {% if total_fees %}
+                                {% for fee_name, amount in total_fees.items %}
+                                    {{ fee_name }}: {{ amount|floatformat:2 }} {{ order.currency }}<br>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <th>{% translate "Service Fees" %}</th>
+                        <td>{% translate "No service fees applied" %}</td>
+                    {% endif %}
+                {% endwith %}
+                <th>{% translate "Total Price" %}</th>
+                <td>{{ order.total }} {{ order.currency }}</td>
+            </tr>
+        </table>
+    </div>
+
     {% if not order.is_confirmed %}
         <h2 class="text-danger">{% translate "This order is not confirmed yet. See payment instructions below or in your invoice." %}</h2>
         <p>{{ payment_instructions|safe }}</p>
@@ -81,6 +111,10 @@
     <h2>{% translate "Payment Details" %}</h2>
     <div class="table-responsive">
         <table class="table table-striped">
+            <tr>
+                <th>{% translate "Creation Date" %}</th>
+                <td>{{ order.modified }}</td>
+            </tr>
             <tr>
                 <th>{% translate "Payment Method" %}</th>
                 <td>{{ humanzied_payment_variant }}</td>

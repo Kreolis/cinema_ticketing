@@ -11,6 +11,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+def privacy_policy(request):
+    return render(request, 'privacy_policy.html')
+
+
+def terms_of_service(request):
+    return render(request, 'terms_of_service.html')
+
 # contact form view
 def contact_form(request):
     if request.method == 'POST':

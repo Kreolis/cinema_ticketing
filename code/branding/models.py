@@ -1,7 +1,5 @@
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.contrib.auth.models import Group, Permission
+
 from django.core.exceptions import ValidationError
 from django.db import OperationalError, ProgrammingError
 from django.utils import timezone
@@ -34,13 +32,19 @@ class Branding(models.Model):
     order_timeout = models.IntegerField(default=10, help_text=_("Timeout in minutes until user needs to start fresh with their order"))
     success_sound = models.FileField(upload_to='branding/sounds', null=True, blank=True, help_text=_("Upload the success sound file for ticket scanner"))
 
+    # legal information settings
+    privacy_policy_url = models.URLField(null=True, blank=True, help_text=_("Enter the URL of your privacy policy. This will be used in legal and on the website."))
+    terms_of_service_url = models.URLField(null=True, blank=True, help_text=_("Enter the URL of your terms of service. This will be used in legal and on the website."))
+
     # general event and ticket settings
     ticket_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global ticket background image"))
     display_seat_number = models.BooleanField(default=False, help_text=_("Indicates if seat numbers are displayed for customers, if not free seating text is displayed"))
     event_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global event background image"))
     allow_presale = models.BooleanField(default=True, help_text=_("Indicates if presale is allowed"))
     presale_start = models.DateTimeField(null=True, blank=True, help_text=_("Enter the date and time when presale starts"))
-    presale_ends_before = models.IntegerField(default=1, help_text=_("Number of hours before event start when presale ends and door (not presale) selling starts"))
+    online_presale_end = models.DateTimeField(null=True, blank=True, help_text=_("Enter the date and time when online presale ends"))
+    use_online_presale_end = models.BooleanField(default=False, help_text=_("Indicates if the online presale end time is used for all events. If false, the presale end time is calculated based on the event start time and the presale_ends_before setting."))
+    presale_ends_before = models.IntegerField(default=1, help_text=_("Number of hours before event start when non online presale ends and door (not presale) selling starts"))
     allow_door_selling = models.BooleanField(default=True, help_text=_("Indicates if selling tickets at the door is allowed"))
     check_timeout_orders_interval = models.IntegerField(default=30, help_text=_("Interval in minutes for checking timed out orders"))
 

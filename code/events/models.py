@@ -37,15 +37,13 @@ class SoldAsStatus:
     PRESALE_ONLINE_WAITING = "presale_online_waiting"
     PRESALE_DOOR = "presale_door"
     DOOR = "door"
-    REFUNDED = "refunded"
-    
+
     CHOICES = [
         (WAITING, _("Ticket not yet sold")),
         (PRESALE_ONLINE, _("Ticket was sold in online presale")),
         (PRESALE_ONLINE_WAITING, _("Ticket was sold in online presale, but not yet confirmed")),
         (PRESALE_DOOR, _("Ticket was sold in door presale")),
         (DOOR, _("Ticket was sold at the door")),
-        (REFUNDED, _("Ticket refunded")),
     ]
 
 class Location(models.Model):
@@ -307,6 +305,15 @@ class Ticket(models.Model):
                 raise e
         else:
             raise ValueError(_("No email address associated with this ticket."))
+
+    def queue_send_to_email(self):
+        if settings.EMAILS_ASYNC:
+            from .tasks import send_ticket_email_task
+
+            transaction.on_commit(lambda: send_ticket_email_task.delay(str(self.pk)))
+            return
+
+        self.send_to_email()
 
 class Event(models.Model):
     """

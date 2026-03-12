@@ -59,12 +59,19 @@ class PaymentInfoForm(forms.Form):
     )
 
     # enable user to select preferred payment method in settings.PAYMENT_VARIANTS (keys), get human readable names from HUMANIZED_PAYMENT_METHODS (values) 
+    # display service fee for each payment method in the choices, e.g. "Credit Card + 0.30 EUR"
     payment_method = forms.ChoiceField(
         label=_('Payment Method'),
         help_text=_('Select the payment method you would like to use.'),
-        choices=[(key, settings.HUMANIZED_PAYMENT_VARIANT[key]) for key in settings.PAYMENT_VARIANTS.keys()],
+        choices=[],
         widget=forms.Select(attrs={'required': True})
     )
+
+    #terms_accepted = forms.BooleanField(
+    #    label=_('I accept the terms and conditions'),
+    #    help_text=_(f'You must accept the terms and conditions to proceed with the purchase. Found here: {settings.TERMS_AND_CONDITIONS_URL}'),
+    #    required=True
+    #)
 
     captcha = CaptchaField(
         label='',
@@ -74,7 +81,21 @@ class PaymentInfoForm(forms.Form):
     )    
 
     def __init__(self, *args, **kwargs):
+        service_fees = kwargs.pop('service_fees', None)
         super().__init__(*args, **kwargs)
+        
+        if service_fees is None:
+            # Initialize service fees for each payment method to 0, will be updated {variant: fee_amount}
+            applied_service_fees = {variant: 0 for variant in settings.PAYMENT_VARIANTS.keys()}
+        else:
+            applied_service_fees = service_fees
+
+        # Update payment_method choices with service fees
+        self.fields['payment_method'].choices = [
+            (key, f"{settings.HUMANIZED_PAYMENT_VARIANT[key]} + {applied_service_fees[key]:.2f} {settings.DEFAULT_CURRENCY}")
+            for key in settings.PAYMENT_VARIANTS.keys()
+        ]
+        
         loc = locale.getlocale()[0]
         # Ensure locale is not None and properly formatted
         if loc and '_' in loc:
