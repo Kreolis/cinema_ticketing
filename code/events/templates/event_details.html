@@ -71,7 +71,7 @@
                     {{ form.generate_quick_fill_buttons|safe }}
 
                     {% for field in form %}
-                        {% if not field.name|slice:":9" == "quantity_" and field.name != "first_name" and field.name != "last_name" and field.name != "email" %}
+                        {% if field.name|slice:":9" != "quantity_" and field.name != "first_name" and field.name != "last_name" and field.name != "email" %}
                             {% bootstrap_field field %}
                         {% endif %}
                     {% endfor %}

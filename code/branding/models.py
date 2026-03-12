@@ -2,7 +2,7 @@ from django.db import models
 
 from django.core.exceptions import ValidationError
 from django.db import OperationalError, ProgrammingError
-from django.utils import timezone
+from django.utils import timezone as django_timezone
 from django.utils.translation import gettext_lazy as _
 from django_celery_beat.models import IntervalSchedule, PeriodicTask
 from PIL import Image
@@ -131,17 +131,16 @@ class Branding(models.Model):
             return pytz_timezone(tz_name)
         except Exception as e:
             logger.error(f"Invalid timezone '{tz_name}' in branding settings: {e}")
+            return pytz_timezone('UTC')
 
     def get_presale_start_time_in_timezone(self):
         if self.presale_start:
-            return timezone.localtime(self.presale_start, timezone=self.get_timezone())
+            return django_timezone.localtime(self.presale_start, timezone=self.get_timezone())
         return None
 
     def get_presale_end_time_in_timezone(self):
         if self.use_online_presale_end and self.online_presale_end:
-            return timezone.localtime(self.online_presale_end, timezone=self.get_timezone())
-        elif self.presale_ends_before is not None:
-            return timezone.localtime(self.presale_ends_before, timezone=self.get_timezone())
+            return django_timezone.localtime(self.online_presale_end, timezone=self.get_timezone())
         return None
     
     
@@ -176,7 +175,7 @@ def update_timed_out_orders_task_schedule(instance=None):
                 task.save(update_fields=['enabled'])
             return
 
-        now = timezone.now()
+        now = django_timezone.now()
         interval_minutes = max(1, int(instance.check_timeout_orders_interval or 30))
 
         should_enable = (
@@ -227,7 +226,7 @@ def update_statistics_task_schedule(instance=None):
                 task.save(update_fields=['enabled'])
             return
 
-        now = timezone.now()
+        now = django_timezone.now()
         interval_hours = max(1, int(instance.ticket_statistics_interval or 1))
 
         should_enable = (
