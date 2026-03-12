@@ -47,6 +47,13 @@
                     <td>{{ total_stats.waiting }}</td>
                 </tr>
                 <tr>
+                    <td>{% translate "Presale Online Waiting" %}</td>
+                    {% for stats in price_class_stats.values %}
+                    <td>{{ stats.presale_online_waiting }}</td>
+                    {% endfor %}
+                    <td>{{ total_stats.presale_online_waiting }}</td>
+                </tr>
+                <tr>
                     <td>{% translate "Presale Online" %}</td>
                     {% for stats in price_class_stats.values %}
                     <td>{{ stats.presale_online }}</td>

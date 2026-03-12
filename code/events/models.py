@@ -446,10 +446,11 @@ class Event(models.Model):
 
         total_stats = {
             'waiting': tickets.filter(sold_as=SoldAsStatus.WAITING).count(),
+            'presale_online_waiting': tickets.filter(sold_as=SoldAsStatus.PRESALE_ONLINE_WAITING).count(),
             'presale_online': tickets.filter(sold_as=SoldAsStatus.PRESALE_ONLINE).count(),
             'presale_door': tickets.filter(sold_as=SoldAsStatus.PRESALE_DOOR).count(),
             'door': tickets.filter(sold_as=SoldAsStatus.DOOR).count(),
-            'total_sold': tickets.exclude(sold_as=SoldAsStatus.WAITING).count(),
+            'total_sold': tickets.exclude(sold_as__in=[SoldAsStatus.WAITING, SoldAsStatus.PRESALE_ONLINE_WAITING]).count(),
             'total_count': tickets.all().count(),
             'activated_presale_online': tickets.filter(sold_as=SoldAsStatus.PRESALE_ONLINE, activated=True).count(),
             'activated_presale_door': tickets.filter(sold_as=SoldAsStatus.PRESALE_DOOR, activated=True).count(),
@@ -464,6 +465,7 @@ class Event(models.Model):
 
         for price_class in price_classes:
             waiting_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.WAITING).count()
+            presale_online_waiting_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_ONLINE_WAITING).count()
             presale_online_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_ONLINE).count()
             presale_door_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_DOOR).count()
             door_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.DOOR).count()
@@ -487,11 +489,12 @@ class Event(models.Model):
 
             price_class_stats[price_class] = {
                 'waiting': waiting_count,
+                'presale_online_waiting': presale_online_waiting_count,
                 'presale_online': presale_online_count,
                 'presale_door': presale_door_count,
                 'door': door_count,
                 'total_sold': presale_online_count + presale_door_count + door_count,
-                'total_count': waiting_count + presale_online_count + presale_door_count + door_count,
+                'total_count': waiting_count + presale_online_waiting_count + presale_online_count + presale_door_count + door_count,
                 'activated_presale_online': activated_presale_online_count,
                 'activated_presale_door': activated_presale_door_count,
                 'activated_door': activated_door_count,
