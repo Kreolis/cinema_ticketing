@@ -86,12 +86,17 @@
     <div class="table-responsive">
         <table class="table table-striped">
             <tr>
+                <th>{% translate "Creation Date" %}</th>
+                <td>{{ order.modified }}</td>
+            </tr>
+            <tr>
                 <th>{% translate "Payment Amount" %}</th>
                 <td>{{ order.total }} {{ order.currency }}</td>
             </tr>
             <tr>
                 <th>{% translate "Payment Method" %}</th>
                 <td>{{ humanzied_payment_variant }}</td>
+            </tr>
             <tr>
                 <th>{% translate "Billing First Name" %}</th>
                 <td>{{ order.billing_first_name }}</td>

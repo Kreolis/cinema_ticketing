@@ -42,6 +42,7 @@
             <thead>
                 <tr>
                     <th>{% translate "Order ID" %}</th>
+                    <th>{% translate "Created" %}</th>
                     <th>{% translate "Customer Email" %}</th>
                     <th>{% translate "Customer First Name" %}</th>
                     <th>{% translate "Customer Last Name" %}</th>
@@ -53,6 +54,7 @@
                 {% for order in manual_orders %}
                     <tr>
                         <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
+                        <td>{{ order.modified }}</td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>
@@ -89,6 +91,7 @@
             <thead>
                 <tr>
                     <th>{% translate "Order ID" %}</th>
+                    <th>{% translate "Created" %}</th>
                     <th>{% translate "Customer Email" %}</th>
                     <th>{% translate "Customer First Name" %}</th>
                     <th>{% translate "Customer Last Name" %}</th>
@@ -100,6 +103,7 @@
                 {% for order in paid_orders %}
                     <tr>
                         <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
+                        <td>{{ order.modified }}</td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>
@@ -130,6 +134,7 @@
             <thead>
                 <tr>
                     <th>{% translate "Order ID" %}</th>
+                    <th>{% translate "Created" %}</th>
                     <th>{% translate "Customer Email" %}</th>
                     <th>{% translate "Customer First Name" %}</th>
                     <th>{% translate "Customer Last Name" %}</th>
@@ -140,7 +145,8 @@
             <tbody>
                 {% for order in refunded_orders %}
                     <tr>
-                        <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.modified }}</td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>
@@ -165,6 +171,7 @@
             <thead>
                 <tr>
                     <th>{% translate "Order ID" %}</th>
+                    <th>{% translate "Created" %}</th>
                     <th>{% translate "Customer Email" %}</th>
                     <th>{% translate "Customer First Name" %}</th>
                     <th>{% translate "Customer Last Name" %}</th>
@@ -176,6 +183,7 @@
                 {% for order in all_orders %}
                     <tr>
                         <td><a href="{% url 'ticket_list' order.session_id %}">{{ order.id }}</a></td>
+                        <td>{{ order.modified }}</td>
                         <td>{{ order.billing_email }}</td>
                         <td>{{ order.billing_first_name }}</td>
                         <td>{{ order.billing_last_name }}</td>

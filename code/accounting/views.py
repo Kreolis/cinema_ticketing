@@ -12,7 +12,7 @@ import io
 import logging
 
 from django.conf import settings
-from django.http import FileResponse
+from django.http import FileResponse, Http404
 
 # django-payments
 from payments import get_payment_model, RedirectNeeded
@@ -165,8 +165,11 @@ def payment_form(request, order_id):
 
     try:
         order = get_object_or_404(get_payment_model(), session_id=order_id)
-    except:
+    except Http404:
         return redirect('cart_view')
+    except Exception:
+        logger.exception("Unexpected error while fetching order in payment_form: order_id=%s", order_id)
+        raise
 
     if order.session_id != request.session.session_key:
         logger.warning(
@@ -269,10 +272,10 @@ def user_confirm_order(request, order_id):
     else:
         return redirect('order_information_form')
     
-    if not order.is_confirmed:
-        # Send payment instructions email
+    if not order.is_confirmed and order.variant == 'advance_payment':
+        # Send payment instructions email (only for advance/bank-transfer payments)
         order.send_payment_instructions_email()
-    else:
+    elif order.is_confirmed:
         # Send confirmation and invoice email
         order.send_confirmation_email()
 
@@ -303,10 +306,10 @@ def ticket_list(request, order_id):
                     ticket.send_to_email()
                 ticket.save()
 
-        if not order.is_confirmed:
-            # Send payment instructions email
+        if not order.is_confirmed and order.variant == 'advance_payment':
+            # Send payment instructions email (only for advance/bank-transfer payments)
             order.send_payment_instructions_email()
-        else:
+        elif order.is_confirmed:
             # Send confirmation and invoice email
             order.send_confirmation_email()
 
@@ -426,8 +429,8 @@ def refund_order(request, order_id):
         return redirect('manage_orders')
     order = get_object_or_404(get_payment_model(), session_id=order_id)
     
-    if order.status not in [PaymentStatus.CONFIRMED, PaymentStatus.PREAUTH]:
-        messages.error(request, _("Cannot refund order: order is not in CONFIRMED or PREAUTH status. Current status: {status}").format(status=order.status))
+    if order.status != PaymentStatus.CONFIRMED:
+        messages.error(request, _("Cannot refund order: order is not in CONFIRMED status. Current status: {status}").format(status=order.status))
     else:
         try:
             order.refund_or_cancel()
@@ -444,8 +447,8 @@ def cancel_order(request, order_id):
         return redirect('manage_orders')
     order = get_object_or_404(get_payment_model(), session_id=order_id)
     
-    if order.status not in [PaymentStatus.CONFIRMED, PaymentStatus.PREAUTH]:
-        messages.error(request, _("Cannot cancel order: order is not in CONFIRMED or PREAUTH status. Current status: {status}").format(status=order.status))
+    if order.status != PaymentStatus.PREAUTH:
+        messages.error(request, _("Cannot cancel order: order is not in PREAUTH status. Current status: {status}").format(status=order.status))
     else:
         try:
             order.refund_or_cancel()

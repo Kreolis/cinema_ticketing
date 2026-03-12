@@ -30,10 +30,18 @@ SERVICE_FEE_TYPE_CHOICES = [
     ('percentage_ticket', _("Percentage per Ticket")),
 ]
 
+SUPPORTED_PAYMENT_METHOD_CHOICES = [
+    ('stripe', _("Stripe (Credit Card)")),
+    ('paypal', _("Paypal")),
+    ('sofort_klarna', _("Sofort/Klarna")),
+    ('advance_payment', _("Advance Payment")),
+    ('dummy', _("Dummy Payment")),
+]
+
 # class for service fee settings for each payment method
 class ServiceFee(models.Model):
     payment_method = models.CharField(max_length=255, 
-                                      choices=[(key, settings.HUMANIZED_PAYMENT_VARIANT[key]) for key in settings.PAYMENT_VARIANTS.keys()], 
+                                      choices=SUPPORTED_PAYMENT_METHOD_CHOICES,
                                       verbose_name=_("Payment Method"))
     price_classes = models.ManyToManyField(PriceClass, 
                                            verbose_name=_("price classes"), 
@@ -114,20 +122,30 @@ class Order(BasePayment):
         if variant is None:
             variant = self.variant
             store_fees = True
+
+        tickets = list(self.tickets.select_related("price_class").all())
         
         service_fees_ticket_level = {}
         service_fees_total = {}
     
         # get all services fees applicable for the order's payment method and tickets
-        service_fees = ServiceFee.objects.filter(is_active=True, payment_method=variant)
+        service_fees = ServiceFee.objects.filter(
+            is_active=True,
+            payment_method=variant,
+        ).prefetch_related("price_classes")
         
         # get service fees that are applied on ticket level (fixed amount or percentage per ticket)
-        service_fees_applied_to_tickets = service_fees.filter(fee_type="fixed_ticket") | service_fees.filter(fee_type="percentage_ticket")
+        service_fees_applied_to_tickets = [
+            fee for fee in service_fees if fee.fee_type in ["fixed_ticket", "percentage_ticket"]
+        ]
         # iterate over all tickets in the order and apply service fees on ticket or price class level
         for fee in service_fees_applied_to_tickets:
-            fee_amount = 0
-            for ticket in self.tickets.all():
-                if fee.price_classes.exists() and ticket.price_class not in fee.price_classes.all():
+            fee_amount = Decimal("0")
+            applicable_price_class_ids = {price_class.id for price_class in fee.price_classes.all()}
+            has_price_class_filter = bool(applicable_price_class_ids)
+
+            for ticket in tickets:
+                if has_price_class_filter and ticket.price_class_id not in applicable_price_class_ids:
                     # if fee has price classes assigned and ticket price class is not in it, skip fee for this ticket
                     # or fee is applied to all tickets if no price class is assigned
                     continue
@@ -135,22 +153,24 @@ class Order(BasePayment):
                     if fee.fee_type == "fixed_ticket":
                         fee_amount += fee.fee_amount
                     elif fee.fee_type == "percentage_ticket":
-                        percentage_fee = ticket.price_class.price * (fee.fee_amount / Decimal(100.0))
+                        percentage_fee = ticket.price_class.price * (fee.fee_amount / Decimal("100.0"))
                         fee_amount += percentage_fee
             
             service_fees_ticket_level[fee] = fee_amount
 
-        subtotal = sum(ticket.price_class.price for ticket in self.tickets.all())
+        subtotal = sum(ticket.price_class.price for ticket in tickets)
         for fee, amount in service_fees_ticket_level.items():
             subtotal += amount
 
         # calculate service fees that are applied on total level (fixed amount or percentage on total)
-        service_fees_applied_to_total = service_fees.filter(fee_type="fixed_total") | service_fees.filter(fee_type="percentage_total")
+        service_fees_applied_to_total = [
+            fee for fee in service_fees if fee.fee_type in ["fixed_total", "percentage_total"]
+        ]
         for fee in service_fees_applied_to_total:
             if fee.fee_type == "fixed_total":
                 fee_amount = fee.fee_amount
             elif fee.fee_type == "percentage_total":
-                fee_amount = subtotal * (fee.fee_amount / Decimal(100.0))
+                fee_amount = subtotal * (fee.fee_amount / Decimal("100.0"))
             
             service_fees_total[fee] = fee_amount
 
@@ -183,6 +203,10 @@ class Order(BasePayment):
                 amount = Decimal("0")
             deserialized_service_fees[display_name] = deserialized_service_fees.get(display_name, Decimal("0")) + amount
         return deserialized_service_fees
+
+    def _invalidate_applied_service_fees(self):
+        self.applied_service_fees_ticket_level = {}
+        self.applied_service_fees_total = {}
     
     def get_service_fees(self, variant=None):
         if variant is None:
@@ -273,6 +297,7 @@ class Order(BasePayment):
         # add new tickets to order
         if new_tickets is not None:
             self.tickets.add(*new_tickets)
+        self._invalidate_applied_service_fees()
         # calculate new total amount
         self.total = sum(ticket.price_class.price for ticket in self.tickets.all())  # Sum ticket prices
         self.modified = timezone.now()
@@ -291,6 +316,7 @@ class Order(BasePayment):
         self.tickets.remove(ticket)
         # delete ticket
         ticket.delete()
+        self._invalidate_applied_service_fees()
         # calculate new total amount
         self.total = sum(ticket.price_class.price for ticket in self.tickets.all())  # Sum ticket prices
         self.modified = timezone.now()
