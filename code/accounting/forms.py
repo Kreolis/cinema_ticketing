@@ -80,7 +80,8 @@ class PaymentInfoForm(forms.Form):
         
     )    
 
-    def __init__(self, service_fees=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        service_fees = kwargs.pop('service_fees', None)
         super().__init__(*args, **kwargs)
         
         if service_fees is None:
