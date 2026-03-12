@@ -28,7 +28,7 @@
             <select id="day" name="day" class="form-select">
                 <option value="">{% translate "All Days" %}</option>
                 {% for day in day_options %}
-                    <option value="{{ day|date:'Y-m-d' }}" {% if selected_day == day|date:'Y-m-d' %}selected{% endif %}>{{ day|date:'Y-m-d' }}</option>
+                    <option value="{{ day|date:'Y-m-d' }}" {% if selected_day == day|date:'Y-m-d' %}selected{% endif %}>{{ day|date:'l, Y-m-d' }}</option>
                 {% endfor %}
             </select>
         </div>
