@@ -32,6 +32,10 @@ class Branding(models.Model):
     order_timeout = models.IntegerField(default=10, help_text=_("Timeout in minutes until user needs to start fresh with their order"))
     success_sound = models.FileField(upload_to='branding/sounds', null=True, blank=True, help_text=_("Upload the success sound file for ticket scanner"))
 
+    # legal information settings
+    privacy_policy_url = models.URLField(null=True, blank=True, help_text=_("Enter the URL of your privacy policy. This will be used in legal and on the website."))
+    terms_of_service_url = models.URLField(null=True, blank=True, help_text=_("Enter the URL of your terms of service. This will be used in legal and on the website."))
+
     # general event and ticket settings
     ticket_background = models.ImageField(upload_to='branding/images', null=True, blank=True, help_text=_("Upload the global ticket background image"))
     display_seat_number = models.BooleanField(default=False, help_text=_("Indicates if seat numbers are displayed for customers, if not free seating text is displayed"))

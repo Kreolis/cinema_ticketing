@@ -12,6 +12,8 @@
 {% get_active_favicon as active_favicon %}
 {% get_active_logo as active_logo %}
 {% get_active_site_name as active_site_name %}
+{% get_privacy_policy_url as privacy_policy_url %}
+{% get_terms_of_service_url as terms_of_service_url %}
 
 <html lang="{{ CURRENT_LANGUAGE }}">
   
@@ -99,10 +101,46 @@
 </div>
 
 
-<footer class="mt-auto py-3">
-  <div class="container d-flex justify-content-center">
-    <p class="mx-2 mb-0">Cinema Ticketing System © 2025</p>
-    <p class="mx-2 mb-0"><a href="{% url 'contact_form' %}">{% translate "Contact Us" %}</a></p>
+<footer class="mt-auto py-4 bg-light border-top">
+  <div class="container">
+    <div class="row">
+      <!-- Legal Links -->
+      <div class="col-md-4 text-center text-md-start">
+        <h6 class="fw-semibold mb-2">{% translate "Legal" %}</h6>
+        <ul class="list-unstyled">
+          {% if privacy_policy_url %}
+            <li><a href="{{ privacy_policy_url }}" class="text-decoration-none">{% translate "Privacy Policy" %}</a></li>
+          {% endif %}
+          {% if terms_of_service_url %}
+            <li><a href="{{ terms_of_service_url }}" class="text-decoration-none">{% translate "Terms of Service" %}</a></li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <!-- Support -->
+      <div class="col-md-4 text-center">
+        <h6 class="fw-semibold mb-2">{% translate "Support" %}</h6>
+        <ul class="list-unstyled">
+          <li><a href="{% url 'contact_form' %}" class="text-decoration-none">{% translate "Contact Us" %}</a></li>
+        </ul>
+      </div>
+
+      <!-- About -->
+      <div class="col-md-4 text-center text-md-end">
+        <h6 class="fw-semibold mb-2">{% translate "About" %}</h6>
+        <ul class="list-unstyled">
+          <li><a href="https://github.com/Kreolis/cinema_ticketing" class="text-decoration-none">Cinema Ticketing System © 2026</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <hr class="my-3">
+
+    <!-- Copyright -->
+    <div class="text-center text-muted small">
+      <p class="mb-0">© 2026 {% translate "All rights reserved." %}</p>
+    </div>
   </div>
 </footer>
 
