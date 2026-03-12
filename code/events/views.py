@@ -338,6 +338,7 @@ def get_all_event_statistics(locations=None):
 
     stat_keys = [
         'waiting',
+        'presale_online_waiting',
         'presale_online',
         'presale_door',
         'door',
@@ -440,6 +441,7 @@ def generate_global_statistics_pdf(locations=None):
     # Create the PDF
     statistic_labels = {
         'waiting': _('Waiting'),
+        'presale_online_waiting': _('Presale Online Waiting'),
         'presale_online': _('Presale Online'),
         'presale_door': _('Presale Door'),
         'door': _('Door'),
