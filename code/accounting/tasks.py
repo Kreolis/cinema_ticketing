@@ -50,9 +50,11 @@ def send_confirmation_email_task(order_id):
         order = Order.objects.get(pk=order_id)
     except Order.DoesNotExist:
         logger.warning(f"Skipping confirmation email task: order {order_id} does not exist.")
-        return
+        return f"Order {order_id} does not exist."
 
     order.send_confirmation_email()
+
+    return f"Confirmation email sent for order {order_id} to {order.customer_email}."
 
 
 @shared_task(autoretry_for=(Exception,), retry_backoff=True, retry_jitter=True, max_retries=5)
@@ -63,10 +65,10 @@ def send_payment_instructions_email_task(order_id):
         order = Order.objects.get(pk=order_id)
     except Order.DoesNotExist:
         logger.warning(f"Skipping payment instructions email task: order {order_id} does not exist.")
-        return
+        return f"Order {order_id} does not exist."
 
     order.send_payment_instructions_email()
-
+    return f"Payment instructions email sent for order {order_id} to {order.customer_email}."
 
 @shared_task(autoretry_for=(Exception,), retry_backoff=True, retry_jitter=True, max_retries=5)
 def send_refund_cancel_notification_email_task(order_id):
@@ -76,6 +78,8 @@ def send_refund_cancel_notification_email_task(order_id):
         order = Order.objects.get(pk=order_id)
     except Order.DoesNotExist:
         logger.warning(f"Skipping refund notification email task: order {order_id} does not exist.")
-        return
+        return f"Order {order_id} does not exist."
 
     order.send_refund_cancel_notification_email()
+
+    return f"Refund cancellation notification email sent for order {order_id} to {order.customer_email}."
