@@ -66,28 +66,28 @@
                 </tr>
             </thead>
             <tbody>
-                {% for location, stats in per_location_stats.items %}
+                {% for entry in per_location_stats %}
                     <tr>
-                        <td>{{ location.name }}</td>
-                        <td>{{ stats.waiting }}</td>
-                        <td>{{ stats.presale_online }}</td>
-                        <td>{{ stats.presale_door }}</td>
-                        <td>{{ stats.door }}</td>
+                        <td>{{ entry.location.name }}</td>
+                        <td>{{ entry.stats.waiting }}</td>
+                        <td>{{ entry.stats.presale_online }}</td>
+                        <td>{{ entry.stats.presale_door }}</td>
+                        <td>{{ entry.stats.door }}</td>
                         
-                        <td>{{ stats.total_sold }}</td>
-                        <td>{{ stats.total_count }}</td>
+                        <td>{{ entry.stats.total_sold }}</td>
+                        <td>{{ entry.stats.total_count }}</td>
 
-                        <td>{{ stats.activated_presale_online }}</td>
-                        <td>{{ stats.activated_presale_door }}</td>
-                        <td>{{ stats.activated_door }}</td>
+                        <td>{{ entry.stats.activated_presale_online }}</td>
+                        <td>{{ entry.stats.activated_presale_door }}</td>
+                        <td>{{ entry.stats.activated_door }}</td>
 
-                        <td>{{ stats.total_activated }}</td>
+                        <td>{{ entry.stats.total_activated }}</td>
 
-                        <td>{{ stats.earned_presale_online }} {{ currency }}</td>
-                        <td>{{ stats.earned_presale_door }} {{ currency }}</td>
-                        <td>{{ stats.earned_door }} {{ currency }}</td>
+                        <td>{{ entry.stats.earned_presale_online }} {{ currency }}</td>
+                        <td>{{ entry.stats.earned_presale_door }} {{ currency }}</td>
+                        <td>{{ entry.stats.earned_door }} {{ currency }}</td>
 
-                        <td>{{ stats.total_earned }} {{ currency }}</td>
+                        <td>{{ entry.stats.total_earned }} {{ currency }}</td>
                     </tr>
                 {% endfor %}
 

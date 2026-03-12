@@ -225,8 +225,8 @@ else:
 # Mail settings
 # Email backend configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#if DEBUG:
-#    EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+EMAILS_ASYNC = config('EMAILS_ASYNC', default=not DEBUG, cast=bool)
+
     
 EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 EMAIL_PORT = config('EMAIL_PORT', default=587)  # Typically 587 for TLS, 465 for SSL

@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 from datetime import timedelta, datetime
 from typing import Iterable
@@ -156,7 +156,7 @@ class Order(BasePayment):
                         percentage_fee = ticket.price_class.price * (fee.fee_amount / Decimal("100.0"))
                         fee_amount += percentage_fee
             
-            service_fees_ticket_level[fee] = fee_amount
+            service_fees_ticket_level[fee.id] = fee_amount
 
         subtotal = sum(ticket.price_class.price for ticket in tickets)
         for fee, amount in service_fees_ticket_level.items():
@@ -172,7 +172,7 @@ class Order(BasePayment):
             elif fee.fee_type == "percentage_total":
                 fee_amount = subtotal * (fee.fee_amount / Decimal("100.0"))
             
-            service_fees_total[fee] = fee_amount
+            service_fees_total[fee.id] = fee_amount
 
         if store_fees:
             self.applied_service_fees_ticket_level = self._serialize_service_fees(service_fees_ticket_level)
@@ -184,8 +184,18 @@ class Order(BasePayment):
     def _serialize_service_fees(self, service_fees):
         serialized_service_fees = {}
         for fee, amount in service_fees.items():
-            serialized_service_fees[str(fee.id)] = {
-                "display_name": fee.display_name,
+            if isinstance(fee, ServiceFee):
+                fee_id = fee.id
+                display_name = fee.display_name
+            else:
+                fee_id = fee
+                display_name = ServiceFee.objects.filter(id=fee_id).values_list("display_name", flat=True).first()
+
+            if not display_name:
+                continue
+
+            serialized_service_fees[str(fee_id)] = {
+                "display_name": display_name,
                 "amount": str(amount),
             }
         return serialized_service_fees
@@ -600,6 +610,15 @@ class Order(BasePayment):
                 logger.error(f"Error sending confirmation email: {e}")
                 raise e
 
+    def queue_confirmation_email(self):
+        if settings.EMAILS_ASYNC:
+            from .tasks import send_confirmation_email_task
+
+            transaction.on_commit(lambda: send_confirmation_email_task.delay(self.pk))
+            return
+
+        self.send_confirmation_email()
+
     def send_payment_instructions_email(self):
         payment_instructions = self.get_payment_instructions(html=False)
 
@@ -644,7 +663,6 @@ class Order(BasePayment):
         except Exception as e:
             logger.error(f"Error sending confirmation email: {e}")
             raise e
-        
 
         ### Inform ticket masters about new order via email with pdf invoice attached
         # form recipient list 
@@ -711,6 +729,15 @@ class Order(BasePayment):
         except Exception as e:
             logger.error(f"Error sending confirmation email: {e}")
             raise e
+
+    def queue_payment_instructions_email(self):
+        if settings.EMAILS_ASYNC:
+            from .tasks import send_payment_instructions_email_task
+
+            transaction.on_commit(lambda: send_payment_instructions_email_task.delay(self.pk))
+            return
+
+        self.send_payment_instructions_email()
             
 
     def send_refund_cancel_notification_email(self):
@@ -745,7 +772,7 @@ class Order(BasePayment):
         except Exception as e:
             logger.error(f"Error sending refund notification email: {e}")
             raise e
-        
+
         ### Inform ticket masters about new order via email with pdf invoice attached
         # form recipient list 
         recipient_list = []
@@ -805,6 +832,15 @@ class Order(BasePayment):
         except Exception as e:
             logger.error(f"Error sending refund notification email: {e}")
             raise e
+
+    def queue_refund_cancel_notification_email(self):
+        if settings.EMAILS_ASYNC:
+            from .tasks import send_refund_cancel_notification_email_task
+
+            transaction.on_commit(lambda: send_refund_cancel_notification_email_task.delay(self.pk))
+            return
+
+        self.send_refund_cancel_notification_email()
         
     def refund_or_cancel(self):
         if self.status not in [PaymentStatus.CONFIRMED, PaymentStatus.PREAUTH]:
@@ -822,12 +858,12 @@ class Order(BasePayment):
             logger.info(f"Order {self.id} has been cancelled.")
         
         # delete associated tickets
-        for ticket in self.tickets.all():
-            ticket_to_delete = Ticket.objects.get(id=ticket.id)
-            ticket_to_delete.delete()
+        tickets_to_delete = list(self.tickets.select_related("event").all())
+        for ticket in tickets_to_delete:
+            ticket.delete()
             logger.info(f"Deleted ticket {ticket.id} for event {ticket.event.name}")
 
-        self.send_refund_cancel_notification_email()
+        self.queue_refund_cancel_notification_email()
         
         return
 
@@ -835,9 +871,9 @@ class Order(BasePayment):
     def delete(self, *args, **kwargs):
 
         # Properly delete associated tickets
-        for ticket in self.tickets.all():
-            ticket_to_delete = Ticket.objects.get(id=ticket.id)
-            ticket_to_delete.delete()
+        all_tickets = list(self.tickets.select_related("event").all())
+        for ticket in all_tickets:
+            ticket.delete()
             logger.info(f"Deleted ticket {ticket.id} for event {ticket.event.name}")
 
         super().delete(*args, **kwargs)

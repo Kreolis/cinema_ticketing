@@ -306,6 +306,15 @@ class Ticket(models.Model):
         else:
             raise ValueError(_("No email address associated with this ticket."))
 
+    def queue_send_to_email(self):
+        if settings.EMAILS_ASYNC:
+            from .tasks import send_ticket_email_task
+
+            transaction.on_commit(lambda: send_ticket_email_task.delay(str(self.pk)))
+            return
+
+        self.send_to_email()
+
 class Event(models.Model):
     """
     Global event model.

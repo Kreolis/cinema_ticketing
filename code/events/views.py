@@ -178,10 +178,10 @@ def send_ticket_email(request, ticket_id):
     ticket = get_object_or_404(Ticket, pk=ticket_id)
     if ticket.email:
         try:
-            ticket.send_to_email()
-            return JsonResponse({'status': 'success', 'message': _('Email sent successfully.')})
+            ticket.queue_send_to_email()
+            return JsonResponse({'status': 'success', 'message': _('Email queued successfully.')})
         except:
-            return JsonResponse({'status': 'error', 'message': _('An error occurred while sending the Email.')}, status=500)
+            return JsonResponse({'status': 'error', 'message': _('An error occurred while queueing the email.')}, status=500)
     return JsonResponse({"status": "error", "message": _("No email address provided.")})
 
 @login_required
@@ -347,7 +347,13 @@ def get_all_event_statistics(locations=None):
         return {key: 0 for key in stat_keys}
 
     location_scope = locations if locations is not None else Location.objects.filter(event__isnull=False).distinct()
-    per_location_stats = {location: _empty_stats() for location in location_scope}
+    per_location_stats_map = {
+        location.id: {
+            'location': location,
+            'stats': _empty_stats(),
+        }
+        for location in location_scope
+    }
 
     overall_refunded = {
         'total_refunded': 0,
@@ -365,13 +371,18 @@ def get_all_event_statistics(locations=None):
             'total_stats': total_stats
         })
 
-        if event.location not in per_location_stats:
-            per_location_stats[event.location] = _empty_stats()
+        if event.location_id not in per_location_stats_map:
+            per_location_stats_map[event.location_id] = {
+                'location': event.location,
+                'stats': _empty_stats(),
+            }
 
         for key in stat_keys:
             value = total_stats.get(key, 0)
             overall_total_stats[key] += value
-            per_location_stats[event.location][key] += value
+            per_location_stats_map[event.location_id]['stats'][key] += value
+
+    per_location_stats = list(per_location_stats_map.values())
 
     # get refunded statistics for all orders that have been refunded; their tickets are removed by the refund/cancel logic,
     for order in get_payment_model().objects.filter(status=PaymentStatus.REFUNDED):
@@ -454,20 +465,21 @@ def generate_global_statistics_pdf(locations=None):
     pdf.cell(19.0, 0.8, text=_("Global Statistics"), border=0, align='L')
     pdf.ln(0.8)
     pdf.set_font(font, size=10)
-    location_entries = list(per_location_stats.items())
+    location_entries = per_location_stats
     statistic_column_width = 5.0
     value_column_width = (19.0 - statistic_column_width) / max(len(location_entries) + 1, 1)
 
     # Create table for global statistics
     pdf.set_fill_color(200, 220, 255)
     pdf.cell(statistic_column_width, 0.6, text=_("Statistic"), border=1, align='C', fill=True)
-    for location, location_stats in location_entries:
-        pdf.cell(value_column_width, 0.6, text=f"{location.name}", border=1, align='C', fill=True)
+    for entry in location_entries:
+        pdf.cell(value_column_width, 0.6, text=f"{entry['location'].name}", border=1, align='C', fill=True)
     pdf.cell(value_column_width, 0.6, text=_("Global"), border=1, align='C', fill=True)
     pdf.ln(0.6)
     for key, value in overall_total_stats.items():
         pdf.cell(statistic_column_width, 0.6, text=statistic_labels.get(key, key.replace('_', ' ').title()), border=1, align='L')
-        for location, location_stats in location_entries:
+        for entry in location_entries:
+            location_stats = entry['stats']
             display_value = f"{location_stats[key]} {settings.DEFAULT_CURRENCY}" if 'earned' in key else location_stats[key]
             pdf.cell(value_column_width, 0.6, text=f"{display_value}", border=1, align='L')
         display_value = f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else value

@@ -65,7 +65,7 @@ def cart_view(request):
 def order_information_form(request):
     try:
         order = get_object_or_404(get_payment_model(), session_id=request.session.session_key)
-    except:
+    except Http404:
         return redirect('cart_view')
         
     if not order.is_valid():
@@ -237,8 +237,8 @@ def user_confirm_order(request, order_id):
                     ticket.sold_as = SoldAsStatus.PRESALE_ONLINE
                     ticket.first_name = order.billing_first_name
                     ticket.last_name = order.billing_last_name
-                    ticket.send_to_email()
                     ticket.save()
+                    ticket.queue_send_to_email()
                     
             else: 
                 # variant was advance payment therefore confirm the order
@@ -274,10 +274,10 @@ def user_confirm_order(request, order_id):
     
     if not order.is_confirmed and order.variant == 'advance_payment':
         # Send payment instructions email (only for advance/bank-transfer payments)
-        order.send_payment_instructions_email()
+        order.queue_payment_instructions_email()
     elif order.is_confirmed:
         # Send confirmation and invoice email
-        order.send_confirmation_email()
+        order.queue_confirmation_email()
 
     # order is processed
     # make sure the user can make a new order by creating a new session
@@ -302,16 +302,16 @@ def ticket_list(request, order_id):
                 ticket.sold_as = SoldAsStatus.PRESALE_ONLINE
                 ticket.first_name = order.billing_first_name
                 ticket.last_name = order.billing_last_name
-                if order.is_confirmed:
-                    ticket.send_to_email()
                 ticket.save()
+                if order.is_confirmed:
+                    ticket.queue_send_to_email()
 
         if not order.is_confirmed and order.variant == 'advance_payment':
             # Send payment instructions email (only for advance/bank-transfer payments)
-            order.send_payment_instructions_email()
+            order.queue_payment_instructions_email()
         elif order.is_confirmed:
             # Send confirmation and invoice email
-            order.send_confirmation_email()
+            order.queue_confirmation_email()
 
         if request.session.session_key == None:
             logger.info(f"Session key: {request.session.session_key}")
@@ -370,10 +370,10 @@ def admin_confirm_order(request, order_id):
             ticket.sold_as = SoldAsStatus.PRESALE_ONLINE
             ticket.save()
         
-            ticket.send_to_email()
+            ticket.queue_send_to_email()
             
         # Send confirmation and invoice email
-        order.send_confirmation_email()
+        order.queue_confirmation_email()
 
     return redirect('manage_orders')
 
@@ -383,7 +383,7 @@ def send_invoice(request, order_id):
     if request.method != 'POST':
         return redirect('manage_orders')
     order = get_object_or_404(get_payment_model(), session_id=order_id)
-    order.send_payment_instructions_email()
+    order.queue_payment_instructions_email()
     return redirect('manage_orders')
 
 @login_required
@@ -397,10 +397,10 @@ def send_confirmation(request, order_id):
         messages.error(request, _("Cannot resend confirmation email: order is not in CONFIRMED status. Current status: {status}").format(status=order.status))
     else:
         try:
-            order.send_confirmation_email()
-            messages.success(request, _("Confirmation email sent successfully to {email}").format(email=order.billing_email))
+            order.queue_confirmation_email()
+            messages.success(request, _("Confirmation email queued successfully for {email}").format(email=order.billing_email))
         except Exception as e:
-            messages.error(request, _("Failed to send confirmation email: {error}").format(error=str(e)))
+            messages.error(request, _("Failed to queue confirmation email: {error}").format(error=str(e)))
     
     return redirect('manage_orders')
 
@@ -415,10 +415,10 @@ def send_refund_notification(request, order_id):
         messages.error(request, _("Cannot send refund notification: order is not in REFUNDED status. Current status: {status}").format(status=order.status))
     else:
         try:
-            order.send_refund_cancel_notification_email()
-            messages.success(request, _("Refund notification email sent successfully to {email}").format(email=order.billing_email))
+            order.queue_refund_cancel_notification_email()
+            messages.success(request, _("Refund notification email queued successfully for {email}").format(email=order.billing_email))
         except Exception as e:
-            messages.error(request, _("Failed to send refund notification email: {error}").format(error=str(e)))
+            messages.error(request, _("Failed to queue refund notification email: {error}").format(error=str(e)))
     
     return redirect('manage_orders')
 
@@ -447,14 +447,25 @@ def cancel_order(request, order_id):
         return redirect('manage_orders')
     order = get_object_or_404(get_payment_model(), session_id=order_id)
     
-    if order.status != PaymentStatus.PREAUTH:
-        messages.error(request, _("Cannot cancel order: order is not in PREAUTH status. Current status: {status}").format(status=order.status))
-    else:
+    can_cancel = (
+        order.status == PaymentStatus.PREAUTH
+        or (order.status == PaymentStatus.CONFIRMED and not order.is_confirmed)
+    )
+
+    if can_cancel:
         try:
             order.refund_or_cancel()
             messages.success(request, _("Order cancelled successfully."))
         except Exception as e:
             messages.error(request, _("Failed to cancel order: {error}").format(error=str(e)))
+    else:
+        messages.error(
+            request,
+            _(
+                "Cannot cancel order: order must be in PREAUTH status or be an payment unconfirmed CONFIRMED order. "
+                "Current status: {status}"
+            ).format(status=order.status),
+        )
     
     return redirect('manage_orders')
 
