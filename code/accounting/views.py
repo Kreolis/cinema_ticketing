@@ -95,6 +95,7 @@ def order_information_form(request):
             order.billing_country_code = form_fields["billing_country_code"]
             order.billing_country_area = form_fields["billing_country_area"]
             order.billing_email = form_fields["billing_email"]
+            order.billing_phone = form_fields["billing_phone"]
 
             # enable user to choose payment method
             order.variant = form_fields["payment_method"]
@@ -137,6 +138,7 @@ def order_information_form(request):
                 'billing_country_code': order.billing_country_code,
                 'billing_country_area': order.billing_country_area,
                 'billing_email': order.billing_email,
+                'billing_phone': order.billing_phone,
                 'payment_method': order.variant,
             }, service_fees=service_fees)  # Pass service fees to the form to display in the choices
         else:

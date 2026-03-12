@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-12 15:46+0200\n"
-"PO-Revision-Date: 2026-03-12 13:48+0000\n"
+"PO-Revision-Date: 2026-03-12 14:12+0000\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -1754,25 +1754,25 @@ msgstr "Gesamt verkauft aktiviert"
 #: events/templates/all_event_statistics.html:244
 #: events/templates/event_statistics.html:127 events/views.py:454
 msgid "Total Earned Presale Online"
-msgstr "Gesamt verdient im Online-Vorverkauf"
+msgstr "Gesamt im Online-Vorverkauf"
 
 #: events/templates/all_event_statistics.html:62
 #: events/templates/all_event_statistics.html:251
 #: events/templates/event_statistics.html:134 events/views.py:455
 msgid "Total Earned Presale Door"
-msgstr "Gesamt verdient im Tür-Vorverkauf"
+msgstr "Gesamt im Tür-Vorverkauf"
 
 #: events/templates/all_event_statistics.html:63
 #: events/templates/all_event_statistics.html:258
 #: events/templates/event_statistics.html:141 events/views.py:456
 msgid "Total Earned Door"
-msgstr "Gesamt verdient an der Tür"
+msgstr "Gesamt an der Tür"
 
 #: events/templates/all_event_statistics.html:66
 #: events/templates/all_event_statistics.html:265
 #: events/templates/event_statistics.html:148 events/views.py:457
 msgid "Total Earned"
-msgstr "Gesamt verdient"
+msgstr "Gesamt"
 
 #: events/templates/all_event_statistics.html:97
 msgid "Overall Total"
