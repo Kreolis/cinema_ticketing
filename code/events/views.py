@@ -279,6 +279,13 @@ def event_door_selling(request, event_id):
                                     last_name=form.cleaned_data.get('last_name')
                                 )
                             new_ticket.save()
+
+                            # if email is provided, send the ticket email
+                            if new_ticket.email:
+                                try:
+                                    new_ticket.queue_send_to_email()
+                                except Exception as e:
+                                    logger.exception("Failed to queue ticket email for ticket_id=%s: %s", new_ticket.id, e)
             else:
                 # event is not active
                 return JsonResponse({"status": "error", "message": _("Event is not active.")})
