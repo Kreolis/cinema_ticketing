@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-12 13:36+0200\n"
-"PO-Revision-Date: 2026-03-12 11:21+0000\n"
+"POT-Creation-Date: 2026-03-12 15:46+0200\n"
+"PO-Revision-Date: 2026-03-12 13:48+0000\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -22,7 +22,8 @@ msgstr ""
 #: accounting/admin.py:29
 msgid "The selected payment method is currently disabled in settings."
 msgstr ""
-"Die ausgewählte Zahlungsmethode ist derzeit in den Einstellungen deaktiviert."
+"Die ausgewählte Zahlungsmethode ist derzeit in den Einstellungen "
+"deaktiviert."
 
 #: accounting/admin.py:34
 msgid "Timed Out"
@@ -142,7 +143,8 @@ msgstr "Bitte beweisen Sie, dass Sie ein Mensch sind."
 
 #: accounting/forms.py:114
 msgid "Enter the email address where all tickets will be sent to."
-msgstr "Geben Sie die E-Mail-Adresse ein, an die alle Tickets gesendet werden."
+msgstr ""
+"Geben Sie die E-Mail-Adresse ein, an die alle Tickets gesendet werden."
 
 #: accounting/models.py:27
 msgid "Fixed Amount on Total"
@@ -187,8 +189,8 @@ msgstr "Preisklassen"
 #: accounting/models.py:50
 msgid ""
 "Select the price classes to which this service fee should be applied. If no "
-"price class is selected, the service fee will be applied to all tickets sold "
-"with the selected payment method."
+"price class is selected, the service fee will be applied to all tickets sold"
+" with the selected payment method."
 msgstr ""
 "Wählen Sie die Preisklassen aus, auf die diese Servicegebühr angewendet "
 "werden soll. Wenn keine Preisklasse ausgewählt wird, wird die Servicegebühr "
@@ -253,8 +255,8 @@ msgstr ""
 "<strong>{account_name}</strong><br>IBAN: <strong>{iban}</strong><br>SWIFT: "
 "<strong>{swift}</strong></p><p>Bitte verwenden Sie den folgenden "
 "Verwendungszweck für Ihre Zahlung: <strong>{reference}</strong><br>Die "
-"Zahlung ist innerhalb von <strong>{due_days}</strong> Tagen fällig.</"
-"p><p>Vielen Dank für Ihren Einkauf!</p>"
+"Zahlung ist innerhalb von <strong>{due_days}</strong> Tagen "
+"fällig.</p><p>Vielen Dank für Ihren Einkauf!</p>"
 
 #: accounting/models.py:380
 #, python-brace-format
@@ -273,8 +275,7 @@ msgstr ""
 "Kontoname: {account_name}\n"
 "IBAN: {iban}\n"
 "SWIFT: {swift}\n"
-"Bitte verwenden Sie den folgenden Verwendungszweck für Ihre Zahlung: "
-"{reference}\n"
+"Bitte verwenden Sie den folgenden Verwendungszweck für Ihre Zahlung: {reference}\n"
 "Die Zahlung ist innerhalb von {due_days} Tagen fällig.\n"
 "Vielen Dank für Ihren Einkauf!"
 
@@ -332,11 +333,11 @@ msgstr "Stückpreis"
 
 #: accounting/models.py:515 accounting/models.py:553
 #: accounting/templates/cart.html:91
-#: events/templates/all_event_statistics.html:52
-#: events/templates/all_event_statistics.html:152
-#: events/templates/all_event_statistics.html:192
+#: events/templates/all_event_statistics.html:53
+#: events/templates/all_event_statistics.html:155
+#: events/templates/all_event_statistics.html:202
 #: events/templates/event_statistics.html:38
-#: events/templates/event_statistics.html:78 events/views.py:447
+#: events/templates/event_statistics.html:85 events/views.py:449
 msgid "Total"
 msgstr "Gesamt"
 
@@ -363,8 +364,7 @@ msgstr "Ihre Rechnung für die Bestellung {order_id} – {site_name}"
 msgid ""
 "Dear Customer,\n"
 "\n"
-"Thank you for your purchase! You can find the invoice of your ticket "
-"purchase attached.\n"
+"Thank you for your purchase! You can find the invoice of your ticket purchase attached.\n"
 "\n"
 "Please find your tickets and purchase details under the following link:\n"
 "\n"
@@ -377,8 +377,7 @@ msgid ""
 msgstr ""
 "Sehr geehrter Kunde,\n"
 "\n"
-"Vielen Dank für Ihren Einkauf! Sie finden die Rechnung Ihres Ticketkaufs im "
-"Anhang.\n"
+"Vielen Dank für Ihren Einkauf! Sie finden die Rechnung Ihres Ticketkaufs im Anhang.\n"
 "\n"
 "Ihre Tickets und Kaufdetails finden Sie unter folgendem Link:\n"
 "\n"
@@ -399,8 +398,7 @@ msgstr "Zahlungsanweisungen für Ihre Bestellung {order_id} auf {site_name}"
 msgid ""
 "Dear Customer,\n"
 "\n"
-"Thank you for your purchase! Please find the payment instructions for your "
-"order below.\n"
+"Thank you for your purchase! Please find the payment instructions for your order below.\n"
 "\n"
 "{payment_instructions}\n"
 "\n"
@@ -413,8 +411,7 @@ msgid ""
 msgstr ""
 "Sehr geehrter Kunde,\n"
 "\n"
-"Vielen Dank für Ihren Einkauf! Nachfolgend finden Sie die "
-"Zahlungsanweisungen für Ihre Bestellung.\n"
+"Vielen Dank für Ihren Einkauf! Nachfolgend finden Sie die Zahlungsanweisungen für Ihre Bestellung.\n"
 "\n"
 "{payment_instructions}\n"
 "\n"
@@ -478,38 +475,26 @@ msgstr ""
 msgid ""
 "Dear Customer,\n"
 "\n"
-"We regret to inform you that your order with ID {order_id} has been refunded "
-"or cancelled.\n"
+"We regret to inform you that your order with ID {order_id} has been refunded or cancelled.\n"
 "\n"
-"If you have already transferred the payment the amount of {total_amount} "
-"{currency} will be returned to your original payment method "
-"({payment_method}).\n"
+"If you have already transferred the payment the amount of {total_amount} {currency} will be returned to your original payment method ({payment_method}).\n"
 "\n"
-"Please note that it may take a few business days for the refund to be "
-"processed and reflected in your account, depending on your bank or payment "
-"provider.\n"
+"Please note that it may take a few business days for the refund to be processed and reflected in your account, depending on your bank or payment provider.\n"
 "\n"
-"If you have any questions or concerns regarding this refund or cancellation, "
-"please do not hesitate to contact our support team.\n"
+"If you have any questions or concerns regarding this refund or cancellation, please do not hesitate to contact our support team.\n"
 "\n"
 "Best regards,\n"
 "The Event Team"
 msgstr ""
 "Sehr geehrter Kunde,\n"
 "\n"
-"Wir bedauern Ihnen mitteilen zu müssen, dass Ihre Bestellung mit der ID "
-"{order_id} zurückerstattet oder storniert wurde.\n"
+"Wir bedauern Ihnen mitteilen zu müssen, dass Ihre Bestellung mit der ID {order_id} zurückerstattet oder storniert wurde.\n"
 "\n"
-"Wenn Sie die Zahlung bereits überwiesen haben, wird der Betrag von "
-"{total_amount} {currency} auf Ihre ursprüngliche Zahlungsmethode "
-"({payment_method}) zurückgebucht.\n"
+"Wenn Sie die Zahlung bereits überwiesen haben, wird der Betrag von {total_amount} {currency} auf Ihre ursprüngliche Zahlungsmethode ({payment_method}) zurückgebucht.\n"
 "\n"
-"Bitte beachten Sie, dass es je nach Bank oder Zahlungsanbieter einige "
-"Werktage dauern kann, bis die Rückerstattung bearbeitet und in Ihrem Konto "
-"verbucht wird.\n"
+"Bitte beachten Sie, dass es je nach Bank oder Zahlungsanbieter einige Werktage dauern kann, bis die Rückerstattung bearbeitet und in Ihrem Konto verbucht wird.\n"
 "\n"
-"Wenn Sie Fragen oder Bedenken zu dieser Rückerstattung oder Stornierung "
-"haben, zögern Sie bitte nicht, unser Support-Team zu kontaktieren.\n"
+"Wenn Sie Fragen oder Bedenken zu dieser Rückerstattung oder Stornierung haben, zögern Sie bitte nicht, unser Support-Team zu kontaktieren.\n"
 "\n"
 "Mit freundlichen Grüßen,\n"
 "Das Event-Team"
@@ -524,8 +509,7 @@ msgstr "Bestellung {order_id} wurde auf {site_name} erstattet oder storniert."
 msgid ""
 "Dear Ticket Master,\n"
 "\n"
-"We inform you that the order with ID {order_id} has been refunded or "
-"cancelled.\n"
+"We inform you that the order with ID {order_id} has been refunded or cancelled.\n"
 "\n"
 "Please find the order details below:\n"
 "\n"
@@ -540,8 +524,7 @@ msgid ""
 msgstr ""
 "Sehr geehrte Ticketmaster-Mitarbeiter,\n"
 "\n"
-"wir informieren Sie darüber, dass die Bestellung mit der ID {order_id} "
-"storniert bzw. erstattet wurde.\n"
+"wir informieren Sie darüber, dass die Bestellung mit der ID {order_id} storniert bzw. erstattet wurde.\n"
 "\n"
 "Die Bestelldetails finden Sie unten:\n"
 "\n"
@@ -614,7 +597,7 @@ msgstr "Veranstaltungsname"
 #: accounting/templates/cart.html:47
 #: accounting/templates/order_payment_overview.html:28
 #: accounting/templates/ticket_list.html:30
-#: events/templates/all_event_statistics.html:141
+#: events/templates/all_event_statistics.html:144
 #: events/templates/event_details.html:20 events/templates/event_list.html:59
 #: events/templates/event_statistics.html:12
 msgid "Start Time"
@@ -624,7 +607,7 @@ msgstr "Startzeit"
 #: accounting/templates/order_payment_overview.html:29
 #: accounting/templates/ticket_list.html:31
 #: events/templates/all_event_statistics.html:45
-#: events/templates/all_event_statistics.html:142
+#: events/templates/all_event_statistics.html:145
 #: events/templates/event_details.html:21 events/templates/event_list.html:18
 #: events/templates/event_list.html:60
 #: events/templates/event_statistics.html:13
@@ -642,7 +625,7 @@ msgstr "Sitznummer"
 #: accounting/templates/cart.html:51
 #: accounting/templates/order_payment_overview.html:32
 #: accounting/templates/ticket_list.html:34
-#: events/templates/event_door_selling.html:62 events/views.py:572
+#: events/templates/event_door_selling.html:62 events/views.py:574
 msgid "Price"
 msgstr "Preis"
 
@@ -653,7 +636,8 @@ msgstr "Preis"
 msgid "Price Class"
 msgstr "Preisklasse"
 
-#: accounting/templates/cart.html:53 accounting/templates/manage_orders.html:53
+#: accounting/templates/cart.html:53
+#: accounting/templates/manage_orders.html:53
 #: accounting/templates/manage_orders.html:102
 #: accounting/templates/manage_orders.html:145
 #: accounting/templates/ticket_list.html:37
@@ -756,7 +740,7 @@ msgstr "Kunden-Nachname"
 #: accounting/templates/manage_orders.html:52
 #: accounting/templates/manage_orders.html:101
 #: accounting/templates/manage_orders.html:144
-#: accounting/templates/manage_orders.html:181 events/views.py:512
+#: accounting/templates/manage_orders.html:181 events/views.py:514
 msgid "Total Amount"
 msgstr "Gesamtbetrag"
 
@@ -950,8 +934,8 @@ msgid ""
 "Cannot resend confirmation email: order is not in CONFIRMED status. Current "
 "status: {status}"
 msgstr ""
-"Die Bestätigungs-E-Mail kann nicht gesendet werden: Die Bestellung hat nicht "
-"den Status „BESTÄTIGT“. Aktueller Status: {status}"
+"Die Bestätigungs-E-Mail kann nicht gesendet werden: Die Bestellung hat nicht"
+" den Status „BESTÄTIGT“. Aktueller Status: {status}"
 
 #: accounting/views.py:393
 #, python-brace-format
@@ -1042,11 +1026,11 @@ msgstr ""
 "Wählen Sie eine Veranstaltung aus, auf die sich Ihre Nachricht bezieht "
 "(optional)."
 
-#: branding/models.py:17 events/models.py:614
+#: branding/models.py:17 events/models.py:617
 msgid "Enter the first name"
 msgstr "Geben Sie den Vornamen ein"
 
-#: branding/models.py:18 events/models.py:615
+#: branding/models.py:18 events/models.py:618
 msgid "Enter the last name"
 msgstr "Geben Sie den Nachnamen ein"
 
@@ -1055,7 +1039,7 @@ msgid "Enter the email address to which the contact form is sent"
 msgstr ""
 "Geben Sie die E-Mail-Adresse ein, an die das Kontaktformular gesendet wird"
 
-#: branding/models.py:20 events/models.py:617
+#: branding/models.py:20 events/models.py:620
 msgid "Indicates if the contact is active"
 msgstr "Gibt an, ob der Kontakt aktiv ist"
 
@@ -1087,7 +1071,8 @@ msgstr "Laden Sie das Favicon-Bild hoch (max. 64x64 Pixel)"
 
 #: branding/models.py:32
 msgid "Timeout in minutes until user needs to start fresh with their order"
-msgstr "Timeout in Minuten, bis der Benutzer seine Bestellung neu starten muss"
+msgstr ""
+"Timeout in Minuten, bis der Benutzer seine Bestellung neu starten muss"
 
 #: branding/models.py:33
 msgid "Upload the success sound file for ticket scanner"
@@ -1502,7 +1487,7 @@ msgstr "E-Mail"
 msgid "activated"
 msgstr "aktiviert"
 
-#: events/models.py:189 events/models.py:521 events/views.py:531
+#: events/models.py:189 events/models.py:524 events/views.py:533
 msgid "Start:"
 msgstr "Start:"
 
@@ -1510,7 +1495,7 @@ msgstr "Start:"
 msgid "Duration:"
 msgstr "Dauer:"
 
-#: events/models.py:196 events/models.py:524 events/views.py:534
+#: events/models.py:196 events/models.py:527 events/views.py:536
 msgid "Venue:"
 msgstr "Veranstaltungsort:"
 
@@ -1633,16 +1618,17 @@ msgstr "Vorverkauf endet und Türverkauf (nicht Vorverkauf) beginnt"
 msgid "allow door selling"
 msgstr "Türverkauf erlauben"
 
-#: events/models.py:612
+#: events/models.py:615
 msgid "Optional direct link to the Django user for this ticket manager."
-msgstr "Optionaler direkter Link zum Django-Benutzer für diesen Ticketmanager."
+msgstr ""
+"Optionaler direkter Link zum Django-Benutzer für diesen Ticketmanager."
 
-#: events/models.py:616
+#: events/models.py:619
 msgid "Enter the email address to which all ticket sales are sent"
 msgstr ""
 "Geben Sie die E-Mail-Adresse ein, an die alle Ticketverkäufe gesendet werden"
 
-#: events/models.py:619
+#: events/models.py:622
 msgid ""
 "Select the locations for which this ticket master is responsible. If no "
 "location is selected this ticket master will be responsible for all "
@@ -1663,8 +1649,8 @@ msgid ""
 "Attached you will find the all event statistics for the last {interval} "
 "hours."
 msgstr ""
-"Im Anhang finden Sie die vollständigen Veranstaltungsstatistiken der letzten "
-"{interval} Stunden."
+"Im Anhang finden Sie die vollständigen Veranstaltungsstatistiken der letzten"
+" {interval} Stunden."
 
 #: events/templates/all_event_statistics.html:8
 #: events/templates/all_event_statistics.html:11
@@ -1704,115 +1690,122 @@ msgid "Filter"
 msgstr "Filter"
 
 #: events/templates/all_event_statistics.html:46
-#: events/templates/all_event_statistics.html:157
-#: events/templates/event_statistics.html:43 events/views.py:442
+#: events/templates/all_event_statistics.html:160
+#: events/templates/event_statistics.html:43 events/views.py:443
 msgid "Waiting"
 msgstr "Warten"
 
 #: events/templates/all_event_statistics.html:47
-#: events/templates/all_event_statistics.html:164
-#: events/templates/event_statistics.html:50 events/views.py:443
+#: events/templates/all_event_statistics.html:167
+#: events/templates/event_statistics.html:50 events/views.py:444
+#| msgid "Presale Online"
+msgid "Presale Online Waiting"
+msgstr "Online-Vorverkauf (Wartend)"
+
+#: events/templates/all_event_statistics.html:48
+#: events/templates/all_event_statistics.html:174
+#: events/templates/event_statistics.html:57 events/views.py:445
 msgid "Presale Online"
 msgstr "Online-Vorverkauf"
 
-#: events/templates/all_event_statistics.html:48
-#: events/templates/all_event_statistics.html:171
-#: events/templates/event_statistics.html:57 events/views.py:444
+#: events/templates/all_event_statistics.html:49
+#: events/templates/all_event_statistics.html:181
+#: events/templates/event_statistics.html:64 events/views.py:446
 msgid "Presale Door"
 msgstr "Tür-Vorverkauf"
 
-#: events/templates/all_event_statistics.html:49
-#: events/templates/all_event_statistics.html:178
-#: events/templates/event_statistics.html:64 events/views.py:445
+#: events/templates/all_event_statistics.html:50
+#: events/templates/all_event_statistics.html:188
+#: events/templates/event_statistics.html:71 events/views.py:447
 msgid "Door"
 msgstr "Tür"
 
-#: events/templates/all_event_statistics.html:51
-#: events/templates/all_event_statistics.html:185
-#: events/templates/event_statistics.html:71 events/views.py:446
+#: events/templates/all_event_statistics.html:52
+#: events/templates/all_event_statistics.html:195
+#: events/templates/event_statistics.html:78 events/views.py:448
 msgid "Total Sold"
 msgstr "Gesamt verkauft"
 
-#: events/templates/all_event_statistics.html:54
-#: events/templates/all_event_statistics.html:199
-#: events/templates/event_statistics.html:85 events/views.py:448
+#: events/templates/all_event_statistics.html:55
+#: events/templates/all_event_statistics.html:209
+#: events/templates/event_statistics.html:92 events/views.py:450
 msgid "Activated Presale Online"
 msgstr "Aktivierter Online-Vorverkauf"
 
-#: events/templates/all_event_statistics.html:55
-#: events/templates/all_event_statistics.html:206
-#: events/templates/event_statistics.html:92 events/views.py:449
+#: events/templates/all_event_statistics.html:56
+#: events/templates/all_event_statistics.html:216
+#: events/templates/event_statistics.html:99 events/views.py:451
 msgid "Activated Presale Door"
 msgstr "Aktivierter Tür-Vorverkauf"
 
-#: events/templates/all_event_statistics.html:56
-#: events/templates/all_event_statistics.html:213
-#: events/templates/event_statistics.html:99 events/views.py:450
+#: events/templates/all_event_statistics.html:57
+#: events/templates/all_event_statistics.html:223
+#: events/templates/event_statistics.html:106 events/views.py:452
 msgid "Activated Door"
 msgstr "Aktivierte Tür"
 
-#: events/templates/all_event_statistics.html:58
-#: events/templates/all_event_statistics.html:220
-#: events/templates/event_statistics.html:106 events/views.py:451
+#: events/templates/all_event_statistics.html:59
+#: events/templates/all_event_statistics.html:230
+#: events/templates/event_statistics.html:113 events/views.py:453
 msgid "Total Sold Activated"
 msgstr "Gesamt verkauft aktiviert"
 
-#: events/templates/all_event_statistics.html:60
-#: events/templates/all_event_statistics.html:234
-#: events/templates/event_statistics.html:120 events/views.py:452
+#: events/templates/all_event_statistics.html:61
+#: events/templates/all_event_statistics.html:244
+#: events/templates/event_statistics.html:127 events/views.py:454
 msgid "Total Earned Presale Online"
 msgstr "Gesamt verdient im Online-Vorverkauf"
 
-#: events/templates/all_event_statistics.html:61
-#: events/templates/all_event_statistics.html:241
-#: events/templates/event_statistics.html:127 events/views.py:453
+#: events/templates/all_event_statistics.html:62
+#: events/templates/all_event_statistics.html:251
+#: events/templates/event_statistics.html:134 events/views.py:455
 msgid "Total Earned Presale Door"
 msgstr "Gesamt verdient im Tür-Vorverkauf"
 
-#: events/templates/all_event_statistics.html:62
-#: events/templates/all_event_statistics.html:248
-#: events/templates/event_statistics.html:134 events/views.py:454
+#: events/templates/all_event_statistics.html:63
+#: events/templates/all_event_statistics.html:258
+#: events/templates/event_statistics.html:141 events/views.py:456
 msgid "Total Earned Door"
 msgstr "Gesamt verdient an der Tür"
 
-#: events/templates/all_event_statistics.html:65
-#: events/templates/all_event_statistics.html:255
-#: events/templates/event_statistics.html:141 events/views.py:455
+#: events/templates/all_event_statistics.html:66
+#: events/templates/all_event_statistics.html:265
+#: events/templates/event_statistics.html:148 events/views.py:457
 msgid "Total Earned"
 msgstr "Gesamt verdient"
 
-#: events/templates/all_event_statistics.html:95
+#: events/templates/all_event_statistics.html:97
 msgid "Overall Total"
 msgstr "Gesamtsumme"
 
-#: events/templates/all_event_statistics.html:119
+#: events/templates/all_event_statistics.html:122
 msgid "Refunded/Canceled Statistics"
 msgstr "Statistiken zu Rückerstattungen/Stornierungen"
 
-#: events/templates/all_event_statistics.html:123
+#: events/templates/all_event_statistics.html:126
 msgid "Total Refunded/Canceled"
 msgstr "Gesamt erstattet/storniert"
 
-#: events/templates/all_event_statistics.html:124
+#: events/templates/all_event_statistics.html:127
 msgid "Total Amount Refunded/Canceled"
 msgstr "Gesamtbetrag erstattet/storniert"
 
-#: events/templates/all_event_statistics.html:137
+#: events/templates/all_event_statistics.html:140
 msgid "Statistics Per Event"
 msgstr "Statistiken pro Veranstaltung"
 
-#: events/templates/all_event_statistics.html:143
+#: events/templates/all_event_statistics.html:146
 msgid "Remaining Seats"
 msgstr "Verbleibende Sitze: "
 
-#: events/templates/all_event_statistics.html:148
-#: events/templates/event_statistics.html:34 events/views.py:484
-#: events/views.py:506 events/views.py:549 events/views.py:568
+#: events/templates/all_event_statistics.html:151
+#: events/templates/event_statistics.html:34 events/views.py:486
+#: events/views.py:508 events/views.py:551 events/views.py:570
 msgid "Statistic"
 msgstr "Statistik"
 
-#: events/templates/all_event_statistics.html:227
-#: events/templates/event_statistics.html:113
+#: events/templates/all_event_statistics.html:237
+#: events/templates/event_statistics.html:120
 msgid "Ticket Price"
 msgstr "Ticketpreis"
 
@@ -1900,7 +1893,8 @@ msgstr "Vorverkauf endet um "
 
 #: events/templates/event_details.html:43
 #: events/templates/event_door_selling.html:21
-msgid "Tickets are sold at the door. Tickets at the door will be available for"
+msgid ""
+"Tickets are sold at the door. Tickets at the door will be available for"
 msgstr ""
 "Tickets werden an der Tür verkauft. Tickets an der Tür sind verfügbar für"
 
@@ -2043,47 +2037,47 @@ msgstr "Türverkauf ist für diese Veranstaltung nicht erlaubt."
 msgid "Event is not active."
 msgstr "Veranstaltung ist nicht aktiv."
 
-#: events/views.py:464
+#: events/views.py:466
 msgid "All Events - Statistics"
 msgstr "Alle Veranstaltungen – Statistiken"
 
-#: events/views.py:468
+#: events/views.py:470
 msgid "Created at:"
 msgstr "Erstellt am:"
 
-#: events/views.py:475 templates/master.html:51
+#: events/views.py:477 templates/master.html:51
 msgid "Global Statistics"
 msgstr "Globale Statistik"
 
-#: events/views.py:487
+#: events/views.py:489
 msgid "Global"
 msgstr "Global"
 
-#: events/views.py:502
+#: events/views.py:504
 msgid "Refunded/Canceled Orders Statistics"
 msgstr "Statistik stornierter/erstatteter Bestellungen"
 
-#: events/views.py:507 events/views.py:550
+#: events/views.py:509 events/views.py:552
 msgid "Value"
 msgstr "Wert"
 
-#: events/views.py:509
+#: events/views.py:511
 msgid "Total Refunded/Canceled Orders"
 msgstr "Gesamt stornierte/erstattete Bestellungen"
 
-#: events/views.py:528
+#: events/views.py:530
 msgid "Statistics"
 msgstr "Statistiken"
 
-#: events/views.py:537
+#: events/views.py:539
 msgid "Capacity:"
 msgstr "Kapazität:"
 
-#: events/views.py:543
+#: events/views.py:545
 msgid "Total Statistics"
 msgstr "Globale Statistik"
 
-#: events/views.py:562
+#: events/views.py:564
 msgid "Price Class Statistics"
 msgstr "Statistik pro Preisklasse"
 
@@ -2128,8 +2122,8 @@ msgstr "500 - Serverfehler"
 #: templates/500.html:10
 msgid "Sorry, something went wrong on our end. Please try again later."
 msgstr ""
-"Entschuldigung, etwas ist auf unserer Seite schief gelaufen. Bitte versuchen "
-"Sie es später erneut."
+"Entschuldigung, etwas ist auf unserer Seite schief gelaufen. Bitte versuchen"
+" Sie es später erneut."
 
 #: templates/admin/403.html:8
 msgid "Back to admin dashboard"
@@ -2172,7 +2166,8 @@ msgstr "Rechtliches"
 msgid "Privacy Policy"
 msgstr "Datenschutzrichtlinie"
 
-#: templates/master.html:117
+#: templates/master.html:117 templates/terms_of_service.html:5
+#: templates/terms_of_service.html:10
 msgid "Terms of Service"
 msgstr "Nutzungsbedingungen"
 
@@ -2195,8 +2190,8 @@ msgstr "1. Einleitung"
 #: templates/privacy_policy.html:15
 msgid ""
 "We are committed to protecting your privacy. This Privacy Policy explains "
-"how we collect, use, disclose, and safeguard your information when you visit "
-"our cinema ticketing system website and services."
+"how we collect, use, disclose, and safeguard your information when you visit"
+" our cinema ticketing system website and services."
 msgstr ""
 "Wir sind dem Schutz Ihrer Privatsphäre verpflichtet. Diese "
 "Datenschutzrichtlinie erläutert, wie wir Ihre Daten erfassen, verwenden, "
@@ -2221,8 +2216,8 @@ msgid ""
 "Name, email address, phone number, postal address, and payment information "
 "when you make a purchase."
 msgstr ""
-"Name, E-Mail-Adresse, Telefonnummer, Postanschrift und Zahlungsinformationen "
-"bei einem Kauf."
+"Name, E-Mail-Adresse, Telefonnummer, Postanschrift und Zahlungsinformationen"
+" bei einem Kauf."
 
 #: templates/privacy_policy.html:24
 msgid "Account Information"
@@ -2329,8 +2324,8 @@ msgstr "5. Datensicherheit"
 msgid ""
 "We implement appropriate technical and organizational measures to protect "
 "your personal information against unauthorized access, alteration, "
-"disclosure, or destruction. However, no security system is impenetrable, and "
-"we cannot guarantee absolute security."
+"disclosure, or destruction. However, no security system is impenetrable, and"
+" we cannot guarantee absolute security."
 msgstr ""
 "Wir setzen geeignete technische und organisatorische Maßnahmen ein, um Ihre "
 "persönlichen Daten vor unbefugtem Zugriff, Änderung, Offenlegung oder "
@@ -2343,8 +2338,8 @@ msgstr "6. Cookies und Tracking"
 
 #: templates/privacy_policy.html:65
 msgid ""
-"We use cookies and similar tracking technologies to enhance your experience. "
-"These help us remember your preferences and understand how you use our "
+"We use cookies and similar tracking technologies to enhance your experience."
+" These help us remember your preferences and understand how you use our "
 "service. You can control cookie settings through your browser."
 msgstr ""
 "Wir verwenden Cookies und ähnliche Tracking-Technologien, um Ihre Erfahrung "
@@ -2388,11 +2383,12 @@ msgstr "8. Aufbewahrungsdauer"
 msgid ""
 "We retain your personal information for as long as necessary to fulfill the "
 "purposes outlined in this policy or as required by law. Ticket information "
-"is retained for your records and to comply with event organizer requirements."
+"is retained for your records and to comply with event organizer "
+"requirements."
 msgstr ""
 "Wir speichern Ihre persönlichen Daten so lange, wie es zur Erfüllung der in "
-"dieser Richtlinie dargelegten Zwecke erforderlich ist oder wie es gesetzlich "
-"vorgeschrieben ist. Ticketinformationen werden für Ihre Unterlagen und zur "
+"dieser Richtlinie dargelegten Zwecke erforderlich ist oder wie es gesetzlich"
+" vorgeschrieben ist. Ticketinformationen werden für Ihre Unterlagen und zur "
 "Einhaltung der Anforderungen des Veranstalters aufbewahrt."
 
 #: templates/privacy_policy.html:89
@@ -2444,7 +2440,8 @@ msgstr "12. Änderungen dieser Richtlinie"
 
 #: templates/privacy_policy.html:112
 msgid "We may update this Privacy Policy from time to time."
-msgstr "Wir können diese Datenschutzrichtlinie von Zeit zu Zeit aktualisieren."
+msgstr ""
+"Wir können diese Datenschutzrichtlinie von Zeit zu Zeit aktualisieren."
 
 #: templates/privacy_policy.html:117
 msgid "13. Contact Us"
@@ -2460,38 +2457,38 @@ msgstr "Bei Fragen oder Bedenken kontaktieren Sie uns bitte unter:"
 msgid "Contact Information:"
 msgstr "Kontaktdaten:"
 
-#: templates/privacy_policy.html:124 templates/terms_of_use.html:125
+#: templates/privacy_policy.html:124 templates/terms_of_service.html:125
 msgid "Use our contact form"
 msgstr "Nutzen Sie unser Kontaktformular"
 
-#: templates/privacy_policy.html:130 templates/terms_of_use.html:131
+#: templates/privacy_policy.html:130 templates/terms_of_service.html:131
 msgid "Last Updated"
 msgstr "Letzte Aktualisierung"
 
-#: templates/terms_of_use.html:5 templates/terms_of_use.html:10
-msgid "Terms of Use"
-msgstr "Nutzungsbedingungen"
-
-#: templates/terms_of_use.html:13
+#: templates/terms_of_service.html:13
 msgid "1. Acceptance of Terms"
 msgstr "1. Annahme der Bedingungen"
 
-#: templates/terms_of_use.html:15
+#: templates/terms_of_service.html:15
+#| msgid ""
+#| "By accessing or using this cinema ticketing system, you agree to be bound by"
+#| " these Terms of Use and all applicable laws and regulations. If you do not "
+#| "agree, you must not use this website or its services."
 msgid ""
-"By accessing or using this cinema ticketing system, you agree to be bound by "
-"these Terms of Use and all applicable laws and regulations. If you do not "
-"agree, you must not use this website or its services."
+"By accessing or using this cinema ticketing system, you agree to be bound by"
+" these Terms of Service and all applicable laws and regulations. If you do "
+"not agree, you must not use this website or its services."
 msgstr ""
-"Durch den Zugriff auf oder die Nutzung dieses Kinokartensystems erklären Sie "
-"sich mit diesen Nutzungsbedingungen und allen geltenden Gesetzen und "
-"Vorschriften einverstanden. Wenn Sie nicht einverstanden sind, dürfen Sie "
-"diese Website oder ihre Dienste nicht nutzen."
+"Durch den Zugriff auf oder die Nutzung dieses Kinoticketsystems erklären Sie"
+" sich mit diesen Nutzungsbedingungen und allen geltenden Gesetzen und "
+"Bestimmungen einverstanden. Sollten Sie damit nicht einverstanden sein, "
+"dürfen Sie diese Website und ihre Dienste nicht nutzen."
 
-#: templates/terms_of_use.html:20
+#: templates/terms_of_service.html:20
 msgid "2. Description of Service"
 msgstr "2. Leistungsbeschreibung"
 
-#: templates/terms_of_use.html:22
+#: templates/terms_of_service.html:22
 msgid ""
 "This website provides information about events and allows users to browse "
 "events, reserve or purchase tickets, and manage related bookings. We may "
@@ -2499,16 +2496,16 @@ msgid ""
 "prior notice."
 msgstr ""
 "Diese Website stellt Informationen zu Veranstaltungen bereit und ermöglicht "
-"es Benutzern, Veranstaltungen zu durchsuchen, Tickets zu reservieren oder zu "
-"kaufen und zugehörige Buchungen zu verwalten. Wir behalten uns das Recht "
+"es Benutzern, Veranstaltungen zu durchsuchen, Tickets zu reservieren oder zu"
+" kaufen und zugehörige Buchungen zu verwalten. Wir behalten uns das Recht "
 "vor, Teile des Dienstes jederzeit ohne vorherige Ankündigung zu ändern, "
 "auszusetzen oder einzustellen."
 
-#: templates/terms_of_use.html:27
+#: templates/terms_of_service.html:27
 msgid "3. Eligibility and Account Responsibility"
 msgstr "3. Berechtigung und Kontoverantwortung"
 
-#: templates/terms_of_use.html:29
+#: templates/terms_of_service.html:29
 msgid ""
 "You are responsible for ensuring that the information you provide is "
 "accurate and up to date. If you create an account, you are responsible for "
@@ -2520,16 +2517,17 @@ msgstr ""
 "Sie für die Vertraulichkeit Ihrer Anmeldedaten und alle Aktivitäten unter "
 "Ihrem Konto verantwortlich."
 
-#: templates/terms_of_use.html:34
+#: templates/terms_of_service.html:34
 msgid "4. Ticket Orders and Payments"
 msgstr "4. Ticketbestellungen und Zahlungen"
 
-#: templates/terms_of_use.html:36
+#: templates/terms_of_service.html:36
 msgid "All ticket orders are subject to availability and confirmation."
 msgstr ""
-"Alle Ticketbestellungen erfolgen vorbehaltlich Verfügbarkeit und Bestätigung."
+"Alle Ticketbestellungen erfolgen vorbehaltlich Verfügbarkeit und "
+"Bestätigung."
 
-#: templates/terms_of_use.html:37
+#: templates/terms_of_service.html:37
 msgid ""
 "Prices, fees, and taxes displayed at checkout are the amounts payable for "
 "your order unless otherwise stated."
@@ -2537,7 +2535,7 @@ msgstr ""
 "Die beim Kassiervorgang angezeigten Preise, Gebühren und Steuern sind die "
 "für Ihre Bestellung zu zahlenden Beträge, sofern nicht anders angegeben."
 
-#: templates/terms_of_use.html:38
+#: templates/terms_of_service.html:38
 msgid ""
 "You agree to provide valid and complete payment information when making a "
 "purchase."
@@ -2545,58 +2543,59 @@ msgstr ""
 "Sie erklären sich damit einverstanden, beim Kauf gültige und vollständige "
 "Zahlungsinformationen zu hinterlegen."
 
-#: templates/terms_of_use.html:39
+#: templates/terms_of_service.html:39
 msgid ""
-"We reserve the right to refuse or cancel orders in cases of suspected fraud, "
-"payment issues, pricing errors, or technical problems."
+"We reserve the right to refuse or cancel orders in cases of suspected fraud,"
+" payment issues, pricing errors, or technical problems."
 msgstr ""
 "Wir behalten uns das Recht vor, Bestellungen bei Betrugsverdacht, "
 "Zahlungsproblemen, Preisfehlern oder technischen Problemen abzulehnen oder "
 "zu stornieren."
 
-#: templates/terms_of_use.html:44
+#: templates/terms_of_service.html:44
 msgid "5. Cancellations, Refunds, and Changes"
 msgstr "5. Stornierungen, Rückerstattungen und Änderungen"
 
-#: templates/terms_of_use.html:46
+#: templates/terms_of_service.html:46
 msgid ""
 "Refunds, cancellations, and ticket changes are subject to the rules "
-"applicable to the specific event, organizer, or applicable law. Some tickets "
-"may be non-refundable unless an event is cancelled or materially changed."
+"applicable to the specific event, organizer, or applicable law. Some tickets"
+" may be non-refundable unless an event is cancelled or materially changed."
 msgstr ""
-"Rückerstattungen, Stornierungen und Ticketänderungen unterliegen den für die "
-"jeweilige Veranstaltung, den Veranstalter oder das geltende Recht geltenden "
-"Regelungen. Einige Tickets können nicht erstattet werden, es sei denn, eine "
-"Veranstaltung wird abgesagt oder wesentlich geändert."
+"Rückerstattungen, Stornierungen und Ticketänderungen unterliegen den für die"
+" jeweilige Veranstaltung, den Veranstalter oder das geltende Recht geltenden"
+" Regelungen. Einige Tickets können nicht erstattet werden, es sei denn, eine"
+" Veranstaltung wird abgesagt oder wesentlich geändert."
 
-#: templates/terms_of_use.html:51
+#: templates/terms_of_service.html:51
 msgid "6. Permitted Use"
 msgstr "6. Zulässige Nutzung"
 
-#: templates/terms_of_use.html:52
+#: templates/terms_of_service.html:52
 msgid "You agree to use this website only for lawful purposes. You must not:"
 msgstr ""
 "Sie erklären sich damit einverstanden, diese Website nur für rechtmäßige "
 "Zwecke zu nutzen. Es ist Ihnen untersagt:"
 
-#: templates/terms_of_use.html:54
+#: templates/terms_of_service.html:54
 msgid ""
 "Use the service in a way that violates any applicable law or regulation."
 msgstr ""
 "Den Dienst auf eine Weise zu nutzen, die gegen geltende Gesetze oder "
 "Vorschriften verstößt."
 
-#: templates/terms_of_use.html:55
+#: templates/terms_of_service.html:55
 msgid "Attempt to gain unauthorized access to accounts, systems, or data."
 msgstr "Unbefugten Zugriff auf Konten, Systeme oder Daten zu versuchen."
 
-#: templates/terms_of_use.html:56
-msgid "Interfere with the operation, security, or availability of the website."
+#: templates/terms_of_service.html:56
+msgid ""
+"Interfere with the operation, security, or availability of the website."
 msgstr ""
 "Den Betrieb, die Sicherheit oder die Verfügbarkeit der Website zu "
 "beeinträchtigen."
 
-#: templates/terms_of_use.html:57
+#: templates/terms_of_service.html:57
 msgid ""
 "Use automated means to scrape, copy, or exploit content or ticket inventory "
 "without permission."
@@ -2604,18 +2603,18 @@ msgstr ""
 "Automatisierte Mittel einzusetzen, um Inhalte oder Ticketbestände ohne "
 "Genehmigung abzurufen, zu kopieren oder zu nutzen."
 
-#: templates/terms_of_use.html:58
+#: templates/terms_of_service.html:58
 msgid "Submit false, misleading, or fraudulent information."
 msgstr "Falsche, irreführende oder betrügerische Informationen einzureichen."
 
-#: templates/terms_of_use.html:63
+#: templates/terms_of_service.html:63
 msgid "7. Intellectual Property"
 msgstr "7. Geistiges Eigentum"
 
-#: templates/terms_of_use.html:65
+#: templates/terms_of_service.html:65
 msgid ""
-"All content on this website, including text, graphics and logos, is owned by "
-"or licensed to the service operator unless otherwise stated. You may not "
+"All content on this website, including text, graphics and logos, is owned by"
+" or licensed to the service operator unless otherwise stated. You may not "
 "reproduce, distribute, modify, or create derivative works from this content "
 "without prior written permission, except as permitted by law."
 msgstr ""
@@ -2625,11 +2624,11 @@ msgstr ""
 "Genehmigung nicht reproduzieren, verteilen, ändern oder davon abgeleitete "
 "Werke erstellen, es sei denn, dies ist gesetzlich zulässig."
 
-#: templates/terms_of_use.html:70
+#: templates/terms_of_service.html:70
 msgid "8. Event Information"
 msgstr "8. Veranstaltungsinformationen"
 
-#: templates/terms_of_use.html:72
+#: templates/terms_of_service.html:72
 msgid ""
 "We aim to ensure that event descriptions, schedules, venues, and "
 "availability are accurate. However, event information may be provided by "
@@ -2643,11 +2642,11 @@ msgstr ""
 "oder sich ohne Vorankündigung ändern. Wir sind nicht verantwortlich für "
 "Ungenauigkeiten, Absagen, Verschiebungen oder Änderungen durch Veranstalter."
 
-#: templates/terms_of_use.html:77
+#: templates/terms_of_service.html:77
 msgid "9. Limitation of Liability"
 msgstr "9. Haftungsbeschränkung"
 
-#: templates/terms_of_use.html:79
+#: templates/terms_of_service.html:79
 msgid ""
 "To the fullest extent permitted by law, this website and its services are "
 "provided on an 'as is' and 'as available' basis. We do not guarantee "
@@ -2656,40 +2655,40 @@ msgid ""
 "data, profits, or business opportunities arising from your use of the "
 "service."
 msgstr ""
-"Im größtmöglichen gesetzlich zulässigen Umfang werden diese Website und ihre "
-"Dienste 'wie besehen' und 'wie verfügbar' bereitgestellt. Wir garantieren "
+"Im größtmöglichen gesetzlich zulässigen Umfang werden diese Website und ihre"
+" Dienste 'wie besehen' und 'wie verfügbar' bereitgestellt. Wir garantieren "
 "keinen ununterbrochenen oder fehlerfreien Betrieb. Wir haften nicht für "
 "indirekte, zufällige, besondere, Folge- oder Strafschäden, einschließlich "
 "Datenverlust, entgangene Gewinne oder Geschäftsmöglichkeiten, die sich aus "
 "Ihrer Nutzung des Dienstes ergeben."
 
-#: templates/terms_of_use.html:84
+#: templates/terms_of_service.html:84
 msgid "10. Indemnification"
 msgstr "10. Freistellung"
 
-#: templates/terms_of_use.html:86
+#: templates/terms_of_service.html:86
 msgid ""
 "You agree to indemnify and hold harmless the service operator, its "
 "affiliates, and their respective personnel from any claims, liabilities, "
 "damages, losses, and expenses arising out of your misuse of the website, "
-"your violation of these Terms, or your infringement of any rights of another "
-"person or entity."
+"your violation of these Terms, or your infringement of any rights of another"
+" person or entity."
 msgstr ""
 "Sie erklären sich damit einverstanden, den Dienstbetreiber, seine "
 "verbundenen Unternehmen und deren jeweiliges Personal von allen Ansprüchen, "
 "Verbindlichkeiten, Schäden, Verlusten und Kosten freizustellen, die aus "
-"Ihrem Missbrauch der Website, Ihrem Verstoß gegen diese Bedingungen oder der "
-"Verletzung von Rechten Dritter entstehen."
+"Ihrem Missbrauch der Website, Ihrem Verstoß gegen diese Bedingungen oder der"
+" Verletzung von Rechten Dritter entstehen."
 
-#: templates/terms_of_use.html:91
+#: templates/terms_of_service.html:91
 msgid "11. Third-Party Services and Links"
 msgstr "11. Dienste und Links Dritter"
 
-#: templates/terms_of_use.html:93
+#: templates/terms_of_service.html:93
 msgid ""
 "This website may contain links to third-party websites or use third-party "
-"services such as payment processors. We are not responsible for the content, "
-"policies, or practices of those third parties. Your use of third-party "
+"services such as payment processors. We are not responsible for the content,"
+" policies, or practices of those third parties. Your use of third-party "
 "services may be subject to their own terms and policies."
 msgstr ""
 "Diese Website kann Links zu Websites Dritter enthalten oder "
@@ -2698,26 +2697,26 @@ msgstr ""
 "Ihre Nutzung von Drittanbieterdiensten kann deren eigenen Bedingungen und "
 "Richtlinien unterliegen."
 
-#: templates/terms_of_use.html:98
+#: templates/terms_of_service.html:98
 msgid "12. Suspension or Termination"
 msgstr "12. Aussetzung oder Kündigung"
 
-#: templates/terms_of_use.html:100
+#: templates/terms_of_service.html:100
 msgid ""
 "We may suspend or terminate your access to the website at our discretion if "
-"we believe you have violated these Terms, engaged in fraudulent activity, or "
-"created risk for the service, other users, or third parties."
+"we believe you have violated these Terms, engaged in fraudulent activity, or"
+" created risk for the service, other users, or third parties."
 msgstr ""
 "Wir können Ihren Zugang zur Website nach eigenem Ermessen aussetzen oder "
 "beenden, wenn wir der Ansicht sind, dass Sie gegen diese Bedingungen "
 "verstoßen haben, betrügerische Aktivitäten betrieben haben oder ein Risiko "
 "für den Dienst, andere Benutzer oder Dritte geschaffen haben."
 
-#: templates/terms_of_use.html:105
+#: templates/terms_of_service.html:105
 msgid "13. Governing Law"
 msgstr "13. Anwendbares Recht"
 
-#: templates/terms_of_use.html:107
+#: templates/terms_of_service.html:107
 msgid ""
 "These Terms of Use are governed by the laws applicable in the jurisdiction "
 "of the service operator, unless mandatory consumer protection laws provide "
@@ -2727,11 +2726,11 @@ msgstr ""
 "Zuständigkeitsbereich des Dienstbetreibers gelten, sofern nicht zwingende "
 "Verbraucherschutzgesetze etwas anderes vorsehen."
 
-#: templates/terms_of_use.html:112
+#: templates/terms_of_service.html:112
 msgid "14. Changes to These Terms"
 msgstr "14. Änderungen dieser Bedingungen"
 
-#: templates/terms_of_use.html:114
+#: templates/terms_of_service.html:114
 msgid ""
 "We may update these Terms of Use from time to time. Updated terms become "
 "effective when posted on this page unless otherwise stated. Your continued "
@@ -2744,17 +2743,20 @@ msgstr ""
 "nach der Veröffentlichung von Änderungen gilt als Zustimmung zu den "
 "überarbeiteten Bedingungen."
 
-#: templates/terms_of_use.html:119
+#: templates/terms_of_service.html:119
 msgid "15. Contact"
 msgstr "15. Kontakt"
 
-#: templates/terms_of_use.html:121
+#: templates/terms_of_service.html:121
 msgid ""
 "If you have any questions about these Terms of Use, please contact us using "
 "the contact form available on this website."
 msgstr ""
 "Wenn Sie Fragen zu diesen Nutzungsbedingungen haben, kontaktieren Sie uns "
 "bitte über das auf dieser Website verfügbare Kontaktformular."
+
+#~ msgid "Terms of Use"
+#~ msgstr "Nutzungsbedingungen"
 
 #~ msgid ""
 #~ "You will be redirected to the payment gateway to complete your payment."

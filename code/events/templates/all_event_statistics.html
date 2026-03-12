@@ -277,13 +277,13 @@
         $(document).ready(function() {
             {% for event_stats in events_stats %}
                 $('#statistics-table-{{ event_stats.event.id }}').DataTable({
-                    "pageLength": 15,
+                    "pageLength": 16,
                     "order": [],
                     "ordering": false
                 });
             {% endfor %}
             $('#overall-statistics-table').DataTable({
-                "pageLength": 15,
+                "pageLength": 16,
                 "order": [],
                 "ordering": false
             });
