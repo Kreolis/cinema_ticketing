@@ -17,7 +17,7 @@
         <div class="col-md-6" style="padding: 1.5rem 1.5rem">
             <h1 class="mt-4">{{ event.name }}</h1>
             
-            <p><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
+            <p><strong>{% translate "Start Time" %}:</strong> {{ event.get_start_time_in_timezone|date:"H:i d.m.Y (T)" }}</p>
             <p><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
             <p><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
             {% if event.program_link %}
@@ -35,12 +35,12 @@
         <div id="status_message" style="padding: 1.5rem 0rem"></div>
         {% if event.allow_presale %}
             <div id="presale_text" style="display: none;">
-                <p>{% translate "Presale starts at " %} <strong>{{ presale_start_time }}</strong> {% translate "Presale ends at " %} <strong>{{ presale_end_time }}</strong></p>
+                <p>{% translate "Presale starts at " %} <strong>{{ presale_start_time|date:"H:i d.m.Y (T)" }}</strong> {% translate "Presale ends at " %} <strong>{{ presale_end_time|date:"H:i d.m.Y (T)" }}</strong></p>
             </div>
         {% endif %}
         {% if event.allow_door_selling %}
         <div id="door_selling_text" style="display: none;">
-            <p>{% translate "Tickets are sold at the door. Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} <strong>{{ event.start_time }}</strong></p>
+            <p>{% translate "Tickets are sold at the door. Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} <strong>{{ event.get_start_time_in_timezone|date:"H:i d.m.Y (T)" }}</strong></p>
         </div>
         {% endif %}
 

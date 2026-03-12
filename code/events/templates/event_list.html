@@ -56,7 +56,7 @@
                             ">
                             <div style="padding: 1.5rem 1.5rem;">
                                 <h2 class="card-title">{{ event.name }}</h2>
-                                <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
+                                <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {{ event.get_start_time_in_timezone|date:"H:i d.m.Y (T)" }}</p>
                                 <p class="card-text"><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
                                 <p class="card-text"><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
                                 <p class="card-text"><strong>{% translate "Price Classes" %}:</strong>

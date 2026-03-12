@@ -15,10 +15,10 @@
 
         <!-- Elements to show/hide based on presale status -->
         {% if event.allow_presale %}
-            <p>{% translate "Presale starts at " %} {{ presale_start_time }} {% translate "Presale ends at " %} {{ presale_end_time }}</p>
+            <p>{% translate "Presale starts at " %} {{ presale_start_time|date:"H:i d.m.Y (T)" }} {% translate "Presale ends at " %} {{ presale_end_time|date:"H:i d.m.Y (T)" }}</p>
         {% endif %}
         {% if event.allow_door_selling %}
-            <p>{% translate "Tickets are sold at the door. Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} {{ event.start_time }}</p>
+            <p>{% translate "Tickets are sold at the door. Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} {{ event.get_start_time_in_timezone|date:"H:i d.m.Y (T)" }}</p>
         {% endif %}
 
         {% if event.is_sold_out %}
