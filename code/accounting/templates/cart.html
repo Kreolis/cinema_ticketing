@@ -104,7 +104,11 @@
         <a href="{% url 'event_list' %}" class="btn btn-secondary">{% translate "Continue ticket selection" %}</a>
     </div>
 
+    {% translate "Your order has expired." as order_expired_message %}
+
     <script>
+        const orderExpiredMessage = "{{ order_expired_message|escapejs }}";
+        
         // Function to update the cart badge in the navbar
         function updateCartBadge(count) {
             var badge = document.querySelector('a[href*="cart"] .badge');
@@ -185,6 +189,7 @@
             });
         });
 
+
         // Countdown timer
         function startCountdown(minutes, elementId) {
             var endTime = Date.now() + (minutes * 60 * 1000);
@@ -193,7 +198,7 @@
                 var remainingTime = Math.max(0, Math.round((endTime - Date.now()) / 1000));
                 if (remainingTime <= 0) {
                     $(elementId).text('0:00');
-                    alert(_("Your order has expired."));
+                    alert(orderExpiredMessage);
                     return false;
                 }
                 var minutesLeft = Math.floor(remainingTime / 60);

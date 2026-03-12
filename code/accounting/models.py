@@ -44,7 +44,7 @@ class ServiceFee(models.Model):
                                     help_text=_("The name of the service fee that will be displayed to customers during checkout."))
     fee_type = models.CharField(max_length=20, 
                                         choices=SERVICE_FEE_TYPE_CHOICES, 
-                                        default='fixed', 
+                                        default='fixed_total', 
                                         help_text=_("Select the type of service fee to apply to ticket sales"))
     fee_amount = models.DecimalField(max_digits=10, 
                                              decimal_places=2, 
@@ -127,7 +127,7 @@ class Order(BasePayment):
         for fee in service_fees_applied_to_tickets:
             fee_amount = 0
             for ticket in self.tickets.all():
-                if fee.price_classes.exists() and ticket.price_class in fee.price_classes.all():
+                if fee.price_classes.exists() and ticket.price_class not in fee.price_classes.all():
                     # if fee has price classes assigned and ticket price class is not in it, skip fee for this ticket
                     # or fee is applied to all tickets if no price class is assigned
                     continue
@@ -625,8 +625,8 @@ class Order(BasePayment):
         recipient_list = []
 
         # get all email address from users in admin group and superusers and accountant group
-        admin_users = User.objects.filter(models.Q(is_superuser=True) | models.Q(groups__name='admin')).distinct()
-        accountant_users = User.objects.filter(groups__name='accountant').distinct()
+        admin_users = User.objects.filter(models.Q(is_superuser=True) | models.Q(groups__name__in=["admin", "Admins"])).distinct()
+        accountant_users = User.objects.filter(groups__name__in=["accountant", "Accountants"]).distinct()
         recipient_list.extend(admin_users.values_list('email', flat=True))
         recipient_list.extend(accountant_users.values_list('email', flat=True))
         
@@ -723,8 +723,8 @@ class Order(BasePayment):
         recipient_list = []
 
         # get all email address from users in admin group and superusers and accountant group
-        admin_users = User.objects.filter(models.Q(is_superuser=True) | models.Q(groups__name='admin')).distinct()
-        accountant_users = User.objects.filter(groups__name='accountant').distinct()
+        admin_users = User.objects.filter(models.Q(is_superuser=True) | models.Q(groups__name__in=["admin", "Admins"])).distinct()
+        accountant_users = User.objects.filter(groups__name__in=["accountant", "Accountants"]).distinct()
         recipient_list.extend(admin_users.values_list('email', flat=True))
         recipient_list.extend(accountant_users.values_list('email', flat=True))
 
@@ -778,28 +778,21 @@ class Order(BasePayment):
             logger.error(f"Error sending refund notification email: {e}")
             raise e
         
-    def refund(self):
-        super().refund()
-
-        logger.info(f"Order {self.id} has been refunded.")
-        # delete associated tickets
-        for ticket in self.tickets.all():
-            ticket_to_delete = Ticket.objects.get(id=ticket.id)
-            ticket_to_delete.delete()
-            logger.info(f"Deleted ticket {ticket.id} for event {ticket.event.name}")
-
-        self.send_refund_cancel_notification_email()
-
-    def cancel(self):
-        # only allow cancellation if order is in waiting or preauth status
+    def refund_or_cancel(self):
         if self.status not in [PaymentStatus.CONFIRMED, PaymentStatus.PREAUTH]:
-            raise Exception(_("Cannot cancel order: order is not in CONFIRMED or PREAUTH status. Current status: {status}").format(status=self.status))
-        
-        # set status to cancelled and save
-        self.status = PaymentStatus.REFUNDED
-        self.save()
+            raise Exception(_("Cannot refund or cancel order: order is not in CONFIRMED or PREAUTH status. Current status: {status}").format(status=self.status))
+    
+        if self.status == PaymentStatus.CONFIRMED:
+            super().refund()
 
-        logger.info(f"Order {self.id} has been cancelled.")
+            logger.info(f"Order {self.id} has been refunded.")
+
+
+        if self.status == PaymentStatus.PREAUTH:
+            super().release()
+    
+            logger.info(f"Order {self.id} has been cancelled.")
+        
         # delete associated tickets
         for ticket in self.tickets.all():
             ticket_to_delete = Ticket.objects.get(id=ticket.id)
@@ -807,6 +800,8 @@ class Order(BasePayment):
             logger.info(f"Deleted ticket {ticket.id} for event {ticket.event.name}")
 
         self.send_refund_cancel_notification_email()
+        
+        return
 
     # delete order and associated tickets
     def delete(self, *args, **kwargs):

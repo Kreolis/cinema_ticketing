@@ -1,7 +1,5 @@
-from payments import PaymentStatus
-from payments import RedirectNeeded
+from payments import PaymentStatus, RedirectNeeded
 from payments.core import BasicProvider
-from payments import RedirectNeeded
 
 from django.http import HttpResponseRedirect
 

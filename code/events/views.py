@@ -10,6 +10,8 @@ from datetime import datetime, timezone
 from fpdf import FPDF
 
 from payments import get_payment_model
+from payments.models import PaymentStatus
+
 
 from .models import Event, Ticket, SoldAsStatus, TicketMaster, Location
 from branding.models import Branding
@@ -322,6 +324,13 @@ def get_all_event_statistics(locations=None):
         events = events.filter(location__in=locations)
 
     events_stats = []
+    
+    per_location_stats = {}
+
+    overall_refunded = {
+        'total_refunded': 0,
+        'total_amount_refunded': 0
+    }
 
     overall_total_stats = {
         'waiting': 0,
@@ -340,6 +349,46 @@ def get_all_event_statistics(locations=None):
         'total_earned': 0
     }
 
+    # get statistics for each location and add them to the per_location_stats dictionary
+    for location in locations if locations is not None else Location.objects.filter(event__isnull=False).distinct():
+        location_events = events.filter(location=location)
+        location_total_stats = {
+            'waiting': 0,
+            'presale_online': 0,
+            'presale_door': 0,
+            'door': 0,
+            'total_sold': 0,
+            'total_count': 0,
+            'activated_presale_online': 0,
+            'activated_presale_door': 0,
+            'activated_door': 0,
+            'total_activated': 0,
+            'earned_presale_online': 0,
+            'earned_presale_door': 0,
+            'earned_door': 0,
+            'total_earned': 0
+        }
+        for event in location_events:
+             total_stats, price_class_stats = event.calculate_statistics()
+             location_total_stats['waiting'] += total_stats['waiting']
+             location_total_stats['presale_online'] += total_stats['presale_online']
+             location_total_stats['presale_door'] += total_stats['presale_door']
+             location_total_stats['door'] += total_stats['door']
+             location_total_stats['total_sold'] += total_stats['total_sold']
+             location_total_stats['total_count'] += total_stats['total_count']
+             location_total_stats['activated_presale_online'] += total_stats['activated_presale_online']
+             location_total_stats['activated_presale_door'] += total_stats['activated_presale_door']
+             location_total_stats['activated_door'] += total_stats['activated_door']
+             location_total_stats['total_activated'] += total_stats['total_activated']
+             location_total_stats['earned_presale_online'] += total_stats['earned_presale_online']
+             location_total_stats['earned_presale_door'] += total_stats['earned_presale_door']
+             location_total_stats['earned_door'] += total_stats['earned_door']
+             location_total_stats['total_earned'] += total_stats['total_earned']
+
+        per_location_stats[location] = location_total_stats
+
+
+    # get statistics for each event and add them to the overall total statistics
     for event in events:
         total_stats, price_class_stats = event.calculate_statistics()
         events_stats.append({
@@ -363,7 +412,12 @@ def get_all_event_statistics(locations=None):
         overall_total_stats['earned_door'] += total_stats['earned_door']
         overall_total_stats['total_earned'] += total_stats['total_earned']
 
-    return events_stats, overall_total_stats
+    # get refunded statistics for all orders that have been refunded, as they are not included in the event statistics anymore (as the tickets are marked as refunded and not sold)
+    for order in get_payment_model().objects.filter(status=PaymentStatus.REFUNDED):
+        overall_refunded['total_refunded'] += 1
+        overall_refunded['total_amount_refunded'] += order.total
+
+    return events_stats, per_location_stats, overall_total_stats, overall_refunded
 
 @login_required
 @user_passes_test(is_user_in_ticket_managers_group_or_admin)
@@ -380,17 +434,19 @@ def all_events_statistics(request):
         if selected_location_id:
             locations = locations.filter(id=selected_location_id)
 
-        events_stats, overall_total_stats = get_all_event_statistics(locations=locations)
+        events_stats, per_location_stats, overall_total_stats, overall_refunded = get_all_event_statistics(locations=locations)
         location_options = ticket_master.active_locations.all().order_by('name') if ticket_master else Location.objects.none()
     else:
         location_options = Location.objects.filter(event__isnull=False).distinct().order_by('name')
         if selected_location_id:
             locations = location_options.filter(id=selected_location_id)
-        events_stats, overall_total_stats = get_all_event_statistics(locations=locations)
+        events_stats, per_location_stats, overall_total_stats, overall_refunded = get_all_event_statistics(locations=locations)
 
     return render(request, 'all_event_statistics.html', {
         'events_stats': events_stats,
+        'per_location_stats': per_location_stats,
         'overall_total_stats': overall_total_stats,
+        'overall_refunded': overall_refunded,
         'currency': settings.DEFAULT_CURRENCY,
         'location_options': location_options,
         'selected_location_id': selected_location_id
@@ -400,38 +456,79 @@ def all_events_statistics(request):
 def generate_global_statistics_pdf(locations=None):
     # Generate statistics for all events
     # Create the PDF
+    statistic_labels = {
+        'waiting': _('Waiting'),
+        'presale_online': _('Presale Online'),
+        'presale_door': _('Presale Door'),
+        'door': _('Door'),
+        'total_sold': _('Total Sold'),
+        'total_count': _('Total'),
+        'activated_presale_online': _('Activated Presale Online'),
+        'activated_presale_door': _('Activated Presale Door'),
+        'activated_door': _('Activated Door'),
+        'total_activated': _('Total Sold Activated'),
+        'earned_presale_online': _('Total Earned Presale Online'),
+        'earned_presale_door': _('Total Earned Presale Door'),
+        'earned_door': _('Total Earned Door'),
+        'total_earned': _('Total Earned'),
+    }
+
     pdf = FPDF(unit="cm", format=(21.0, 29.7))  # A4 format
     pdf.set_margins(1.0, 1.0)
     pdf.set_auto_page_break(auto=True, margin=0.2)
     pdf.add_page()
     font = "Helvetica"
     pdf.set_font(font, size=18, style='B')
-    pdf.cell(19.0, 1.0, text=f"All Events - Statistics", border=0, align='C')
+    pdf.cell(19.0, 1.0, text=_("All Events - Statistics"), border=0, align='C')
     pdf.ln(1.0)
     # created at
     pdf.set_font(font, size=10)
-    pdf.cell(19.0, 0.6, text=f"Created at: {datetime.now().strftime('%d.%m.%Y %H:%M')}", border=0, align='L')
+    pdf.cell(19.0, 0.6, text=_("Created at:") + f" {datetime.now().strftime('%d.%m.%Y %H:%M')}", border=0, align='L')
     pdf.ln(0.6)
 
     # add global statistics
-    events_stats, overall_total_stats = get_all_event_statistics(locations=locations)
+    events_stats, per_location_stats, overall_total_stats, overall_refunded = get_all_event_statistics(locations=locations)
 
     pdf.set_font(font, size=12, style='B')
-    pdf.cell(19.0, 0.8, text="Global Statistics", border=0, align='L')
+    pdf.cell(19.0, 0.8, text=_("Global Statistics"), border=0, align='L')
     pdf.ln(0.8)
     pdf.set_font(font, size=10)
+    location_entries = list(per_location_stats.items())
+    statistic_column_width = 5.0
+    value_column_width = (19.0 - statistic_column_width) / max(len(location_entries) + 1, 1)
 
     # Create table for global statistics
     pdf.set_fill_color(200, 220, 255)
-    pdf.cell(9.0, 0.6, text="Statistic", border=1, align='C', fill=True)
-    pdf.cell(10.0, 0.6, text="Value", border=1, align='C', fill=True)
+    pdf.cell(statistic_column_width, 0.6, text=_("Statistic"), border=1, align='C', fill=True)
+    for location, location_stats in location_entries:
+        pdf.cell(value_column_width, 0.6, text=f"{location.name}", border=1, align='C', fill=True)
+    pdf.cell(value_column_width, 0.6, text=_("Global"), border=1, align='C', fill=True)
     pdf.ln(0.6)
     for key, value in overall_total_stats.items():
+        pdf.cell(statistic_column_width, 0.6, text=statistic_labels.get(key, key.replace('_', ' ').title()), border=1, align='L')
+        for location, location_stats in location_entries:
+            display_value = f"{location_stats[key]} {settings.DEFAULT_CURRENCY}" if 'earned' in key else location_stats[key]
+            pdf.cell(value_column_width, 0.6, text=f"{display_value}", border=1, align='L')
         display_value = f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else value
-        pdf.cell(9.0, 0.6, text=f"{key.replace('_', ' ').title()}", border=1, align='L')
-        pdf.cell(10.0, 0.6, text=f"{display_value}", border=1, align='L')
+        pdf.cell(value_column_width, 0.6, text=f"{display_value}", border=1, align='L')
         pdf.ln(0.6)
-    
+
+    # Add refunded statistics in seperate table as they are not included in the overall total statistics
+    pdf.ln(1.0)
+    pdf.set_font(font, size=12, style='B')
+    pdf.cell(19.0, 0.8, text=_("Refunded/Canceled Orders Statistics"), border=0, align='L')
+    pdf.ln(0.8)
+    pdf.set_font(font, size=10)
+    pdf.set_fill_color(255, 200, 200)
+    pdf.cell(9.0, 0.6, text=_("Statistic"), border=1, align='C', fill=True)
+    pdf.cell(10.0, 0.6, text=_("Value"), border=1, align='C', fill=True)
+    pdf.ln(0.6)
+    pdf.cell(9.0, 0.6, text=_("Total Refunded/Canceled Orders"), border=1, align='L')
+    pdf.cell(10.0, 0.6, text=f"{overall_refunded['total_refunded']}", border=1, align='L')
+    pdf.ln(0.6)
+    pdf.cell(9.0, 0.6, text=_("Total Amount"), border=1, align='L')
+    pdf.cell(10.0, 0.6, text=f"{overall_refunded['total_amount_refunded']} {settings.DEFAULT_CURRENCY}", border=1, align='L')
+    pdf.ln(0.6)
 
     for event_stats in events_stats:
         # Add a new page for each event
@@ -445,7 +542,7 @@ def generate_global_statistics_pdf(locations=None):
 
         # Add event name
         pdf.set_font(font, size=14, style='B')
-        pdf.cell(19.0, 0.8, text=f"{event.name} - Statistics", border=0, align='L')
+        pdf.cell(19.0, 0.8, text=f"{event.name} - { _('Statistics') }", border=0, align='L')
         pdf.ln(0.8)
         pdf.set_font(font, size=12, style='B')
         pdf.cell(4.0, 0.6, text=_("Start:"), border=0, align='L')
@@ -454,21 +551,24 @@ def generate_global_statistics_pdf(locations=None):
         pdf.cell(4.0, 0.6, text=_("Venue:"), border=0, align='L')
         pdf.cell(10.0, 0.6, text=f"{event.location.name}", border=0, align='L')
         pdf.ln(0.8)
+        pdf.cell(4.0, 0.6, text=_("Capacity:"), border=0, align='L')
+        pdf.cell(10.0, 0.6, text=f"{ event.remaining_seats } / { event.total_seats }", border=0, align='L')
+        pdf.ln(1.0)
 
         # Add total statistics
         pdf.set_font(font, size=12, style='B')
-        pdf.cell(19.0, 0.8, text="Total Statistics", border=0, align='L')
+        pdf.cell(19.0, 0.8, text=_("Total Statistics"), border=0, align='L')
         pdf.ln(0.8)
         pdf.set_font(font, size=10)
 
         # Create table for total statistics
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(9.0, 0.6, text="Statistic", border=1, align='C', fill=True)
-        pdf.cell(10.0, 0.6, text="Value", border=1, align='C', fill=True)
+        pdf.cell(9.0, 0.6, text=_("Statistic"), border=1, align='C', fill=True)
+        pdf.cell(10.0, 0.6, text=_("Value"), border=1, align='C', fill=True)
         pdf.ln(0.6)
         for key, value in total_stats.items():
             display_value = f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else value
-            pdf.cell(9.0, 0.6, text=f"{key.replace('_', ' ').title()}", border=1, align='L')
+            pdf.cell(9.0, 0.6, text=statistic_labels.get(key, key.replace('_', ' ').title()), border=1, align='L')
             pdf.cell(10.0, 0.6, text=f"{display_value}", border=1, align='L')
             pdf.ln(0.6)
 
@@ -476,22 +576,22 @@ def generate_global_statistics_pdf(locations=None):
 
         # Add price class statistics
         pdf.set_font(font, size=12, style='B')
-        pdf.cell(19.0, 0.8, text="Price Class Statistics", border=0, align='L')
+        pdf.cell(19.0, 0.8, text=_("Price Class Statistics"), border=0, align='L')
         pdf.ln(0.8)
         pdf.set_font(font, size=10)
 
         # Create table for price class statistics
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(5.0, 1.2, text="Statistic", border=1, align='C', fill=True)
+        pdf.cell(5.0, 1.2, text=_("Statistic"), border=1, align='C', fill=True)
         for price_class in price_class_stats.keys():
             pdf.multi_cell(3.0, 1.2, text=f"{price_class.name}", border=1, align='C', fill=True, ln=3, max_line_height=pdf.font_size*1.5)
         pdf.ln(1.2)
-        pdf.cell(5.0, 0.6, text=f"Price", border=1, align='C', fill=True)
+        pdf.cell(5.0, 0.6, text=_("Price"), border=1, align='C', fill=True)
         for price_class in price_class_stats.keys():
             pdf.cell(3.0, 0.6, text=f"{price_class.price} {settings.DEFAULT_CURRENCY}", border=1, align='C', fill=True)
         pdf.ln(0.6)
         for key in next(iter(price_class_stats.values())).keys():
-            pdf.cell(5.0, 0.6, text=f"{key.replace('_', ' ').title()}", border=1, align='L')
+            pdf.cell(5.0, 0.6, text=statistic_labels.get(key, key.replace('_', ' ').title()), border=1, align='L')
             for price_class, stats in price_class_stats.items():
                 display_value = f"{stats[key]} {settings.DEFAULT_CURRENCY}" if 'earned' in key else stats[key]
                 pdf.cell(3.0, 0.6, text=f"{display_value}", border=1, align='L')

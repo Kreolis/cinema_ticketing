@@ -41,7 +41,7 @@ def cart_view(request):
     elif not order.is_valid():
         # this is an old order that has expired
         # delete the order and create a new one
-        order.delete(request)
+        order.delete()
         order = get_payment_model().objects.create(session_id=request.session.session_key)
 
     if request.method == 'POST':
@@ -69,7 +69,7 @@ def order_information_form(request):
         return redirect('cart_view')
         
     if not order.is_valid():
-        order.delete(request)
+        order.delete()
         order = get_payment_model().objects.create(session_id=request.session.session_key)
         return redirect('cart_view')
         
@@ -160,13 +160,24 @@ def order_information_form(request):
                 })
 
 def payment_form(request, order_id):
+    if not request.session.session_key:
+        request.session.create()
+
     try:
         order = get_object_or_404(get_payment_model(), session_id=order_id)
     except:
         return redirect('cart_view')
 
+    if order.session_id != request.session.session_key:
+        logger.warning(
+            "Blocked payment_form access for order session_id=%s from session_key=%s",
+            order.session_id,
+            request.session.session_key,
+        )
+        return redirect('cart_view')
+
     if not order.is_valid():
-        order.delete(request)
+        order.delete()
         order = get_payment_model().objects.create(session_id=request.session.session_key)
         return redirect('cart_view')
 
@@ -416,11 +427,11 @@ def refund_order(request, order_id):
         return redirect('manage_orders')
     order = get_object_or_404(get_payment_model(), session_id=order_id)
     
-    if order.status != PaymentStatus.CONFIRMED:
-        messages.error(request, _("Cannot refund order: order is not in CONFIRMED status. Current status: {status}").format(status=order.status))
+    if order.status not in [PaymentStatus.CONFIRMED, PaymentStatus.PREAUTH]:
+        messages.error(request, _("Cannot refund order: order is not in CONFIRMED or PREAUTH status. Current status: {status}").format(status=order.status))
     else:
         try:
-            order.refund()
+            order.refund_or_cancel()
             messages.success(request, _("Order refunded successfully."))
         except Exception as e:
             messages.error(request, _("Failed to refund order: {error}").format(error=str(e)))
@@ -438,7 +449,7 @@ def cancel_order(request, order_id):
         messages.error(request, _("Cannot cancel order: order is not in CONFIRMED or PREAUTH status. Current status: {status}").format(status=order.status))
     else:
         try:
-            order.cancel()
+            order.refund_or_cancel()
             messages.success(request, _("Order cancelled successfully."))
         except Exception as e:
             messages.error(request, _("Failed to cancel order: {error}").format(error=str(e)))

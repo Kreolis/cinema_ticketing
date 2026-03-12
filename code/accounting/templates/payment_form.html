@@ -34,7 +34,10 @@
     </form>
    
     
+    {% translate "Your order has expired." as order_expired_message %}
     <script>
+        const orderExpiredMessage = "{{ order_expired_message|escapejs }}";
+
         $(document).ready(function() {
             
             // Initialize countdown with the time_remaining value
@@ -57,7 +60,7 @@
                 var remainingTime = Math.max(0, Math.round((endTime - Date.now()) / 1000));
                 if (remainingTime <= 0) {
                     $(elementId).text('0:00');
-                    alert(_("Your order has expired."));
+                    alert(orderExpiredMessage);
                     return false;
                 }
                 var minutesLeft = Math.floor(remainingTime / 60);
