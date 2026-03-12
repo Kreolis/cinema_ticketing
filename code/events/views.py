@@ -458,6 +458,36 @@ def generate_global_statistics_pdf(locations=None):
     }
 
     pdf = FPDF(unit="cm", format=(21.0, 29.7))  # A4 format
+
+    def _safe_pdf_text(value):
+        text = str(value).translate(str.maketrans({
+            '–': '-',
+            '—': '-',
+            '−': '-',
+            '“': '"',
+            '”': '"',
+            '’': "'",
+            '\u00a0': ' ',
+            '…': '...'
+        }))
+        return text.encode('latin-1', errors='replace').decode('latin-1')
+
+    original_cell = pdf.cell
+    original_multi_cell = pdf.multi_cell
+
+    def safe_cell(*args, **kwargs):
+        if 'text' in kwargs:
+            kwargs['text'] = _safe_pdf_text(kwargs['text'])
+        return original_cell(*args, **kwargs)
+
+    def safe_multi_cell(*args, **kwargs):
+        if 'text' in kwargs:
+            kwargs['text'] = _safe_pdf_text(kwargs['text'])
+        return original_multi_cell(*args, **kwargs)
+
+    pdf.cell = safe_cell
+    pdf.multi_cell = safe_multi_cell
+
     pdf.set_margins(1.0, 1.0)
     pdf.set_auto_page_break(auto=True, margin=0.2)
     pdf.add_page()
