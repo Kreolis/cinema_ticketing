@@ -27,74 +27,82 @@
 <body>
 
 <div class="container-fluid px-4">
-  <nav class="nav bg-info justify-content-between align-items-center position-sticky top-0" style="z-index: 1030;">
-    <div class="d-flex align-items-center">
-      <li class="nav-item">
-        <a class="nav-link link-light d-flex align-items-center gap-2 fw-semibold py-2" href="{% url 'event_list' %}">
-          {% if active_logo %}
-            <img src="{{ active_logo }}" alt="Home" style="height: 28px; width: auto;">
-          {% endif %}
-          <span class="lh-1">
-            {% if active_site_name %}
-              {{ active_site_name }}
-            {% else %}
-              {% translate "Home" %}
-            {% endif %}
-          </span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link link-light d-flex align-items-center py-2" href="{% url 'event_list' %}">{% translate "Events List" %}</a>
-      </li>
-      {% if user.is_authenticated and user.is_staff %}
-        <li class="nav-item">
-          <a class="nav-link link-light d-flex align-items-center py-2" href="{% url 'all_events_statistics' %}">{% translate "Global Statistics" %}</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link link-light d-flex align-items-center py-2" href="{% url 'manage_orders' %}">{% translate "Manage Orders" %}</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link link-light d-flex align-items-center py-2" href="{% url 'admin:index' %}">{% translate "Display Backend" %}</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link link-light d-flex align-items-center py-2" href="/rosetta">{% translate "Translations" %}</a>
-        </li>
-      {% else %}
-        <li class="nav-item">
-          <a class="nav-link link-light d-flex align-items-center py-2" href="{% url 'cart_view' %}">
-            {% translate "Cart" %}
-            {% if cart_ticket_count > 0 %}
-              <span class="badge bg-warning text-dark">{{ cart_ticket_count }}</span>
-            {% endif %}
-          </a>
-        </li>
+  <nav class="navbar navbar-expand-md bg-info position-sticky top-0" style="z-index: 1030;">
+    <!-- Brand / home link -->
+    <a class="navbar-brand link-light fw-semibold d-flex align-items-center gap-2" href="{% url 'event_list' %}">
+      {% if active_logo %}
+        <img src="{{ active_logo }}" alt="Home" style="height: 28px; width: auto;">
       {% endif %}
-    </div>
+      {% if active_site_name %}{{ active_site_name }}{% else %}{% translate "Home" %}{% endif %}
+    </a>
 
-    <div class="d-flex align-items-center">
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle link-light d-flex align-items-center py-2" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-          {% translate "Language" %}
-        </a>
-        <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-          {% for language in languages %}
-            <li>
-              <a class="dropdown-item{% if language.code == CURRENT_LANGUAGE %} active{% endif %}" href="#" onclick="changeLanguage('{{ language.code }}'); return false;">
-                {{ language.name_local }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      </li>
-      <li class="nav-item">
-        {% if user.is_authenticated %}
-          <a class="nav-link link-light d-flex align-items-center py-2" href="{% url 'logout' %}">{% translate "Logout" %}</a>
+    <!-- Hamburger toggler -->
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="{% translate 'Toggle navigation' %}">
+      <span class="navbar-toggler-icon filter-white"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <ul class="navbar-nav me-auto mb-2 mb-md-0">
+        <li class="nav-item">
+          <a class="nav-link link-light" href="{% url 'event_list' %}">{% translate "Events List" %}</a>
+        </li>
+        {% if user.is_authenticated and user.is_staff %}
+          <li class="nav-item">
+            <a class="nav-link link-light" href="{% url 'all_events_statistics' %}">{% translate "Global Statistics" %}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link link-light" href="{% url 'manage_orders' %}">{% translate "Manage Orders" %}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link link-light" href="{% url 'admin:index' %}">{% translate "Display Backend" %}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link link-light" href="/rosetta">{% translate "Translations" %}</a>
+          </li>
         {% else %}
-          <a class="nav-link link-light d-flex align-items-center py-2" href="{% url 'login' %}">{% translate "Login" %}</a>
+          <li class="nav-item">
+            <a class="nav-link link-light" href="{% url 'cart_view' %}">
+              {% translate "Cart" %}
+              {% if cart_ticket_count > 0 %}
+                <span class="badge bg-warning text-dark">{{ cart_ticket_count }}</span>
+              {% endif %}
+            </a>
+          </li>
         {% endif %}
-      </li>
+      </ul>
+
+      <ul class="navbar-nav mb-2 mb-md-0">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle link-light" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% translate "Language" %}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+            {% for language in languages %}
+              <li>
+                <a class="dropdown-item{% if language.code == CURRENT_LANGUAGE %} active{% endif %}" href="#" onclick="changeLanguage('{{ language.code }}'); return false;">
+                  {{ language.name_local }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+        <li class="nav-item">
+          {% if user.is_authenticated %}
+            <a class="nav-link link-light" href="{% url 'logout' %}">{% translate "Logout" %}</a>
+          {% else %}
+            <a class="nav-link link-light" href="{% url 'login' %}">{% translate "Login" %}</a>
+          {% endif %}
+        </li>
+      </ul>
     </div>
   </nav>
+
+  <style>
+    /* Make the hamburger icon visible on the info (teal) background */
+    .filter-white {
+      filter: invert(1) grayscale(1) brightness(2);
+    }
+  </style>
 
   {% block content %}
   {% endblock %}
