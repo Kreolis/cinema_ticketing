@@ -9,6 +9,9 @@
     {% translate "Manage Orders" %}
 {% endblock %}
 {% block content %}
+    {% translate "Are you sure you want to cancel this order? This action cannot be undone." as cancel_order_confirm_message %}
+    {% translate "Are you sure you want to refund this order? This action cannot be undone." as refund_order_confirm_message %}
+
     <h1 class="mt-4">{% translate "Manage Orders" %}</h1>
 
     <!-- Django Messages Display -->
@@ -72,7 +75,7 @@
                                     {% translate "Resend Invoice" %}
                                 </button>
                             </form>
-                            <form method="POST" action="{% url 'cancel_order' order.session_id %}" style="display:inline;">
+                            <form method="POST" action="{% url 'cancel_order' order.session_id %}" style="display:inline;" onsubmit="return confirm('{{ cancel_order_confirm_message|escapejs }}');">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger">
                                     {% translate "Cancel Order" %}
@@ -115,7 +118,7 @@
                                     {% translate "Resend Confirmation" %}
                                 </button>
                             </form>
-                            <form method="POST" action="{% url 'refund_order' order.session_id %}" style="display:inline;">
+                            <form method="POST" action="{% url 'refund_order' order.session_id %}" style="display:inline;" onsubmit="return confirm('{{ refund_order_confirm_message|escapejs }}');">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger">
                                     {% translate "Refund Order" %}
