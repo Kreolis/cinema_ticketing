@@ -295,7 +295,7 @@ if config('USE_ADVANCE_PAYMENT', default=False, cast=bool):
     PAYMENT_VARIANTS['advance_payment'] = (
         'accounting.custom_advance_payment_provider.AdvancePaymentProvider',
         {
-            'capture': True,
+            'capture': False,
         }
     )
 

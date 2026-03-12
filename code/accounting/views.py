@@ -123,14 +123,6 @@ def order_information_form(request):
                     ticket.email = order.billing_email
                     ticket.save()
             
-            if settings.PAYMENT_VARIANTS[order.variant][1].get('capture') == False:
-                try:
-                    order.change_status(PaymentStatus.PREAUTH)
-                    # form is not used in view but method will raise RedirectNeeded if the payment provider requires a redirect
-                    gateway_form = order.get_form(data=request.POST or None)
-                except RedirectNeeded as e:
-                    return redirect(str(e))
-            
             return redirect('payment_form', order_id=order.session_id)
     else:
         # Initialize the form with the current order data if order has data

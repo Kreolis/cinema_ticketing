@@ -31,4 +31,4 @@ def get_terms_of_service_url():
     active_branding = get_active_branding()
     if active_branding and active_branding.terms_of_service_url:
         return active_branding.terms_of_service_url
-    return reverse('terms_of_use')
+    return reverse('terms_of_service')

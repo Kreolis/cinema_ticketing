@@ -6,9 +6,12 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 
 import io
+import logging
 from datetime import datetime, timezone
 from decimal import Decimal
 from fpdf import FPDF
+
+logger = logging.getLogger(__name__)
 
 from payments import get_payment_model
 from payments.models import PaymentStatus
@@ -185,7 +188,8 @@ def send_ticket_email(request, ticket_id):
         try:
             ticket.queue_send_to_email()
             return JsonResponse({'status': 'success', 'message': _('Email queued successfully.')})
-        except:
+        except Exception as e:
+            logger.exception("Failed to queue ticket email for ticket_id=%s: %s", ticket_id, e)
             return JsonResponse({'status': 'error', 'message': _('An error occurred while queueing the email.')}, status=500)
     return JsonResponse({"status": "error", "message": _("No email address provided.")})
 

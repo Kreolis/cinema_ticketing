@@ -857,14 +857,16 @@ class Order(BasePayment):
     
             logger.info(f"Order {self.id} has been cancelled.")
         
+        # queue notification before deleting tickets so send_refund_cancel_notification_email()
+        # can still query self.tickets to determine location-based ticket master recipients
+        self.queue_refund_cancel_notification_email()
+
         # delete associated tickets
         tickets_to_delete = list(self.tickets.select_related("event").all())
         for ticket in tickets_to_delete:
             ticket.delete()
             logger.info(f"Deleted ticket {ticket.id} for event {ticket.event.name}")
 
-        self.queue_refund_cancel_notification_email()
-        
         return
 
     # delete order and associated tickets
