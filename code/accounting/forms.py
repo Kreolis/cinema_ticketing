@@ -57,6 +57,14 @@ class PaymentInfoForm(forms.Form):
         help_text=_('Enter the email address where billing information will be sent. If you have not set the send-to-email for each ticket this email will be used for all tickets.'),
         widget=forms.EmailInput(attrs={'required': True})
     )
+    
+    billing_phone = forms.CharField(
+        label=_('Phone Number'),
+        help_text=_('Optional: Enter the phone number for the billing contact. This may be used for contact purposes regarding billing issues.'),
+        required=False,
+        max_length=20,
+        widget=forms.TextInput(attrs={'maxlength': 20})
+    )
 
     # enable user to select preferred payment method in settings.PAYMENT_VARIANTS (keys), get human readable names from HUMANIZED_PAYMENT_METHODS (values) 
     # display service fee for each payment method in the choices, e.g. "Credit Card + 0.30 EUR"

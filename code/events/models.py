@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils.translation import gettext_lazy as _
 import django.utils.timezone
+from pytz import common_timezones, timezone as pytz_timezone
 
 from datetime import datetime, timedelta, timezone
 
@@ -187,7 +188,7 @@ class Ticket(models.Model):
             pdf.ln(1.25)  # Move to the next line
 
             pdf.cell(4.0, 0.6, text=_("Start:"), border=borders, align='L')
-            pdf.cell(5.0, 0.6, text=f"{self.event.start_time.strftime('%H:%M %d.%m.%Y')}", border=borders, align='L')
+            pdf.cell(5.0, 0.6, text=f"{self.event.get_start_time_in_timezone.strftime('%H:%M %d.%m.%Y %Z')}", border=borders, align='L')
 
             pdf.cell(2.5, 0.6, text=_("Duration:"), border=borders, align='R')
             pdf.cell(2.5, 0.6, text=f"{self.event.get_duration_minutes()} min", border=borders, align='L')
@@ -239,7 +240,7 @@ class Ticket(models.Model):
             pdf.set_y(5.2)  # Set x position for ticket check side
             pdf.set_x(15.2)  # Set x position for ticket check side
             pdf.cell(5.5, 0.5, text=f"{self.event.name}", border=borders, align='C', new_y="NEXT", new_x="LEFT")
-            pdf.cell(5.5, 0.5, text=f"{self.event.start_time.strftime('%H:%M %d.%m.%Y')} {self.event.get_duration_minutes()} min", border=borders, align='C', new_y="NEXT", new_x="LEFT")
+            pdf.cell(5.5, 0.5, text=f"{self.event.get_start_time_in_timezone.strftime('%H:%M %d.%m.%Y %Z')} {self.event.get_duration_minutes()} min", border=borders, align='C', new_y="NEXT", new_x="LEFT")
             if self.event.display_seat_number:
                 pdf.cell(5.5, 0.5, text=f"{self.seat}", border=borders, align='C', new_y="NEXT", new_x="LEFT")
             else:
@@ -279,7 +280,7 @@ class Ticket(models.Model):
                         "Thank you for your purchase!\n\n"
                         "Best regards,\nEvent Team").format(
                             event_name=self.event.name,
-                            start_time=self.event.start_time,
+                            start_time=self.event.get_start_time_in_timezone.strftime('%H:%M %d.%m.%Y %Z'),
                             duration=self.event.duration,
                             seat=seat
                         )
@@ -321,6 +322,14 @@ class Event(models.Model):
     """
     name = models.CharField(_("name"), max_length=255) # name of event
     start_time = models.DateTimeField(_("start time")) # start time of event
+    custom_event_timezone = models.CharField(
+        _("custom event timezone"),
+        max_length=63,
+        blank=True,
+        null=True,
+        choices=[(tz, tz) for tz in common_timezones],
+        help_text=_("Custom timezone for this event. If not set, the default timezone will be used.")
+    )
     duration = models.DurationField(_("duration"), default='02:00:00')  # 2 hours
     location = models.ForeignKey(Location, verbose_name=_("location"), on_delete=models.CASCADE) # add location to event
     price_classes = models.ManyToManyField(PriceClass, verbose_name=_("price classes"), related_name="events")  # multiple PriceClasses for an event
@@ -392,10 +401,9 @@ class Event(models.Model):
         default=branding.allow_door_selling if branding and branding.allow_door_selling else True
     )
 
-
     def __str__(self):
         return self.name
-    
+
     def get_duration_minutes(self):
         """
         Return the duration of the event in minutes.
@@ -436,6 +444,55 @@ class Event(models.Model):
         # Convert hex to RGB
         r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
         return f"{r}, {g}, {b}"
+
+    def get_timezone(self):
+        """Return the pytz timezone object for this event."""
+        try:
+            if self.custom_event_timezone:
+                return pytz_timezone(self.custom_event_timezone)
+            # Fetch active branding dynamically to avoid stale cached values
+            active_branding = get_active_branding()
+            return pytz_timezone(active_branding.default_event_timezone) if active_branding and active_branding.default_event_timezone else pytz_timezone('UTC')
+        
+        except Exception:
+            # Fallback to UTC if timezone is invalid
+            return pytz_timezone('UTC')
+    
+    @property
+    def get_start_time_in_timezone(self):
+        """Return the start time converted to the event's timezone."""
+        tz = self.get_timezone()
+        # If start_time is naive, assume it's UTC
+        if self.start_time.tzinfo is None:
+            utc_time = pytz_timezone('UTC').localize(self.start_time)
+        else:
+            utc_time = self.start_time
+        return utc_time.astimezone(tz)
+
+    @property
+    def get_presale_start_time_in_timezone(self):
+        """Return the presale start time converted to the event's timezone."""
+        if self.presale_start:
+            tz = self.get_timezone()
+            # If presale_start is naive, assume it's UTC
+            if self.presale_start.tzinfo is None:
+                utc_time = pytz_timezone('UTC').localize(self.presale_start)
+            else:
+                utc_time = self.presale_start
+            return utc_time.astimezone(tz)
+        return None
+    
+    @property
+    def get_presale_end_time_in_timezone(self):
+        """Return the presale end time converted to the event's timezone."""
+        presale_end = self.presale_end_time()
+        tz = self.get_timezone()
+        # If presale_end is naive, assume it's UTC
+        if presale_end.tzinfo is None:
+            utc_time = pytz_timezone('UTC').localize(presale_end)
+        else:
+            utc_time = presale_end
+        return utc_time.astimezone(tz)
 
     def calculate_statistics(self):
         """
@@ -522,7 +579,7 @@ class Event(models.Model):
         pdf.ln(1.0)
         pdf.set_font(font, size=12, style='B')
         pdf.cell(4.0, 0.6, text=_("Start:"), border=0, align='L')
-        pdf.cell(5.0, 0.6, text=f"{self.start_time.strftime('%H:%M %d.%m.%Y')}", border=0, align='L')
+        pdf.cell(5.0, 0.6, text=f"{self.get_start_time_in_timezone.strftime('%H:%M %d.%m.%Y %Z')}", border=0, align='L')
         pdf.ln(0.8)
         pdf.cell(4.0, 0.6, text=_("Venue:"), border=0, align='L')
         pdf.cell(10.0, 0.6, text=f"{self.location.name}", border=0, align='L')

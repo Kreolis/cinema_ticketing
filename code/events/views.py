@@ -95,9 +95,9 @@ def event_detail(request, event_id):
     price_classes = event.price_classes.all().exclude(secret=True)
 
     if branding and branding.use_online_presale_end and branding.online_presale_end:
-        presale_end_time = branding.online_presale_end
+        presale_end_time = branding.get_presale_end_time_in_timezone()
     else:
-        presale_end_time = event.presale_end_time()
+        presale_end_time = event.get_presale_end_time_in_timezone
 
     # Ensure the session is created
     if not request.session.session_key:
@@ -141,7 +141,7 @@ def event_detail(request, event_id):
         'form': form,
         'is_ticket_manager': is_ticket_manager,
         'presale_end_time': presale_end_time,
-        'presale_start_time': event.presale_start,
+        'presale_start_time': event.get_presale_start_time_in_timezone,
         'currency': settings.DEFAULT_CURRENCY,
     })
 
@@ -279,6 +279,13 @@ def event_door_selling(request, event_id):
                                     last_name=form.cleaned_data.get('last_name')
                                 )
                             new_ticket.save()
+
+                            # if email is provided, send the ticket email
+                            if new_ticket.email:
+                                try:
+                                    new_ticket.queue_send_to_email()
+                                except Exception as e:
+                                    logger.exception("Failed to queue ticket email for ticket_id=%s: %s", new_ticket.id, e)
             else:
                 # event is not active
                 return JsonResponse({"status": "error", "message": _("Event is not active.")})
@@ -291,7 +298,7 @@ def event_door_selling(request, event_id):
         'event': event,
         'event_active': event.check_active(),
         'presale_end_time': presale_end_time,
-        'presale_start_time': event.presale_start,
+        'presale_start_time': event.get_presale_start_time_in_timezone,
         'price_classes': price_classes,
         'tickets_door_and_presale': tickets_door_and_presale,
         'form': form,

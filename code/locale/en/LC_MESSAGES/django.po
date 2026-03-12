@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-12 15:46+0200\n"
-"PO-Revision-Date: 2026-03-12 13:47+0000\n"
+"POT-Creation-Date: 2026-03-12 23:36+0200\n"
+"PO-Revision-Date: 2026-03-12 21:11+0000\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -39,7 +39,7 @@ msgstr "No"
 msgid "Delete selected orders"
 msgstr "Delete selected orders"
 
-#: accounting/forms.py:12 events/forms.py:35
+#: accounting/forms.py:12 events/forms.py:39
 msgid "First Name"
 msgstr "First Name"
 
@@ -47,7 +47,7 @@ msgstr "First Name"
 msgid "Enter the first name as it appears on the billing statement."
 msgstr "Enter the first name as it appears on the billing statement."
 
-#: accounting/forms.py:17 events/forms.py:42
+#: accounting/forms.py:17 events/forms.py:46
 msgid "Last Name"
 msgstr "Last Name"
 
@@ -103,12 +103,12 @@ msgstr "State/Province"
 msgid "Enter the state or province for the billing address."
 msgstr "Enter the state or province for the billing address."
 
-#: accounting/forms.py:56 accounting/forms.py:113
+#: accounting/forms.py:56 accounting/forms.py:120
 #: accounting/templates/cart.html:50
 #: accounting/templates/order_payment_overview.html:31
-#: accounting/templates/ticket_list.html:33 events/forms.py:28
-#: events/templates/event_check_in.html:153
-#: events/templates/event_door_selling.html:65
+#: accounting/templates/ticket_list.html:33 events/forms.py:32
+#: events/templates/event_check_in.html:175
+#: events/templates/event_door_selling.html:91
 msgid "Email"
 msgstr "Email"
 
@@ -122,21 +122,33 @@ msgstr ""
 "not set the send-to-email for each ticket this email will be used for all "
 "tickets."
 
-#: accounting/forms.py:64 accounting/models.py:45 accounting/models.py:83
+#: accounting/forms.py:62 accounting/models.py:430
+msgid "Phone Number"
+msgstr "Phone Number"
+
+#: accounting/forms.py:63
+msgid ""
+"Optional: Enter the phone number for the billing contact. This may be used "
+"for contact purposes regarding billing issues."
+msgstr ""
+"Optional: Enter the phone number for the billing contact. This may be used "
+"for contact purposes regarding billing issues."
+
+#: accounting/forms.py:71 accounting/models.py:45 accounting/models.py:83
 #: accounting/templates/order_payment_overview.html:97
 #: accounting/templates/ticket_list.html:119
 msgid "Payment Method"
 msgstr "Payment Method"
 
-#: accounting/forms.py:65
+#: accounting/forms.py:72
 msgid "Select the payment method you would like to use."
 msgstr "Select the payment method you would like to use."
 
-#: accounting/forms.py:79
+#: accounting/forms.py:86
 msgid "Please prove you are human."
 msgstr "Please prove you are human."
 
-#: accounting/forms.py:114
+#: accounting/forms.py:121
 msgid "Enter the email address where all tickets will be sent to."
 msgstr "Enter the email address where all tickets will be sent to."
 
@@ -156,39 +168,39 @@ msgstr "Fixed Amount per Ticket"
 msgid "Percentage per Ticket"
 msgstr "Percentage per Ticket"
 
-#: accounting/models.py:34 cinema_tickets/settings.py:322
+#: accounting/models.py:34 cinema_tickets/settings.py:347
 msgid "Stripe (Credit Card)"
 msgstr "Stripe (Credit Card)"
 
-#: accounting/models.py:35 cinema_tickets/settings.py:323
+#: accounting/models.py:35 cinema_tickets/settings.py:348
 msgid "Paypal"
 msgstr "Paypal"
 
-#: accounting/models.py:36 cinema_tickets/settings.py:324
+#: accounting/models.py:36 cinema_tickets/settings.py:349
 msgid "Sofort/Klarna"
 msgstr "Sofort/Klarna"
 
-#: accounting/models.py:37 cinema_tickets/settings.py:325
+#: accounting/models.py:37 cinema_tickets/settings.py:350
 msgid "Advance Payment"
 msgstr "Advance Payment"
 
-#: accounting/models.py:38 cinema_tickets/settings.py:326
+#: accounting/models.py:38 cinema_tickets/settings.py:351
 msgid "Dummy Payment"
 msgstr "Dummy Payment"
 
-#: accounting/models.py:47 events/models.py:326
+#: accounting/models.py:47 events/models.py:336
 msgid "price classes"
 msgstr "price classes"
 
 #: accounting/models.py:50
 msgid ""
 "Select the price classes to which this service fee should be applied. If no "
-"price class is selected, the service fee will be applied to all tickets sold"
-" with the selected payment method."
+"price class is selected, the service fee will be applied to all tickets sold "
+"with the selected payment method."
 msgstr ""
 "Select the price classes to which this service fee should be applied. If no "
-"price class is selected, the service fee will be applied to all tickets sold"
-" with the selected payment method."
+"price class is selected, the service fee will be applied to all tickets sold "
+"with the selected payment method."
 
 #: accounting/models.py:51
 msgid "Display Name"
@@ -283,10 +295,6 @@ msgstr "Company Address"
 msgid "VAT Number"
 msgstr "VAT Number"
 
-#: accounting/models.py:430
-msgid "Phone Number"
-msgstr "Phone Number"
-
 #: accounting/models.py:431
 msgid "Email Address"
 msgstr "Email Address"
@@ -329,7 +337,7 @@ msgstr "Unit Price"
 #: events/templates/all_event_statistics.html:155
 #: events/templates/all_event_statistics.html:202
 #: events/templates/event_statistics.html:38
-#: events/templates/event_statistics.html:85 events/views.py:449
+#: events/templates/event_statistics.html:85 events/views.py:456
 msgid "Total"
 msgstr "Total"
 
@@ -356,7 +364,8 @@ msgstr "Your Invoice for Order {order_id} - {site_name}"
 msgid ""
 "Dear Customer,\n"
 "\n"
-"Thank you for your purchase! You can find the invoice of your ticket purchase attached.\n"
+"Thank you for your purchase! You can find the invoice of your ticket "
+"purchase attached.\n"
 "\n"
 "Please find your tickets and purchase details under the following link:\n"
 "\n"
@@ -369,7 +378,8 @@ msgid ""
 msgstr ""
 "Dear Customer,\n"
 "\n"
-"Thank you for your purchase! You can find the invoice of your ticket purchase attached.\n"
+"Thank you for your purchase! You can find the invoice of your ticket "
+"purchase attached.\n"
 "\n"
 "Please find your tickets and purchase details under the following link:\n"
 "\n"
@@ -390,7 +400,8 @@ msgstr "Payment Instructions for Your Order {order_id} on {site_name}"
 msgid ""
 "Dear Customer,\n"
 "\n"
-"Thank you for your purchase! Please find the payment instructions for your order below.\n"
+"Thank you for your purchase! Please find the payment instructions for your "
+"order below.\n"
 "\n"
 "{payment_instructions}\n"
 "\n"
@@ -403,7 +414,8 @@ msgid ""
 msgstr ""
 "Dear Customer,\n"
 "\n"
-"Thank you for your purchase! Please find the payment instructions for your order below.\n"
+"Thank you for your purchase! Please find the payment instructions for your "
+"order below.\n"
 "\n"
 "{payment_instructions}\n"
 "\n"
@@ -466,26 +478,38 @@ msgstr "Your Order {order_id} has been Refunded or Cancelled - {site_name}"
 msgid ""
 "Dear Customer,\n"
 "\n"
-"We regret to inform you that your order with ID {order_id} has been refunded or cancelled.\n"
+"We regret to inform you that your order with ID {order_id} has been refunded "
+"or cancelled.\n"
 "\n"
-"If you have already transferred the payment the amount of {total_amount} {currency} will be returned to your original payment method ({payment_method}).\n"
+"If you have already transferred the payment the amount of {total_amount} "
+"{currency} will be returned to your original payment method "
+"({payment_method}).\n"
 "\n"
-"Please note that it may take a few business days for the refund to be processed and reflected in your account, depending on your bank or payment provider.\n"
+"Please note that it may take a few business days for the refund to be "
+"processed and reflected in your account, depending on your bank or payment "
+"provider.\n"
 "\n"
-"If you have any questions or concerns regarding this refund or cancellation, please do not hesitate to contact our support team.\n"
+"If you have any questions or concerns regarding this refund or cancellation, "
+"please do not hesitate to contact our support team.\n"
 "\n"
 "Best regards,\n"
 "The Event Team"
 msgstr ""
 "Dear Customer,\n"
 "\n"
-"We regret to inform you that your order with ID {order_id} has been refunded or cancelled.\n"
+"We regret to inform you that your order with ID {order_id} has been refunded "
+"or cancelled.\n"
 "\n"
-"If you have already transferred the payment the amount of {total_amount} {currency} will be returned to your original payment method ({payment_method}).\n"
+"If you have already transferred the payment the amount of {total_amount} "
+"{currency} will be returned to your original payment method "
+"({payment_method}).\n"
 "\n"
-"Please note that it may take a few business days for the refund to be processed and reflected in your account, depending on your bank or payment provider.\n"
+"Please note that it may take a few business days for the refund to be "
+"processed and reflected in your account, depending on your bank or payment "
+"provider.\n"
 "\n"
-"If you have any questions or concerns regarding this refund or cancellation, please do not hesitate to contact our support team.\n"
+"If you have any questions or concerns regarding this refund or cancellation, "
+"please do not hesitate to contact our support team.\n"
 "\n"
 "Best regards,\n"
 "The Event Team"
@@ -500,7 +524,8 @@ msgstr "Order {order_id} has been Refunded or Cancelled on {site_name}"
 msgid ""
 "Dear Ticket Master,\n"
 "\n"
-"We inform you that the order with ID {order_id} has been refunded or cancelled.\n"
+"We inform you that the order with ID {order_id} has been refunded or "
+"cancelled.\n"
 "\n"
 "Please find the order details below:\n"
 "\n"
@@ -515,7 +540,8 @@ msgid ""
 msgstr ""
 "Dear Ticket Master,\n"
 "\n"
-"We inform you that the order with ID {order_id} has been refunded or cancelled.\n"
+"We inform you that the order with ID {order_id} has been refunded or "
+"cancelled.\n"
 "\n"
 "Please find the order details below:\n"
 "\n"
@@ -534,8 +560,8 @@ msgid ""
 "Cannot refund or cancel order: order is not in CONFIRMED or PREAUTH status. "
 "Current status: {status}"
 msgstr ""
-" Cannot refund or cancel order: order is not in CONFIRMED or PREAUTH status."
-" Current status: {status} "
+" Cannot refund or cancel order: order is not in CONFIRMED or PREAUTH status. "
+"Current status: {status} "
 
 #: accounting/templates/cart.html:9
 msgid "Order Overview"
@@ -607,27 +633,26 @@ msgstr "Location"
 #: accounting/templates/cart.html:49
 #: accounting/templates/order_payment_overview.html:30
 #: accounting/templates/ticket_list.html:32
-#: events/templates/event_check_in.html:151
-#: events/templates/event_door_selling.html:61
+#: events/templates/event_check_in.html:173
+#: events/templates/event_door_selling.html:87
 msgid "Seat Number"
 msgstr "Seat Number"
 
 #: accounting/templates/cart.html:51
 #: accounting/templates/order_payment_overview.html:32
 #: accounting/templates/ticket_list.html:34
-#: events/templates/event_door_selling.html:62 events/views.py:574
+#: events/templates/event_door_selling.html:88 events/views.py:611
 msgid "Price"
 msgstr "Price"
 
 #: accounting/templates/cart.html:52
 #: accounting/templates/order_payment_overview.html:33
 #: accounting/templates/ticket_list.html:35
-#: events/templates/event_door_selling.html:63
+#: events/templates/event_door_selling.html:89
 msgid "Price Class"
 msgstr "Price Class"
 
-#: accounting/templates/cart.html:53
-#: accounting/templates/manage_orders.html:53
+#: accounting/templates/cart.html:53 accounting/templates/manage_orders.html:53
 #: accounting/templates/manage_orders.html:102
 #: accounting/templates/manage_orders.html:145
 #: accounting/templates/ticket_list.html:37
@@ -641,7 +666,7 @@ msgid "Free seating"
 msgstr "Free seating"
 
 #: accounting/templates/cart.html:71 accounting/templates/ticket_list.html:56
-#: events/templates/event_door_selling.html:80
+#: events/templates/event_door_selling.html:106
 msgid "Update"
 msgstr "Update"
 
@@ -728,7 +753,7 @@ msgstr "Customer Last Name"
 #: accounting/templates/manage_orders.html:52
 #: accounting/templates/manage_orders.html:101
 #: accounting/templates/manage_orders.html:144
-#: accounting/templates/manage_orders.html:181 events/views.py:514
+#: accounting/templates/manage_orders.html:181 events/views.py:551
 msgid "Total Amount"
 msgstr "Total Amount"
 
@@ -895,12 +920,12 @@ msgid "Payment Form"
 msgstr "Payment Form"
 
 #: accounting/templates/ticket_list.html:64
-#: events/templates/event_door_selling.html:85
+#: events/templates/event_door_selling.html:111
 msgid "Show Ticket"
 msgstr "Show Ticket"
 
 #: accounting/templates/ticket_list.html:67
-#: events/templates/event_door_selling.html:88
+#: events/templates/event_door_selling.html:114
 msgid "Send ticket to Email"
 msgstr "Send ticket to Email"
 
@@ -916,7 +941,7 @@ msgstr ""
 msgid "Show Invoice"
 msgstr "Show Invoice"
 
-#: accounting/views.py:389
+#: accounting/views.py:391
 #, python-brace-format
 msgid ""
 "Cannot resend confirmation email: order is not in CONFIRMED status. Current "
@@ -925,17 +950,17 @@ msgstr ""
 "Cannot resend confirmation email: order is not in CONFIRMED status. Current "
 "status: {status}"
 
-#: accounting/views.py:393
+#: accounting/views.py:395
 #, python-brace-format
 msgid "Confirmation email queued successfully for {email}"
 msgstr "Confirmation email queued successfully for {email}"
 
-#: accounting/views.py:395
+#: accounting/views.py:397
 #, python-brace-format
 msgid "Failed to queue confirmation email: {error}"
 msgstr "Failed to queue confirmation email: {error}"
 
-#: accounting/views.py:407
+#: accounting/views.py:409
 #, python-brace-format
 msgid ""
 "Cannot send refund notification: order is not in REFUNDED status. Current "
@@ -944,17 +969,17 @@ msgstr ""
 "Cannot send refund notification: order is not in REFUNDED status. Current "
 "status: {status}"
 
-#: accounting/views.py:411
+#: accounting/views.py:413
 #, python-brace-format
 msgid "Refund notification email queued successfully for {email}"
 msgstr "Refund notification email queued successfully for {email}"
 
-#: accounting/views.py:413
+#: accounting/views.py:415
 #, python-brace-format
 msgid "Failed to queue refund notification email: {error}"
 msgstr "Failed to queue refund notification email: {error}"
 
-#: accounting/views.py:425
+#: accounting/views.py:427
 #, python-brace-format
 msgid ""
 "Cannot refund order: order is not in CONFIRMED status. Current status: "
@@ -963,25 +988,25 @@ msgstr ""
 "Cannot refund order: order is not in CONFIRMED status. Current status: "
 "{status}"
 
-#: accounting/views.py:429
+#: accounting/views.py:431
 msgid "Order refunded successfully."
 msgstr "Order refunded successfully."
 
-#: accounting/views.py:431
+#: accounting/views.py:433
 #, python-brace-format
 msgid "Failed to refund order: {error}"
 msgstr "Failed to refund order: {error}"
 
-#: accounting/views.py:450
+#: accounting/views.py:452
 msgid "Order cancelled successfully."
 msgstr "Order cancelled successfully."
 
-#: accounting/views.py:452
+#: accounting/views.py:454
 #, python-brace-format
 msgid "Failed to cancel order: {error}"
 msgstr "Failed to cancel order: {error}"
 
-#: accounting/views.py:457
+#: accounting/views.py:459
 #, python-brace-format
 msgid ""
 "Cannot cancel order: order must be in PREAUTH status or be an payment "
@@ -1006,27 +1031,27 @@ msgstr "Enter your message or inquiry."
 msgid "Select an event to which your message is related (optional)."
 msgstr "Select an event to which your message is related (optional)."
 
-#: branding/models.py:17 events/models.py:617
+#: branding/models.py:19 events/models.py:673
 msgid "Enter the first name"
 msgstr "Enter the first name"
 
-#: branding/models.py:18 events/models.py:618
+#: branding/models.py:20 events/models.py:674
 msgid "Enter the last name"
 msgstr "Enter the last name"
 
-#: branding/models.py:19
+#: branding/models.py:21
 msgid "Enter the email address to which the contact form is sent"
 msgstr "Enter the email address to which the contact form is sent"
 
-#: branding/models.py:20 events/models.py:620
+#: branding/models.py:22 events/models.py:676
 msgid "Indicates if the contact is active"
 msgstr "Indicates if the contact is active"
 
-#: branding/models.py:27
+#: branding/models.py:29
 msgid "Enter the name of your branding"
 msgstr "Enter the name of your branding"
 
-#: branding/models.py:28
+#: branding/models.py:30
 msgid ""
 "Enter the name of your site. This will be used as the title of the site and "
 "in communications."
@@ -1034,27 +1059,27 @@ msgstr ""
 "Enter the name of your site. This will be used as the title of the site and "
 "in communications."
 
-#: branding/models.py:29
+#: branding/models.py:31
 msgid "Enter the URL of your site. This will be used in communications."
 msgstr "Enter the URL of your site. This will be used in communications."
 
-#: branding/models.py:30
+#: branding/models.py:32
 msgid "Upload the logo image"
 msgstr "Upload the logo image"
 
-#: branding/models.py:31
+#: branding/models.py:33
 msgid "Upload the favicon image (max 64x64 pixels)"
 msgstr "Upload the favicon image (max 64x64 pixels)"
 
-#: branding/models.py:32
+#: branding/models.py:34
 msgid "Timeout in minutes until user needs to start fresh with their order"
 msgstr "Timeout in minutes until user needs to start fresh with their order"
 
-#: branding/models.py:33
+#: branding/models.py:35
 msgid "Upload the success sound file for ticket scanner"
 msgstr "Upload the success sound file for ticket scanner"
 
-#: branding/models.py:36
+#: branding/models.py:38
 msgid ""
 "Enter the URL of your privacy policy. This will be used in legal and on the "
 "website."
@@ -1062,7 +1087,7 @@ msgstr ""
 "Enter the URL of your privacy policy. This will be used in legal and on the "
 "website."
 
-#: branding/models.py:37
+#: branding/models.py:39
 msgid ""
 "Enter the URL of your terms of service. This will be used in legal and on "
 "the website."
@@ -1070,11 +1095,11 @@ msgstr ""
 "Enter the URL of your terms of service. This will be used in legal and on "
 "the website."
 
-#: branding/models.py:40
+#: branding/models.py:42
 msgid "Upload the global ticket background image"
 msgstr "Upload the global ticket background image"
 
-#: branding/models.py:41
+#: branding/models.py:43
 msgid ""
 "Indicates if seat numbers are displayed for customers, if not free seating "
 "text is displayed"
@@ -1082,151 +1107,151 @@ msgstr ""
 "Indicates if seat numbers are displayed for customers, if not free seating "
 "text is displayed."
 
-#: branding/models.py:42
+#: branding/models.py:44
 msgid "Upload the global event background image"
 msgstr "Upload the global event background image"
 
-#: branding/models.py:43
+#: branding/models.py:45
 msgid "Indicates if presale is allowed"
 msgstr "Indicates if presale is allowed"
 
-#: branding/models.py:44
+#: branding/models.py:46
 msgid "Enter the date and time when presale starts"
 msgstr "Enter the date and time when presale starts"
 
-#: branding/models.py:45
+#: branding/models.py:47
 msgid "Enter the date and time when online presale ends"
 msgstr "Enter the date and time when online presale ends"
 
-#: branding/models.py:46
-msgid ""
-"Indicates if the online presale end time is used for all events. If false, "
-"the presale end time is calculated based on the event start time and the "
-"presale_ends_before setting."
-msgstr ""
-"Indicates if the online presale end time is used for all events. If false, "
-"the presale end time is calculated based on the event start time and the "
-"presale_ends_before setting."
-
-#: branding/models.py:47
-msgid ""
-"Number of hours before event start when non online presale ends and door "
-"(not presale) selling starts"
-msgstr ""
-"Number of hours before event start when non online presale ends and door "
-"(not presale) selling starts"
-
 #: branding/models.py:48
+msgid ""
+"Indicates if the online presale end time is used for all events. If false, "
+"the presale end time is calculated based on the event start time and the "
+"presale_ends_before setting."
+msgstr ""
+"Indicates if the online presale end time is used for all events. If false, "
+"the presale end time is calculated based on the event start time and the "
+"presale_ends_before setting."
+
+#: branding/models.py:49
+msgid ""
+"Number of hours before event start when non online presale ends and door "
+"(not presale) selling starts"
+msgstr ""
+"Number of hours before event start when non online presale ends and door "
+"(not presale) selling starts"
+
+#: branding/models.py:50
 msgid "Indicates if selling tickets at the door is allowed"
 msgstr "Indicates if selling tickets at the door is allowed"
 
-#: branding/models.py:49
+#: branding/models.py:51
 msgid "Interval in minutes for checking timed out orders"
 msgstr "Interval in minutes for checking timed out orders"
 
-#: branding/models.py:52
+#: branding/models.py:54
 msgid "Indicates if ticket statistics are sent via email"
 msgstr "Indicates if ticket statistics are sent via email"
 
-#: branding/models.py:53
+#: branding/models.py:55
 msgid "Enter the email address to receive ticket statistics"
 msgstr "Enter the email address to receive ticket statistics"
 
-#: branding/models.py:54
+#: branding/models.py:56
 msgid "Enter the interval in hours for sending ticket statistics"
 msgstr "Enter the interval in hours for sending ticket statistics"
 
-#: branding/models.py:55
+#: branding/models.py:57
 msgid "Enter the date and time when ticket statistics should start sending"
 msgstr "Enter the date and time when ticket statistics should start sending"
 
-#: branding/models.py:56
+#: branding/models.py:58
 msgid "Enter the date and time when ticket statistics should stop sending"
 msgstr "Enter the date and time when ticket statistics should stop sending"
 
-#: branding/models.py:59
+#: branding/models.py:61
 msgid ""
 "Indicates if invoice information is displayed on auto generated invoices"
 msgstr ""
 "Indicates if invoice information is displayed on auto generated invoices"
 
-#: branding/models.py:60
+#: branding/models.py:62
 msgid "Upload the global invoice background image"
 msgstr "Upload the global invoice background image"
 
-#: branding/models.py:61
+#: branding/models.py:63
 msgid "Upload the logo image for invoices"
 msgstr "Upload the logo image for invoices"
 
-#: branding/models.py:62
+#: branding/models.py:64
 msgid "Enter your name to appear on invoices"
 msgstr "Enter your name to appear on invoices"
 
-#: branding/models.py:63 branding/models.py:64
+#: branding/models.py:65 branding/models.py:66
 msgid "Enter your address to appear on invoices"
 msgstr "Enter your address to appear on invoices"
 
-#: branding/models.py:65
+#: branding/models.py:67
 msgid "Enter your city to appear on invoices"
 msgstr "Enter your city to appear on invoices"
 
-#: branding/models.py:66
+#: branding/models.py:68
 msgid "Enter your postal code to appear on invoices"
 msgstr "Enter your postal code to appear on invoices"
 
-#: branding/models.py:67
+#: branding/models.py:69
 msgid "Enter your country to appear on invoices"
 msgstr "Enter your country to appear on invoices"
 
-#: branding/models.py:68
+#: branding/models.py:70
 msgid "Enter your email address to appear on invoices"
 msgstr "Enter your email address to appear on invoices"
 
-#: branding/models.py:69
+#: branding/models.py:71
 msgid "Enter your phone number to appear on invoices"
 msgstr "Enter your phone number to appear on invoices"
 
-#: branding/models.py:70
+#: branding/models.py:72
 msgid "Enter your VAT number to appear on invoices"
 msgstr "Enter your VAT number to appear on invoices"
 
-#: branding/models.py:71
+#: branding/models.py:73
 msgid "Enter the tax rate in percent to appear on invoices"
 msgstr "Enter the tax rate in percent to appear on invoices"
 
-#: branding/models.py:73
+#: branding/models.py:75
 msgid "Enter the padding in cm for the top of the invoice"
 msgstr "Enter the padding in cm for the top of the invoice"
 
-#: branding/models.py:74
+#: branding/models.py:76
 msgid "Enter the padding in cm for the left of the invoice"
 msgstr "Enter the padding in cm for the left of the invoice"
 
-#: branding/models.py:75
+#: branding/models.py:77
 msgid "Enter the padding in cm for the right of the invoice"
 msgstr "Enter the padding in cm for the right of the invoice"
 
-#: branding/models.py:76
+#: branding/models.py:78
 msgid "Enter the padding in cm for the bottom of the invoice"
 msgstr "Enter the padding in cm for the bottom of the invoice"
 
-#: branding/models.py:78
+#: branding/models.py:80
 msgid "Enter the bank account name for advanced payments"
 msgstr "Enter the bank account name for advanced payments"
 
-#: branding/models.py:79
+#: branding/models.py:81
 msgid "Enter the bank name for advanced payments"
 msgstr "Enter the bank name for advanced payments"
 
-#: branding/models.py:80
+#: branding/models.py:82
 msgid "Enter the IBAN for advanced payments"
 msgstr "Enter the IBAN for advanced payments"
 
-#: branding/models.py:81
+#: branding/models.py:83
 msgid "Enter the SWIFT code for advanced payments"
 msgstr "Enter the SWIFT code for advanced payments"
 
-#: branding/models.py:82
+#: branding/models.py:84
 msgid ""
 "Enter the reference for advanced payments. This is also used as invoice "
 "number."
@@ -1234,24 +1259,36 @@ msgstr ""
 "Enter the reference for advanced payments. This is also used as invoice "
 "number."
 
-#: branding/models.py:83
+#: branding/models.py:85
 msgid "Enter the number of days until payment is due for advanced payments"
 msgstr "Enter the number of days until payment is due for advanced payments"
 
-#: branding/models.py:84
+#: branding/models.py:86
 msgid "Enter the message to appear on advanced payment emails"
 msgstr "Enter the message to appear on advanced payment emails"
 
-#: branding/models.py:86
+#: branding/models.py:90
+msgid "default event timezone"
+msgstr "default event timezone"
+
+#: branding/models.py:94
+msgid ""
+"Default timezone for all events. This will be used as the timezone for new "
+"events. Individual events can override this setting."
+msgstr ""
+"Default timezone for all events. This will be used as the timezone for new "
+"events. Individual events can override this setting."
+
+#: branding/models.py:97
 msgid "Indicates if this branding is active"
 msgstr "Indicates if this branding is active"
 
-#: branding/models.py:115
+#: branding/models.py:126
 msgid "Favicon size should not exceed 64x64 pixels."
 msgstr "Favicon size should not exceed 64x64 pixels."
 
 #: branding/templates/contact.html:9 branding/templates/contact.html:13
-#: templates/master.html:126
+#: templates/master.html:134
 msgid "Contact Us"
 msgstr "Contact Us"
 
@@ -1267,31 +1304,35 @@ msgstr "Submit"
 msgid "Message sent successfully!"
 msgstr "Message sent successfully!"
 
-#: cinema_tickets/settings.py:168
+#: cinema_tickets/settings.py:193
 msgid "English"
 msgstr "English"
 
-#: cinema_tickets/settings.py:169
+#: cinema_tickets/settings.py:194
 msgid "German"
 msgstr "German"
 
-#: events/forms.py:23
-msgid "Select the number of tickets for this price class."
-msgstr "Select the number of tickets for this price class."
+#: events/forms.py:63
+msgid "Quick ticket buttons"
+msgstr "Quick ticket buttons"
 
-#: events/forms.py:57
-msgid "+1 Ticket"
-msgstr "+1 Ticket"
+#: events/forms.py:64
+msgid "-1"
+msgstr "-1"
 
-#: events/forms.py:58
-msgid "+2 Tickets"
-msgstr "+2 Tickets"
+#: events/forms.py:65
+msgid "+1"
+msgstr "+1"
 
-#: events/forms.py:59
-msgid "+5 Tickets"
-msgstr "+5 Tickets"
+#: events/forms.py:66
+msgid "+2"
+msgstr "+2"
 
-#: events/forms.py:65 events/templates/all_event_statistics.html:30
+#: events/forms.py:67
+msgid "+5"
+msgstr "+5"
+
+#: events/forms.py:74 events/templates/all_event_statistics.html:30
 #: events/templates/event_list.html:37
 msgid "Reset"
 msgstr "Reset"
@@ -1300,95 +1341,95 @@ msgstr "Reset"
 msgid "Generate and send global event statistics to mail"
 msgstr "Generate and send global event statistics to mail"
 
-#: events/models.py:23
+#: events/models.py:25
 msgid "Blue"
 msgstr "Blue"
 
-#: events/models.py:24
+#: events/models.py:26
 msgid "Gray"
 msgstr "Gray"
 
-#: events/models.py:25
+#: events/models.py:27
 msgid "Green"
 msgstr "Green"
 
-#: events/models.py:26
+#: events/models.py:28
 msgid "Red"
 msgstr "Red"
 
-#: events/models.py:27
+#: events/models.py:29
 msgid "Warning"
 msgstr "Warning"
 
-#: events/models.py:28
+#: events/models.py:30
 msgid "Cyan"
 msgstr "Cyan"
 
-#: events/models.py:29
+#: events/models.py:31
 msgid "Pink"
 msgstr "Pink"
 
-#: events/models.py:30
+#: events/models.py:32
 msgid "Orange"
 msgstr "Orange"
 
-#: events/models.py:31
+#: events/models.py:33
 msgid "Indigo"
 msgstr "Indigo"
 
-#: events/models.py:32
+#: events/models.py:34
 msgid "Custom Color"
 msgstr "Custom Color"
 
-#: events/models.py:42
+#: events/models.py:44
 msgid "Ticket not yet sold"
 msgstr "Ticket not yet sold"
 
-#: events/models.py:43
+#: events/models.py:45
 msgid "Ticket was sold in online presale"
 msgstr "Ticket was sold in online presale"
 
-#: events/models.py:44
+#: events/models.py:46
 msgid "Ticket was sold in online presale, but not yet confirmed"
 msgstr "Ticket was sold in online presale, but not yet confirmed."
 
-#: events/models.py:45
+#: events/models.py:47
 msgid "Ticket was sold in door presale"
 msgstr "Ticket was sold in door presale"
 
-#: events/models.py:46
+#: events/models.py:48
 msgid "Ticket was sold at the door"
 msgstr "Ticket was sold at the door"
 
-#: events/models.py:53 events/models.py:105 events/models.py:322
+#: events/models.py:55 events/models.py:107 events/models.py:324
 msgid "name"
 msgstr "name"
 
-#: events/models.py:54
+#: events/models.py:56
 msgid "total seats"
 msgstr "total seats"
 
-#: events/models.py:57
+#: events/models.py:59
 msgid "street"
 msgstr "street"
 
-#: events/models.py:58
+#: events/models.py:60
 msgid "house number"
 msgstr "house number"
 
-#: events/models.py:59
+#: events/models.py:61
 msgid "city"
 msgstr "city"
 
-#: events/models.py:60
+#: events/models.py:62
 msgid "zip code"
 msgstr "zip code"
 
-#: events/models.py:63
+#: events/models.py:65
 msgid "displayed color"
 msgstr "displayed color"
 
-#: events/models.py:67
+#: events/models.py:69
 msgid ""
 "Selected the color for the card view of all events at this location. A "
 "custom color for each event can be selected in the event. If 'Custom Color' "
@@ -1398,88 +1439,88 @@ msgstr ""
 "custom color for each event can be selected in the event. If 'Custom Color' "
 "is selected, enter a hex color code in the 'Custom Color' field."
 
-#: events/models.py:70 events/models.py:345
+#: events/models.py:72 events/models.py:355
 msgid "custom color"
 msgstr "custom color"
 
-#: events/models.py:74 events/models.py:349
+#: events/models.py:76 events/models.py:359
 msgid "Hex color code if 'Custom Color' is selected (e.g., #007bff)"
 msgstr "Hex color code if 'Custom Color' is selected (e.g., #007bff)"
 
-#: events/models.py:107
+#: events/models.py:109
 msgid "notification message"
 msgstr "notification message"
 
-#: events/models.py:110
+#: events/models.py:112
 msgid "secret"
 msgstr "secret"
 
-#: events/models.py:121
+#: events/models.py:123
 msgid "price class"
 msgstr "price class"
 
-#: events/models.py:122
+#: events/models.py:124
 msgid "event"
 msgstr "event"
 
-#: events/models.py:123
+#: events/models.py:125
 msgid "seat number"
 msgstr "seat number"
 
-#: events/models.py:124
+#: events/models.py:126
 msgid "sold as"
 msgstr "sold as"
 
-#: events/models.py:126
+#: events/models.py:128
 msgid "first name"
 msgstr "first name"
 
-#: events/models.py:127
+#: events/models.py:129
 msgid "last name"
 msgstr "last name"
 
-#: events/models.py:129
+#: events/models.py:131
 msgid "email"
 msgstr "email"
 
-#: events/models.py:132
+#: events/models.py:134
 msgid "activated"
 msgstr "activated"
 
-#: events/models.py:189 events/models.py:524 events/views.py:533
+#: events/models.py:191 events/models.py:580 events/views.py:570
 msgid "Start:"
 msgstr "Start:"
 
-#: events/models.py:192
+#: events/models.py:194
 msgid "Duration:"
 msgstr "Duration:"
 
-#: events/models.py:196 events/models.py:527 events/views.py:536
+#: events/models.py:198 events/models.py:583 events/views.py:573
 msgid "Venue:"
 msgstr "Venue:"
 
-#: events/models.py:201
+#: events/models.py:203
 msgid "Seat Number:"
 msgstr "Seat Number:"
 
-#: events/models.py:204 events/models.py:246 events/models.py:273
+#: events/models.py:206 events/models.py:248 events/models.py:275
 msgid "Free Seating"
 msgstr "Free Seating"
 
-#: events/models.py:208
+#: events/models.py:210
 msgid "Price Class:"
 msgstr "Price Class:"
 
-#: events/models.py:219
+#: events/models.py:221
 msgid "Price:"
 msgstr "Price:"
 
-#: events/models.py:268
+#: events/models.py:270
 #, python-brace-format
 msgid "Your Ticket for {event_name} - {site_name}"
 msgstr "Your Ticket for {event_name} - {site_name}"
 
-#: events/models.py:275
+#: events/models.py:277
 #, python-brace-format
 msgid ""
 "Dear Customer,\n"
@@ -1508,39 +1549,51 @@ msgstr ""
 "Best regards,\n"
 "Event Team"
 
-#: events/models.py:307
+#: events/models.py:309
 msgid "No email address associated with this ticket."
 msgstr "No email address associated with this ticket."
 
-#: events/models.py:323
+#: events/models.py:325
 msgid "start time"
 msgstr "start time"
 
-#: events/models.py:324
+#: events/models.py:327
+msgid "custom event timezone"
+msgstr "custom event timezone"
+
+#: events/models.py:332
+msgid ""
+"Custom timezone for this event. If not set, the default timezone will be "
+"used."
+msgstr ""
+"Custom timezone for this event. If not set, the default timezone will be "
+"used."
+
+#: events/models.py:334
 msgid "duration"
 msgstr "duration"
 
-#: events/models.py:325
+#: events/models.py:335
 msgid "location"
 msgstr "location"
 
-#: events/models.py:327
+#: events/models.py:337
 msgid "program link"
 msgstr "program link"
 
-#: events/models.py:331
+#: events/models.py:341
 msgid "is active"
 msgstr "is active"
 
-#: events/models.py:334
+#: events/models.py:344
 msgid "custom seats"
 msgstr "custom seats"
 
-#: events/models.py:337
+#: events/models.py:347
 msgid "custom displayed color"
 msgstr "custom displayed color"
 
-#: events/models.py:342
+#: events/models.py:352
 msgid ""
 "Selected the color for the card view of the event. If 'Custom Color' is "
 "selected, enter a hex color code in the 'Custom Color' field."
@@ -1548,43 +1601,43 @@ msgstr ""
 "Selected the color for the card view of the event. If 'Custom Color' is "
 "selected, enter a hex color code in the 'Custom Color' field."
 
-#: events/models.py:355
+#: events/models.py:365
 msgid "ticket background"
 msgstr "ticket background"
 
-#: events/models.py:363
+#: events/models.py:373
 msgid "display seat number"
 msgstr "display seat number"
 
-#: events/models.py:368
+#: events/models.py:378
 msgid "event background"
 msgstr "event background"
 
-#: events/models.py:376
+#: events/models.py:386
 msgid "allow presale"
 msgstr "allow presale"
 
-#: events/models.py:381
+#: events/models.py:391
 msgid "presale start"
 msgstr "presale start"
 
-#: events/models.py:386
+#: events/models.py:396
 msgid "presale ends before and door (not presale) selling starts"
 msgstr "presale ends before and door (not presale) selling starts"
 
-#: events/models.py:391
+#: events/models.py:401
 msgid "allow door selling"
 msgstr "allow door selling"
 
-#: events/models.py:615
+#: events/models.py:671
 msgid "Optional direct link to the Django user for this ticket manager."
 msgstr "Optional direct link to the Django user for this ticket manager."
 
-#: events/models.py:619
+#: events/models.py:675
 msgid "Enter the email address to which all ticket sales are sent"
 msgstr "Enter the email address to which all ticket sales are sent"
 
-#: events/models.py:622
+#: events/models.py:678
 msgid ""
 "Select the locations for which this ticket master is responsible. If no "
 "location is selected this ticket master will be responsible for all "
@@ -1646,86 +1699,85 @@ msgstr "Filter"
 
 #: events/templates/all_event_statistics.html:46
 #: events/templates/all_event_statistics.html:160
-#: events/templates/event_statistics.html:43 events/views.py:443
+#: events/templates/event_statistics.html:43 events/views.py:450
 msgid "Waiting"
 msgstr "Waiting"
 
 #: events/templates/all_event_statistics.html:47
 #: events/templates/all_event_statistics.html:167
-#: events/templates/event_statistics.html:50 events/views.py:444
-#| msgid "Presale Online"
+#: events/templates/event_statistics.html:50 events/views.py:451
 msgid "Presale Online Waiting"
 msgstr "Presale Waiting Online"
 
 #: events/templates/all_event_statistics.html:48
 #: events/templates/all_event_statistics.html:174
-#: events/templates/event_statistics.html:57 events/views.py:445
+#: events/templates/event_statistics.html:57 events/views.py:452
 msgid "Presale Online"
 msgstr "Presale Online"
 
 #: events/templates/all_event_statistics.html:49
 #: events/templates/all_event_statistics.html:181
-#: events/templates/event_statistics.html:64 events/views.py:446
+#: events/templates/event_statistics.html:64 events/views.py:453
 msgid "Presale Door"
 msgstr "Presale Door"
 
 #: events/templates/all_event_statistics.html:50
 #: events/templates/all_event_statistics.html:188
-#: events/templates/event_statistics.html:71 events/views.py:447
+#: events/templates/event_statistics.html:71 events/views.py:454
 msgid "Door"
 msgstr "Door"
 
 #: events/templates/all_event_statistics.html:52
 #: events/templates/all_event_statistics.html:195
-#: events/templates/event_statistics.html:78 events/views.py:448
+#: events/templates/event_statistics.html:78 events/views.py:455
 msgid "Total Sold"
 msgstr "Total Sold"
 
 #: events/templates/all_event_statistics.html:55
 #: events/templates/all_event_statistics.html:209
-#: events/templates/event_statistics.html:92 events/views.py:450
+#: events/templates/event_statistics.html:92 events/views.py:457
 msgid "Activated Presale Online"
 msgstr "Activated Presale Online"
 
 #: events/templates/all_event_statistics.html:56
 #: events/templates/all_event_statistics.html:216
-#: events/templates/event_statistics.html:99 events/views.py:451
+#: events/templates/event_statistics.html:99 events/views.py:458
 msgid "Activated Presale Door"
 msgstr "Activated Presale Door"
 
 #: events/templates/all_event_statistics.html:57
 #: events/templates/all_event_statistics.html:223
-#: events/templates/event_statistics.html:106 events/views.py:452
+#: events/templates/event_statistics.html:106 events/views.py:459
 msgid "Activated Door"
 msgstr "Activated Door"
 
 #: events/templates/all_event_statistics.html:59
 #: events/templates/all_event_statistics.html:230
-#: events/templates/event_statistics.html:113 events/views.py:453
+#: events/templates/event_statistics.html:113 events/views.py:460
 msgid "Total Sold Activated"
 msgstr "Total Sold Activated"
 
 #: events/templates/all_event_statistics.html:61
 #: events/templates/all_event_statistics.html:244
-#: events/templates/event_statistics.html:127 events/views.py:454
+#: events/templates/event_statistics.html:127 events/views.py:461
 msgid "Total Earned Presale Online"
 msgstr "Total Earned Presale Online"
 
 #: events/templates/all_event_statistics.html:62
 #: events/templates/all_event_statistics.html:251
-#: events/templates/event_statistics.html:134 events/views.py:455
+#: events/templates/event_statistics.html:134 events/views.py:462
 msgid "Total Earned Presale Door"
 msgstr "Total Earned Presale Door"
 
 #: events/templates/all_event_statistics.html:63
 #: events/templates/all_event_statistics.html:258
-#: events/templates/event_statistics.html:141 events/views.py:456
+#: events/templates/event_statistics.html:141 events/views.py:463
 msgid "Total Earned Door"
 msgstr "Total Earned Door"
 
 #: events/templates/all_event_statistics.html:66
 #: events/templates/all_event_statistics.html:265
-#: events/templates/event_statistics.html:148 events/views.py:457
+#: events/templates/event_statistics.html:148 events/views.py:464
 msgid "Total Earned"
 msgstr "Total Earned"
 
@@ -1754,8 +1806,8 @@ msgid "Remaining Seats"
 msgstr "Remaining Seats"
 
 #: events/templates/all_event_statistics.html:151
-#: events/templates/event_statistics.html:34 events/views.py:486
-#: events/views.py:508 events/views.py:551 events/views.py:570
+#: events/templates/event_statistics.html:34 events/views.py:523
+#: events/views.py:545 events/views.py:588 events/views.py:607
 msgid "Statistic"
 msgstr "Statistic"
 
@@ -1769,62 +1821,75 @@ msgstr "Ticket Price"
 msgid "Event Check-In"
 msgstr "Event Check-In"
 
-#: events/templates/event_check_in.html:39
+#: events/templates/event_check_in.html:15
+#: events/templates/event_check_in.html:97
+msgid "Start Camera"
+msgstr "Start Camera"
+
+#: events/templates/event_check_in.html:42
 msgid "Last QR Code Detected"
 msgstr "Last QR Code Detected"
 
-#: events/templates/event_check_in.html:57
-#: events/templates/event_check_in.html:115
-#: events/templates/event_check_in.html:164
+#: events/templates/event_check_in.html:60
+#: events/templates/event_check_in.html:131
+#: events/templates/event_check_in.html:186
 msgid "Deactivate"
 msgstr "Deactivate"
 
-#: events/templates/event_check_in.html:79
+#: events/templates/event_check_in.html:85
 msgid "Scan error"
 msgstr "Scan error"
 
-#: events/templates/event_check_in.html:96
+#: events/templates/event_check_in.html:99
+msgid "Error stopping QR scanner"
+msgstr "Error stopping QR scanner"
+
+#: events/templates/event_check_in.html:108
+msgid "Stop Camera"
+msgstr "Stop Camera"
+
+#: events/templates/event_check_in.html:111
 msgid "Error starting QR scanner"
 msgstr "Error starting QR scanner"
 
-#: events/templates/event_check_in.html:98
+#: events/templates/event_check_in.html:113
 msgid "Please grant camera permissions to scan QR codes."
 msgstr "Please grant camera permissions to scan QR codes."
 
-#: events/templates/event_check_in.html:115
-#: events/templates/event_check_in.html:164
+#: events/templates/event_check_in.html:131
+#: events/templates/event_check_in.html:186
 msgid "Activate"
 msgstr "Activate"
 
-#: events/templates/event_check_in.html:143
-#: events/templates/event_door_selling.html:56
+#: events/templates/event_check_in.html:165
+#: events/templates/event_door_selling.html:82
 msgid "Event Tickets"
 msgstr "Event Tickets"
 
-#: events/templates/event_check_in.html:148
-#: events/templates/event_door_selling.html:66
+#: events/templates/event_check_in.html:170
+#: events/templates/event_door_selling.html:92
 msgid "Action"
 msgstr "Action"
 
-#: events/templates/event_check_in.html:149
+#: events/templates/event_check_in.html:171
 msgid "Has been activated"
 msgstr "Has been activated"
 
-#: events/templates/event_check_in.html:154
-#: events/templates/event_door_selling.html:64
+#: events/templates/event_check_in.html:176
+#: events/templates/event_door_selling.html:90
 msgid "Name"
 msgstr "Name"
 
-#: events/templates/event_check_in.html:155
+#: events/templates/event_check_in.html:177
 msgid "Ticket ID"
 msgstr "Ticket ID"
 
-#: events/templates/event_check_in.html:156
+#: events/templates/event_check_in.html:178
 msgid "Sold as"
 msgstr "Sold as"
 
-#: events/templates/event_check_in.html:198
-#: events/templates/event_door_selling.html:184
+#: events/templates/event_check_in.html:230
+#: events/templates/event_door_selling.html:228
 msgid "Event is not active or is in the past."
 msgstr "Event is not active or is in the past."
 
@@ -1848,8 +1913,7 @@ msgstr "Presale ends at "
 
 #: events/templates/event_details.html:43
 #: events/templates/event_door_selling.html:21
-msgid ""
-"Tickets are sold at the door. Tickets at the door will be available for"
+msgid "Tickets are sold at the door. Tickets at the door will be available for"
 msgstr ""
 "Tickets are sold at the door. Tickets at the door will be available for"
 
@@ -1880,20 +1944,20 @@ msgstr "Go to Statistics"
 msgid "Select Tickets"
 msgstr "Select Tickets"
 
-#: events/templates/event_details.html:80
+#: events/templates/event_details.html:81
 msgid "Add to Cart"
 msgstr "Add to Cart"
 
-#: events/templates/event_details.html:81
+#: events/templates/event_details.html:82
 msgid "Go to cart"
 msgstr "Go to cart"
 
-#: events/templates/event_details.html:107
-#: events/templates/event_door_selling.html:115
+#: events/templates/event_details.html:112
+#: events/templates/event_door_selling.html:145
 msgid "Presale will become active later."
 msgstr "Presale will become active later."
 
-#: events/templates/event_details.html:112
+#: events/templates/event_details.html:120
 msgid "Presale has ended."
 msgstr "Presale has ended."
 
@@ -1910,15 +1974,15 @@ msgstr "Event is sold out."
 msgid "Remaining seats: "
 msgstr "Remaining seats: "
 
-#: events/templates/event_door_selling.html:41
+#: events/templates/event_door_selling.html:67
 msgid "Commit Order"
 msgstr "Commit Order"
 
-#: events/templates/event_door_selling.html:112
+#: events/templates/event_door_selling.html:139
 msgid "Presale is active - Presale ONLY - END: "
 msgstr "Presale is active - Presale ONLY - END: "
 
-#: events/templates/event_door_selling.html:118
+#: events/templates/event_door_selling.html:151
 msgid "Presale is inactive - Door ONLY"
 msgstr "Presale is inactive - Door ONLY"
 
@@ -1987,51 +2051,51 @@ msgstr "No email address provided."
 msgid "Door selling is not allowed for this event."
 msgstr "Door selling is not allowed for this event."
 
-#: events/views.py:284
+#: events/views.py:291
 msgid "Event is not active."
 msgstr "Event is not active."
 
-#: events/views.py:466
+#: events/views.py:503
 msgid "All Events - Statistics"
 msgstr "All Events - Statistics"
 
-#: events/views.py:470
+#: events/views.py:507
 msgid "Created at:"
 msgstr "Created at:"
 
-#: events/views.py:477 templates/master.html:51
+#: events/views.py:514 templates/master.html:51
 msgid "Global Statistics"
 msgstr "Global Statistics"
 
-#: events/views.py:489
+#: events/views.py:526
 msgid "Global"
 msgstr "Global"
 
-#: events/views.py:504
+#: events/views.py:541
 msgid "Refunded/Canceled Orders Statistics"
 msgstr "Refunded/Canceled Orders Statistics"
 
-#: events/views.py:509 events/views.py:552
+#: events/views.py:546 events/views.py:589
 msgid "Value"
 msgstr "Value"
 
-#: events/views.py:511
+#: events/views.py:548
 msgid "Total Refunded/Canceled Orders"
 msgstr "Total Refunded/Canceled Orders"
 
-#: events/views.py:530
+#: events/views.py:567
 msgid "Statistics"
 msgstr "Statistics"
 
-#: events/views.py:539
+#: events/views.py:576
 msgid "Capacity:"
 msgstr "Capacity:"
 
-#: events/views.py:545
+#: events/views.py:582
 msgid "Total Statistics"
 msgstr "Total Statistics"
 
-#: events/views.py:564
+#: events/views.py:601
 msgid "Price Class Statistics"
 msgstr "Price Class Statistics"
 
@@ -2079,9 +2143,13 @@ msgstr "Sorry, something went wrong on our end. Please try again later."
 msgid "Back to admin dashboard"
 msgstr "Back to admin dashboard"
 
-#: templates/master.html:41
+#: templates/master.html:36
 msgid "Home"
 msgstr "Home"
+
+#: templates/master.html:40
+msgid "Toggle navigation"
+msgstr "Toggle navigation"
 
 #: templates/master.html:47
 msgid "Events List"
@@ -2107,29 +2175,29 @@ msgstr "Language"
 msgid "Logout"
 msgstr "Logout"
 
-#: templates/master.html:111
+#: templates/master.html:119
 msgid "Legal"
 msgstr "Legal"
 
-#: templates/master.html:114 templates/privacy_policy.html:5
+#: templates/master.html:122 templates/privacy_policy.html:5
 #: templates/privacy_policy.html:10
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
 
-#: templates/master.html:117 templates/terms_of_service.html:5
+#: templates/master.html:125 templates/terms_of_service.html:5
 #: templates/terms_of_service.html:10
 msgid "Terms of Service"
 msgstr "Terms of Service"
 
-#: templates/master.html:124
+#: templates/master.html:132
 msgid "Support"
 msgstr "Support"
 
-#: templates/master.html:132
+#: templates/master.html:140
 msgid "About"
 msgstr "About"
 
-#: templates/master.html:144
+#: templates/master.html:152
 msgid "All rights reserved."
 msgstr "All rights reserved."
 
@@ -2140,12 +2208,12 @@ msgstr "1. Introduction"
 #: templates/privacy_policy.html:15
 msgid ""
 "We are committed to protecting your privacy. This Privacy Policy explains "
-"how we collect, use, disclose, and safeguard your information when you visit"
-" our cinema ticketing system website and services."
+"how we collect, use, disclose, and safeguard your information when you visit "
+"our cinema ticketing system website and services."
 msgstr ""
 "We are committed to protecting your privacy. This Privacy Policy explains "
-"how we collect, use, disclose, and safeguard your information when you visit"
-" our cinema ticketing system website and services."
+"how we collect, use, disclose, and safeguard your information when you visit "
+"our cinema ticketing system website and services."
 
 #: templates/privacy_policy.html:20
 msgid "2. Information We Collect"
@@ -2267,13 +2335,13 @@ msgstr "5. Data Security"
 msgid ""
 "We implement appropriate technical and organizational measures to protect "
 "your personal information against unauthorized access, alteration, "
-"disclosure, or destruction. However, no security system is impenetrable, and"
-" we cannot guarantee absolute security."
+"disclosure, or destruction. However, no security system is impenetrable, and "
+"we cannot guarantee absolute security."
 msgstr ""
 "We implement appropriate technical and organizational measures to protect "
 "your personal information against unauthorized access, alteration, "
-"disclosure, or destruction. However, no security system is impenetrable, and"
-" we cannot guarantee absolute security."
+"disclosure, or destruction. However, no security system is impenetrable, and "
+"we cannot guarantee absolute security."
 
 #: templates/privacy_policy.html:63
 msgid "6. Cookies and Tracking"
@@ -2281,12 +2349,12 @@ msgstr "6. Cookies and Tracking"
 
 #: templates/privacy_policy.html:65
 msgid ""
-"We use cookies and similar tracking technologies to enhance your experience."
-" These help us remember your preferences and understand how you use our "
+"We use cookies and similar tracking technologies to enhance your experience. "
+"These help us remember your preferences and understand how you use our "
 "service. You can control cookie settings through your browser."
 msgstr ""
-"We use cookies and similar tracking technologies to enhance your experience."
-" These help us remember your preferences and understand how you use our "
+"We use cookies and similar tracking technologies to enhance your experience. "
+"These help us remember your preferences and understand how you use our "
 "service. You can control cookie settings through your browser."
 
 #: templates/privacy_policy.html:70
@@ -2325,13 +2393,11 @@ msgstr "8. Retention Period"
 msgid ""
 "We retain your personal information for as long as necessary to fulfill the "
 "purposes outlined in this policy or as required by law. Ticket information "
-"is retained for your records and to comply with event organizer "
-"requirements."
+"is retained for your records and to comply with event organizer requirements."
 msgstr ""
 "We retain your personal information for as long as necessary to fulfill the "
 "purposes outlined in this policy or as required by law. Ticket information "
-"is retained for your records and to comply with event organizer "
-"requirements."
+"is retained for your records and to comply with event organizer requirements."
 
 #: templates/privacy_policy.html:89
 msgid "9. Children's Privacy"
@@ -2412,17 +2478,13 @@ msgid "1. Acceptance of Terms"
 msgstr "1. Acceptance of Terms"
 
 #: templates/terms_of_service.html:15
-#| msgid ""
-#| "By accessing or using this cinema ticketing system, you agree to be bound by"
-#| " these Terms of Use and all applicable laws and regulations. If you do not "
-#| "agree, you must not use this website or its services."
 msgid ""
-"By accessing or using this cinema ticketing system, you agree to be bound by"
-" these Terms of Service and all applicable laws and regulations. If you do "
+"By accessing or using this cinema ticketing system, you agree to be bound by "
+"these Terms of Service and all applicable laws and regulations. If you do "
 "not agree, you must not use this website or its services."
 msgstr ""
-"By accessing or using this cinema ticketing system, you agree to be bound by"
-" these Terms of Service and all applicable laws and regulations. If you do "
+"By accessing or using this cinema ticketing system, you agree to be bound by "
+"these Terms of Service and all applicable laws and regulations. If you do "
 "not agree, you must not use this website or its services."
 
 #: templates/terms_of_service.html:20
@@ -2483,11 +2545,11 @@ msgstr ""
 
 #: templates/terms_of_service.html:39
 msgid ""
-"We reserve the right to refuse or cancel orders in cases of suspected fraud,"
-" payment issues, pricing errors, or technical problems."
+"We reserve the right to refuse or cancel orders in cases of suspected fraud, "
+"payment issues, pricing errors, or technical problems."
 msgstr ""
-"We reserve the right to refuse or cancel orders in cases of suspected fraud,"
-" payment issues, pricing errors, or technical problems."
+"We reserve the right to refuse or cancel orders in cases of suspected fraud, "
+"payment issues, pricing errors, or technical problems."
 
 #: templates/terms_of_service.html:44
 msgid "5. Cancellations, Refunds, and Changes"
@@ -2496,12 +2558,12 @@ msgstr "5. Cancellations, Refunds, and Changes"
 #: templates/terms_of_service.html:46
 msgid ""
 "Refunds, cancellations, and ticket changes are subject to the rules "
-"applicable to the specific event, organizer, or applicable law. Some tickets"
-" may be non-refundable unless an event is cancelled or materially changed."
+"applicable to the specific event, organizer, or applicable law. Some tickets "
+"may be non-refundable unless an event is cancelled or materially changed."
 msgstr ""
 "Refunds, cancellations, and ticket changes are subject to the rules "
-"applicable to the specific event, organizer, or applicable law. Some tickets"
-" may be non-refundable unless an event is cancelled or materially changed."
+"applicable to the specific event, organizer, or applicable law. Some tickets "
+"may be non-refundable unless an event is cancelled or materially changed."
 
 #: templates/terms_of_service.html:51
 msgid "6. Permitted Use"
@@ -2522,8 +2584,7 @@ msgid "Attempt to gain unauthorized access to accounts, systems, or data."
 msgstr "Attempt to gain unauthorized access to accounts, systems, or data."
 
 #: templates/terms_of_service.html:56
-msgid ""
-"Interfere with the operation, security, or availability of the website."
+msgid "Interfere with the operation, security, or availability of the website."
 msgstr ""
 "Interfere with the operation, security, or availability of the website."
 
@@ -2545,13 +2606,13 @@ msgstr "7. Intellectual Property"
 
 #: templates/terms_of_service.html:65
 msgid ""
-"All content on this website, including text, graphics and logos, is owned by"
-" or licensed to the service operator unless otherwise stated. You may not "
+"All content on this website, including text, graphics and logos, is owned by "
+"or licensed to the service operator unless otherwise stated. You may not "
 "reproduce, distribute, modify, or create derivative works from this content "
 "without prior written permission, except as permitted by law."
 msgstr ""
-"All content on this website, including text, graphics and logos, is owned by"
-" or licensed to the service operator unless otherwise stated. You may not "
+"All content on this website, including text, graphics and logos, is owned by "
+"or licensed to the service operator unless otherwise stated. You may not "
 "reproduce, distribute, modify, or create derivative works from this content "
 "without prior written permission, except as permitted by law."
 
@@ -2602,14 +2663,14 @@ msgid ""
 "You agree to indemnify and hold harmless the service operator, its "
 "affiliates, and their respective personnel from any claims, liabilities, "
 "damages, losses, and expenses arising out of your misuse of the website, "
-"your violation of these Terms, or your infringement of any rights of another"
-" person or entity."
+"your violation of these Terms, or your infringement of any rights of another "
+"person or entity."
 msgstr ""
 "You agree to indemnify and hold harmless the service operator, its "
 "affiliates, and their respective personnel from any claims, liabilities, "
 "damages, losses, and expenses arising out of your misuse of the website, "
-"your violation of these Terms, or your infringement of any rights of another"
-" person or entity."
+"your violation of these Terms, or your infringement of any rights of another "
+"person or entity."
 
 #: templates/terms_of_service.html:91
 msgid "11. Third-Party Services and Links"
@@ -2618,13 +2679,13 @@ msgstr "11. Third-Party Services and Links"
 #: templates/terms_of_service.html:93
 msgid ""
 "This website may contain links to third-party websites or use third-party "
-"services such as payment processors. We are not responsible for the content,"
-" policies, or practices of those third parties. Your use of third-party "
+"services such as payment processors. We are not responsible for the content, "
+"policies, or practices of those third parties. Your use of third-party "
 "services may be subject to their own terms and policies."
 msgstr ""
 "This website may contain links to third-party websites or use third-party "
-"services such as payment processors. We are not responsible for the content,"
-" policies, or practices of those third parties. Your use of third-party "
+"services such as payment processors. We are not responsible for the content, "
+"policies, or practices of those third parties. Your use of third-party "
 "services may be subject to their own terms and policies."
 
 #: templates/terms_of_service.html:98
@@ -2634,12 +2695,12 @@ msgstr "12. Suspension or Termination"
 #: templates/terms_of_service.html:100
 msgid ""
 "We may suspend or terminate your access to the website at our discretion if "
-"we believe you have violated these Terms, engaged in fraudulent activity, or"
-" created risk for the service, other users, or third parties."
+"we believe you have violated these Terms, engaged in fraudulent activity, or "
+"created risk for the service, other users, or third parties."
 msgstr ""
 "We may suspend or terminate your access to the website at our discretion if "
-"we believe you have violated these Terms, engaged in fraudulent activity, or"
-" created risk for the service, other users, or third parties."
+"we believe you have violated these Terms, engaged in fraudulent activity, or "
+"created risk for the service, other users, or third parties."
 
 #: templates/terms_of_service.html:105
 msgid "13. Governing Law"
@@ -2682,6 +2743,18 @@ msgid ""
 msgstr ""
 "If you have any questions about these Terms of Use, please contact us using "
 "the contact form available on this website."
+
+#~ msgid "Select the number of tickets for this price class."
+#~ msgstr "Select the number of tickets for this price class."
+
+#~ msgid "+1 Ticket"
+#~ msgstr "+1 Ticket"
+
+#~ msgid "+2 Tickets"
+#~ msgstr "+2 Tickets"
+
+#~ msgid "+5 Tickets"
+#~ msgstr "+5 Tickets"
 
 #~ msgid "Terms of Use"
 #~ msgstr "Terms of Use"

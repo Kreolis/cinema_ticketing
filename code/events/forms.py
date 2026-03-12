@@ -17,10 +17,14 @@ class TicketSelectionForm(forms.Form):
             self.fields[f'quantity_{price_class.id}'] = forms.IntegerField(
                 label=label_text,
                 min_value=0,
-                max_value=10,
                 initial=0,
-                widget=forms.NumberInput(attrs={'class': 'form-control'}),
-                help_text=_("Select the number of tickets for this price class.")
+                widget=forms.NumberInput(
+                    attrs={
+                        'class': 'form-control form-control-sm ticket-quantity-input',
+                        'style': 'max-width: 90px;',
+                        'step': 1,
+                    }
+                ),
             )
         
         if display_name_fields:
@@ -50,19 +54,24 @@ class TicketSelectionForm(forms.Form):
         buttons_html = ""
         for field_name in self.fields:
             if field_name.startswith('quantity_'):
+                field = self[field_name]
                 buttons_html += f"""
-                <div class="mb-2">
-                    <label>{self.fields[field_name].label}</label>
-                    <div class="quick-fill-buttons">
-                        <button type="button" class="btn btn-secondary quick-fill" data-field="{field_name}" data-value="1">{_("+1 Ticket")}</button>
-                        <button type="button" class="btn btn-secondary quick-fill" data-field="{field_name}" data-value="2">{_("+2 Tickets")}</button>
-                        <button type="button" class="btn btn-secondary quick-fill" data-field="{field_name}" data-value="5">{_("+5 Tickets")}</button>
+                <div class="mb-2 p-2 border rounded">
+                    <label class="form-label mb-1">{self.fields[field_name].label}</label>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        {field}
+                        <div class="btn-group btn-group-sm quick-fill-buttons" role="group" aria-label="{_("Quick ticket buttons")}">
+                            <button type="button" class="btn btn-outline-secondary quick-fill" data-field="{field_name}" data-value="-1">{_("-1")}</button>
+                            <button type="button" class="btn btn-outline-secondary quick-fill" data-field="{field_name}" data-value="1">{_("+1")}</button>
+                            <button type="button" class="btn btn-outline-secondary quick-fill" data-field="{field_name}" data-value="2">{_("+2")}</button>
+                            <button type="button" class="btn btn-outline-secondary quick-fill" data-field="{field_name}" data-value="5">{_("+5")}</button>
+                        </div>
                     </div>
                 </div>
                 """
         buttons_html += f"""
-            <div class="mt-3">
-                <button type="button" class="btn btn-danger reset-form">{_("Reset")}</button>
+            <div class="mt-2">
+                <button type="button" class="btn btn-outline-danger btn-sm reset-form">{_("Reset")}</button>
             </div>
         """
         return buttons_html

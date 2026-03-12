@@ -9,7 +9,7 @@
 
 {% block content %}
     <h1 class="mt-4">{% translate "Event Statistics" %} - {{ event.name }}</h1>
-    <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {{ event.start_time }}</p>
+    <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {{ event.get_start_time_in_timezone|date:"H:i d.m.Y (T)" }}</p>
     <p class="card-text"><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
     
     <!-- Include jQuery library via CDN -->
@@ -158,7 +158,7 @@
     <script>
         $(document).ready(function() {
             $('#statistics-table').DataTable({
-                "pageLength": 15,
+                "pageLength": 16,
                 "order": [],
                 "ordering": false
             });

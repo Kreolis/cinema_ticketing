@@ -2,10 +2,12 @@ from django.db import models
 
 from django.core.exceptions import ValidationError
 from django.db import OperationalError, ProgrammingError
-from django.utils import timezone
+from django.utils import timezone as django_timezone
 from django.utils.translation import gettext_lazy as _
 from django_celery_beat.models import IntervalSchedule, PeriodicTask
 from PIL import Image
+from pytz import common_timezones
+from pytz import timezone as pytz_timezone
 import json
 
 import logging
@@ -83,6 +85,15 @@ class Branding(models.Model):
     advanced_payment_due_days = models.IntegerField(default=14, help_text=_("Enter the number of days until payment is due for advanced payments"))
     advanced_payment_message = models.TextField(default="Please transfer the total amount to the following bank account.", null=True, blank=True, help_text=_("Enter the message to appear on advanced payment emails"))
 
+    # event timezone settings
+    default_event_timezone = models.CharField(
+        _("default event timezone"),
+        max_length=63,
+        default='UTC',
+        choices=[(tz, tz) for tz in common_timezones],
+        help_text=_("Default timezone for all events. This will be used as the timezone for new events. Individual events can override this setting.")
+    )
+
     is_active = models.BooleanField(default=False, help_text=_("Indicates if this branding is active"))
 
     def __str__(self):
@@ -113,8 +124,26 @@ class Branding(models.Model):
             image = Image.open(self.favicon)
             if image.width > 64 or image.height > 64:
                 raise ValidationError(_("Favicon size should not exceed 64x64 pixels."))
+    
+    def get_timezone(self):
+        tz_name = self.default_event_timezone or 'UTC'
+        try:
+            return pytz_timezone(tz_name)
+        except Exception as e:
+            logger.error(f"Invalid timezone '{tz_name}' in branding settings: {e}")
+            return pytz_timezone('UTC')
 
+    def get_presale_start_time_in_timezone(self):
+        if self.presale_start:
+            return django_timezone.localtime(self.presale_start, timezone=self.get_timezone())
+        return None
 
+    def get_presale_end_time_in_timezone(self):
+        if self.use_online_presale_end and self.online_presale_end:
+            return django_timezone.localtime(self.online_presale_end, timezone=self.get_timezone())
+        return None
+    
+    
 def get_active_branding():
     from django.db import connection
     if 'branding_branding' in connection.introspection.table_names():
@@ -146,7 +175,7 @@ def update_timed_out_orders_task_schedule(instance=None):
                 task.save(update_fields=['enabled'])
             return
 
-        now = timezone.now()
+        now = django_timezone.now()
         interval_minutes = max(1, int(instance.check_timeout_orders_interval or 30))
 
         should_enable = (
@@ -197,7 +226,7 @@ def update_statistics_task_schedule(instance=None):
                 task.save(update_fields=['enabled'])
             return
 
-        now = timezone.now()
+        now = django_timezone.now()
         interval_hours = max(1, int(instance.ticket_statistics_interval or 1))
 
         should_enable = (
