@@ -15,7 +15,7 @@ from payments.models import PaymentStatus
 
 
 from .models import Event, Ticket, SoldAsStatus, TicketMaster, Location
-from branding.models import Branding
+from branding.models import get_active_branding
 from .forms import TicketSelectionForm
 
 # check if user is in ticket managers group or admin
@@ -76,6 +76,8 @@ def event_list(request):
 def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
+    branding = get_active_branding()
+
     # Check ticket manager access early, before any POST processing
     is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
     if is_ticket_manager and not is_user_in_admin(request.user):
@@ -89,7 +91,10 @@ def event_detail(request, event_id):
     # select all price classes for the event apart from secret ones
     price_classes = event.price_classes.all().exclude(secret=True)
 
-    presale_end_time = event.presale_end_time()
+    if branding and branding.use_online_presale_end and branding.online_presale_end:
+        presale_end_time = branding.online_presale_end
+    else:
+        presale_end_time = event.presale_end_time()
 
     # Ensure the session is created
     if not request.session.session_key:
@@ -190,7 +195,8 @@ def event_check_in(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     # filter out waiting tickets = not sold yet, SoldAsStatus.PRESALE_ONLINE_WAITING and SoldAsStatus.WAITING
     tickets = Ticket.objects.filter(event=event).exclude(sold_as__in=[SoldAsStatus.PRESALE_ONLINE_WAITING, SoldAsStatus.WAITING])
-    branding = Branding.objects.filter(is_active=True).first()
+    branding = get_active_branding()
+
     return render(request, 'event_check_in.html', {
         'event': event,
         'event_active': event.check_active(),
