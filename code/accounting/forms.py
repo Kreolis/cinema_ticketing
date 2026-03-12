@@ -62,7 +62,8 @@ class PaymentInfoForm(forms.Form):
         label=_('Phone Number'),
         help_text=_('Optional: Enter the phone number for the billing contact. This may be used for contact purposes regarding billing issues.'),
         required=False,
-        widget=forms.TextInput(attrs={'max_length': 20})
+        max_length=20,
+        widget=forms.TextInput(attrs={'maxlength': 20})
     )
 
     # enable user to select preferred payment method in settings.PAYMENT_VARIANTS (keys), get human readable names from HUMANIZED_PAYMENT_METHODS (values) 

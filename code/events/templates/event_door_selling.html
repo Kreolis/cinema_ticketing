@@ -136,7 +136,7 @@
             function updatePresaleStatus() {
                 const now = new Date();
                 if (now >= presaleStartTime && now < presaleEndTime) {
-                    presaleStatusElement.textContent = "{% translate 'Presale is active - Presale ONLY - END: ' %} {{ presale_end_time }}";
+                    presaleStatusElement.textContent = "{% translate 'Presale is active - Presale ONLY - END: ' %} {{ presale_end_time|date:'H:i d.m.Y (T)' }}";
                     ticketForm.style.display = 'block';
                     if (buyerDetailsFields) {
                         buyerDetailsFields.style.display = 'block';

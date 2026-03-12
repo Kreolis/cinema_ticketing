@@ -4,7 +4,6 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils.translation import gettext_lazy as _
 import django.utils.timezone
-from django.contrib.postgres.fields import ArrayField
 from pytz import common_timezones, timezone as pytz_timezone
 
 from datetime import datetime, timedelta, timezone
@@ -451,7 +450,9 @@ class Event(models.Model):
         try:
             if self.custom_event_timezone:
                 return pytz_timezone(self.custom_event_timezone)
-            return pytz_timezone(self.branding.default_event_timezone) if self.branding and self.branding.default_event_timezone else pytz_timezone('UTC')
+            # Fetch active branding dynamically to avoid stale cached values
+            active_branding = get_active_branding()
+            return pytz_timezone(active_branding.default_event_timezone) if active_branding and active_branding.default_event_timezone else pytz_timezone('UTC')
         
         except Exception:
             # Fallback to UTC if timezone is invalid

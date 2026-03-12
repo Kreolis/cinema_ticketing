@@ -54,7 +54,7 @@ def send_confirmation_email_task(order_id):
 
     order.send_confirmation_email()
 
-    return f"Confirmation email sent for order {order_id} to {order.customer_email}."
+    return f"Confirmation email sent for order {order_id} to {order.billing_email}."
 
 
 @shared_task(autoretry_for=(Exception,), retry_backoff=True, retry_jitter=True, max_retries=5)
@@ -68,7 +68,7 @@ def send_payment_instructions_email_task(order_id):
         return f"Order {order_id} does not exist."
 
     order.send_payment_instructions_email()
-    return f"Payment instructions email sent for order {order_id} to {order.customer_email}."
+    return f"Payment instructions email sent for order {order_id} to {order.billing_email}."
 
 @shared_task(autoretry_for=(Exception,), retry_backoff=True, retry_jitter=True, max_retries=5)
 def send_refund_cancel_notification_email_task(order_id):
@@ -82,4 +82,4 @@ def send_refund_cancel_notification_email_task(order_id):
 
     order.send_refund_cancel_notification_email()
 
-    return f"Refund cancellation notification email sent for order {order_id} to {order.customer_email}."
+    return f"Refund cancellation notification email sent for order {order_id} to {order.billing_email}."
