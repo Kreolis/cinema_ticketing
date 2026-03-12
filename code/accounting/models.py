@@ -689,10 +689,12 @@ class Order(BasePayment):
 
     def send_refund_cancel_notification_email(self):
         branding = get_active_branding()
-        if branding and branding.invoice_tax_rate:
+        if branding and branding.site_name:
             site_name = branding.site_name
         else:
             site_name = "Cinema Ticketing"
+
+        payment_method_display = settings.HUMANIZED_PAYMENT_VARIANT.get(self.variant, self.variant)
 
         subject = _("Your Order {order_id} has been Refunded or Cancelled - {site_name}").format(order_id=self.id, site_name=site_name)
         message = _("Dear Customer,\n\nWe regret to inform you that your order with ID {order_id} has been refunded or cancelled.\n\n"
@@ -703,7 +705,7 @@ class Order(BasePayment):
                         order_id=self.id,
                         total_amount=self.total,
                         currency=self.currency,
-                        payment_method=self.variant
+                        payment_method=payment_method_display
                     )
         
         email = EmailMessage(

@@ -7,6 +7,7 @@ from django.utils.translation import gettext as _
 
 import io
 from datetime import datetime, timezone
+from decimal import Decimal
 from fpdf import FPDF
 
 from payments import get_payment_model
@@ -324,71 +325,38 @@ def get_all_event_statistics(locations=None):
         events = events.filter(location__in=locations)
 
     events_stats = []
-    
-    per_location_stats = {}
+
+    stat_keys = [
+        'waiting',
+        'presale_online',
+        'presale_door',
+        'door',
+        'total_sold',
+        'total_count',
+        'activated_presale_online',
+        'activated_presale_door',
+        'activated_door',
+        'total_activated',
+        'earned_presale_online',
+        'earned_presale_door',
+        'earned_door',
+        'total_earned',
+    ]
+
+    def _empty_stats():
+        return {key: 0 for key in stat_keys}
+
+    location_scope = locations if locations is not None else Location.objects.filter(event__isnull=False).distinct()
+    per_location_stats = {location: _empty_stats() for location in location_scope}
 
     overall_refunded = {
         'total_refunded': 0,
-        'total_amount_refunded': 0
+        'total_amount_refunded': Decimal('0.0')
     }
 
-    overall_total_stats = {
-        'waiting': 0,
-        'presale_online': 0,
-        'presale_door': 0,
-        'door': 0,
-        'total_sold': 0,
-        'total_count': 0,
-        'activated_presale_online': 0,
-        'activated_presale_door': 0,
-        'activated_door': 0,
-        'total_activated': 0,
-        'earned_presale_online': 0,
-        'earned_presale_door': 0,
-        'earned_door': 0,
-        'total_earned': 0
-    }
+    overall_total_stats = _empty_stats()
 
-    # get statistics for each location and add them to the per_location_stats dictionary
-    for location in locations if locations is not None else Location.objects.filter(event__isnull=False).distinct():
-        location_events = events.filter(location=location)
-        location_total_stats = {
-            'waiting': 0,
-            'presale_online': 0,
-            'presale_door': 0,
-            'door': 0,
-            'total_sold': 0,
-            'total_count': 0,
-            'activated_presale_online': 0,
-            'activated_presale_door': 0,
-            'activated_door': 0,
-            'total_activated': 0,
-            'earned_presale_online': 0,
-            'earned_presale_door': 0,
-            'earned_door': 0,
-            'total_earned': 0
-        }
-        for event in location_events:
-             total_stats, price_class_stats = event.calculate_statistics()
-             location_total_stats['waiting'] += total_stats['waiting']
-             location_total_stats['presale_online'] += total_stats['presale_online']
-             location_total_stats['presale_door'] += total_stats['presale_door']
-             location_total_stats['door'] += total_stats['door']
-             location_total_stats['total_sold'] += total_stats['total_sold']
-             location_total_stats['total_count'] += total_stats['total_count']
-             location_total_stats['activated_presale_online'] += total_stats['activated_presale_online']
-             location_total_stats['activated_presale_door'] += total_stats['activated_presale_door']
-             location_total_stats['activated_door'] += total_stats['activated_door']
-             location_total_stats['total_activated'] += total_stats['total_activated']
-             location_total_stats['earned_presale_online'] += total_stats['earned_presale_online']
-             location_total_stats['earned_presale_door'] += total_stats['earned_presale_door']
-             location_total_stats['earned_door'] += total_stats['earned_door']
-             location_total_stats['total_earned'] += total_stats['total_earned']
-
-        per_location_stats[location] = location_total_stats
-
-
-    # get statistics for each event and add them to the overall total statistics
+    # compute each event statistics once and accumulate per-location + overall totals in one pass
     for event in events:
         total_stats, price_class_stats = event.calculate_statistics()
         events_stats.append({
@@ -397,22 +365,15 @@ def get_all_event_statistics(locations=None):
             'total_stats': total_stats
         })
 
-        overall_total_stats['waiting'] += total_stats['waiting']
-        overall_total_stats['presale_online'] += total_stats['presale_online']
-        overall_total_stats['presale_door'] += total_stats['presale_door']
-        overall_total_stats['door'] += total_stats['door']
-        overall_total_stats['total_sold'] += total_stats['total_sold']
-        overall_total_stats['total_count'] += total_stats['total_count']
-        overall_total_stats['activated_presale_online'] += total_stats['activated_presale_online']
-        overall_total_stats['activated_presale_door'] += total_stats['activated_presale_door']
-        overall_total_stats['activated_door'] += total_stats['activated_door']
-        overall_total_stats['total_activated'] += total_stats['total_activated']
-        overall_total_stats['earned_presale_online'] += total_stats['earned_presale_online']
-        overall_total_stats['earned_presale_door'] += total_stats['earned_presale_door']
-        overall_total_stats['earned_door'] += total_stats['earned_door']
-        overall_total_stats['total_earned'] += total_stats['total_earned']
+        if event.location not in per_location_stats:
+            per_location_stats[event.location] = _empty_stats()
 
-    # get refunded statistics for all orders that have been refunded, as they are not included in the event statistics anymore (as the tickets are marked as refunded and not sold)
+        for key in stat_keys:
+            value = total_stats.get(key, 0)
+            overall_total_stats[key] += value
+            per_location_stats[event.location][key] += value
+
+    # get refunded statistics for all orders that have been refunded; their tickets are removed by the refund/cancel logic,
     for order in get_payment_model().objects.filter(status=PaymentStatus.REFUNDED):
         overall_refunded['total_refunded'] += 1
         overall_refunded['total_amount_refunded'] += order.total
@@ -513,7 +474,7 @@ def generate_global_statistics_pdf(locations=None):
         pdf.cell(value_column_width, 0.6, text=f"{display_value}", border=1, align='L')
         pdf.ln(0.6)
 
-    # Add refunded statistics in seperate table as they are not included in the overall total statistics
+    # Add refunded statistics in separate table as they are not included in the overall total statistics
     pdf.ln(1.0)
     pdf.set_font(font, size=12, style='B')
     pdf.cell(19.0, 0.8, text=_("Refunded/Canceled Orders Statistics"), border=0, align='L')

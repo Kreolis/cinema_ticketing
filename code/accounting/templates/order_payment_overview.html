@@ -134,7 +134,12 @@
     <p>{% translate "Your order is valid for another" %} <span id="timeout-time-remaining">{{ time_remaining }}:00</span> {% translate "minutes" %}.</p>
     
     <div class="mt-3">
-        <a href="{% url 'confirm_order' order.session_id %}" class="btn btn-primary">{% translate "Confirm order order with payment obligation" %}</a>
+        <form method="post" action="{% url 'user_confirm_order' order.session_id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">
+                {% translate "Confirm order with payment obligation" %}
+            </button>
+        </form>
     </div>
 
     {% translate "Your order has expired." as order_expired_message %}

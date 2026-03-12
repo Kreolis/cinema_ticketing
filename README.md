@@ -7,15 +7,15 @@ The project tracks available seats for each event, handles ticket purchases, and
 
 - **Event Management**: Create, update, and display events with customizable seat limits and price classes.
 - **Ticketing**: Dynamically assign unique seat numbers to tickets and track their availability.
-- **Payments**: Secure Stripe integration for handling payments via `django-payments`.
+- **Payments**: Secure Stripe integration for handling payments via `django-payments`. Custom payment in advance payment gateway support.
 - **UUIDs for Tickets**: Non-obvious unique ticket identifiers for security.
 - **Admin Dashboard**: Group tickets by event and manage them in the Django Admin panel.
 
 ## 🧰 Tech Stack
 
-- **Backend**: Django 4.x
+- **Backend**: Django 5.x
 - **Frontend**: HTML, CSS (basic templates)
-- **Payment Integration**: Stripe via `django-payments`
+- **Payment Integration**: `django-payments`
 - **Database**: SQLite (default, configurable for other DBs)
 - **Human Identification**: ReCAPTCHA via `django-reCAPTCHA`
 
@@ -110,6 +110,8 @@ For Stripe support one needs to install the following
   pip install django-payments[stripe]
 ```
 
+> ⚠️ **Warning:** Currently PayPal is untested and might not work out of the box. If you want to use it, make sure to test it properly before using it in production.
+
 Paypal gateway support can be added with the following variables:
 
 ```bash
@@ -118,7 +120,11 @@ Paypal gateway support can be added with the following variables:
   PAYPAL_SECRET_KEY=your-paypal-secret-key
 ```
 
+> ⚠️ **Warning:** Currently SOFORT / KLARNA is untested and might not work out of the box. If you want to use it, make sure to test it properly before using it in production.
+
 For SOFORT / KLARNA support add the following variables:
+(currently untested!)
+
 
 ```bash
   USE_SOFORT=True

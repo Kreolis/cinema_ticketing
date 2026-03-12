@@ -36,7 +36,7 @@ def cart_view(request):
         # this is an old order that has already been paid
         # create a new session and order
         request.session.cycle_key()
-        order = get_payment_model().objects.get_or_create(session_id=request.session.session_key)
+        order, _ = get_payment_model().objects.get_or_create(session_id=request.session.session_key)
 
     elif not order.is_valid():
         # this is an old order that has expired
@@ -105,7 +105,7 @@ def order_information_form(request):
             order.session_id = request.session.session_key
             order.change_status(PaymentStatus.WAITING)
 
-            # if the payment vairant is able to do a preauth, set the success and failure urls
+            # if the payment variant is able to do a preauth, set the success and failure urls
             # check first if the name of the variant is matching with a variant that has the capture field set to False
             if settings.PAYMENT_VARIANTS[order.variant][1].get('capture') == False:
                 order.failure_url = request.build_absolute_uri(reverse('payment_failed'))
@@ -214,6 +214,9 @@ def order_payment_overview(request):
     return order_payment(request, request.session.session_key)
 
 def user_confirm_order(request, order_id):
+    if request.method != 'POST':
+        return redirect('cart_view')
+    
     order = get_object_or_404(get_payment_model(), session_id=order_id)
 
     if order.status == PaymentStatus.PREAUTH:
@@ -245,10 +248,6 @@ def user_confirm_order(request, order_id):
                     ticket.last_name = order.billing_last_name
                     ticket.save()
             
-            # order is paid
-            # make sure the user can make a new order by creating a new session
-            request.session.cycle_key()
-            
         except RedirectNeeded as e:
             return e.response
         
@@ -263,7 +262,7 @@ def user_confirm_order(request, order_id):
         try:
             order.change_status(PaymentStatus.INPUT)
             # form is not used in view but method will raise RedirectNeeded if the payment provider requires a redirect
-            gateway_form = order.get_form(request)
+            gateway_form = order.get_form(data=request.POST or None)
         except RedirectNeeded as e:
             return redirect(str(e))
 
