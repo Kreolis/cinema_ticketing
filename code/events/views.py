@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 from payments import get_payment_model
 from payments.models import PaymentStatus
+from accounting.models import get_order_create_defaults
 
 
 from .models import Event, Ticket, SoldAsStatus, TicketMaster, Location
@@ -128,10 +129,9 @@ def event_detail(request, event_id):
                         new_ticket.save()
                         selected_tickets.append(new_ticket)
                         
-            branding_timeout = branding.order_timeout if branding and branding.order_timeout is not None else 10
             order, _  = get_payment_model().objects.get_or_create(
                 session_id=request.session.session_key,
-                defaults={'timeout': branding_timeout},
+                defaults=get_order_create_defaults(),
             )
             order.update_tickets(selected_tickets)
             

@@ -9,6 +9,7 @@ from django.urls import path
 from django import forms
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
+from django.utils.dateparse import parse_datetime
 from datetime import datetime, timedelta
 from django.utils import timezone
 from pytz import timezone as pytz_timezone
@@ -426,6 +427,27 @@ class EventAdmin(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
+    def _parse_csv_datetime(self, value, import_timezone):
+        value = (value or '').strip()
+        if not value:
+            return None
+
+        parsed = parse_datetime(value)
+        if parsed is None:
+            parsed = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+
+        if timezone.is_naive(parsed):
+            return timezone.make_aware(parsed, import_timezone)
+
+        return parsed
+
+    def _serialize_csv_datetime(self, value):
+        if value is None:
+            return ''
+        if timezone.is_aware(value):
+            return value.isoformat(sep=' ')
+        return value.strftime('%Y-%m-%d %H:%M:%S')
+
     def import_csv(self, request):        
         if not self.has_add_permission(request):
             raise PermissionDenied
@@ -437,8 +459,6 @@ class EventAdmin(admin.ModelAdmin):
                 headers = next(reader)
                 import_warnings = []
                 for row in reader:
-                    time_format = '%Y-%m-%d %H:%M:%S'
-
                     event_data = dict(zip(headers, row))
                     location_name = (event_data.get("location") or "").strip()
                     location_total_seats_raw = (event_data.get("location_total_seats") or "").strip()
@@ -459,12 +479,12 @@ class EventAdmin(admin.ModelAdmin):
                     else:
                         import_timezone = default_import_timezone
 
-                    start_time = timezone.make_aware(datetime.strptime(event_data["start_time"], time_format), import_timezone)
+                    start_time = self._parse_csv_datetime(event_data["start_time"], import_timezone)
                     
                     duration_parts = event_data["duration"].split(':')
                     duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]))
                     
-                    presale_start = timezone.make_aware(datetime.strptime(event_data["presale_start"], time_format), import_timezone) if event_data.get("presale_start") else None
+                    presale_start = self._parse_csv_datetime(event_data.get("presale_start"), import_timezone)
 
                     location = Location.objects.filter(name=location_name).first()
                     if location is None:
@@ -588,13 +608,13 @@ class EventAdmin(admin.ModelAdmin):
             events = Event.objects.all()
             for event in events:
                 writer.writerow([
-                    event.name, event.start_time, event.duration, event.location.name, event.location.total_seats, price_classes,
+                    event.name, self._serialize_csv_datetime(event.start_time), event.duration, event.location.name, event.location.total_seats, price_classes,
                     event.program_link, event.is_active, event.custom_seats,
                     event.custom_ticket_background.name if event.custom_ticket_background else '',
                     serialize_override(event.custom_display_seat_number),
                     event.custom_event_background.name if event.custom_event_background else '',
                     serialize_override(event.custom_allow_presale),
-                    serialize_override(event.custom_presale_start),
+                    self._serialize_csv_datetime(event.custom_presale_start),
                     serialize_override(event.custom_presale_ends_before),
                     serialize_override(event.custom_allow_door_selling),
                     event.custom_event_timezone or ''

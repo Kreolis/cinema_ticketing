@@ -92,7 +92,8 @@ class EventAdminDownloadTemplateCsvTests(TestCase):
         self.assertEqual(exported_event['location_total_seats'], '100')
         self.assertEqual(exported_event['display_seat_number'], 'False')
         self.assertEqual(exported_event['allow_presale'], 'False')
-        self.assertEqual(exported_event['presale_start'], str(custom_presale_start))
+        self.assertEqual(exported_event['start_time'], event.start_time.isoformat(sep=' '))
+        self.assertEqual(exported_event['presale_start'], custom_presale_start.isoformat(sep=' '))
         self.assertEqual(exported_event['presale_ends_before'], '3')
         self.assertEqual(exported_event['allow_door_selling'], 'False')
 
@@ -120,6 +121,25 @@ class EventAdminDownloadTemplateCsvTests(TestCase):
         self.assertContains(response, 'Provide location_total_seats in the CSV or create the location first.')
         self.assertFalse(Event.objects.filter(name='Imported Event').exists())
         self.assertFalse(Location.objects.filter(name='Missing Venue').exists())
+
+    def test_import_csv_accepts_offset_aware_timestamps_from_export(self):
+        start_time = timezone.now().replace(microsecond=0)
+        presale_start = (start_time - timedelta(days=1)).replace(microsecond=0)
+        csv_content = (
+            'name,start_time,duration,location,location_total_seats,price_classes,program_link,is_active,custom_seats,custom_ticket_background,display_seat_number,custom_event_background,allow_presale,presale_start,presale_ends_before,allow_door_selling,custom_event_timezone\n'
+            f'Imported Aware Event,{start_time.isoformat(sep=" ")},2:00,New Venue,250,,http://example.com,True,,,False,,True,{presale_start.isoformat(sep=" ")},3,False,\n'
+        )
+
+        response = self.event_admin.import_csv(self._build_import_request(csv_content))
+
+        self.assertEqual(response.status_code, 302)
+        imported_event = Event.objects.get(name='Imported Aware Event')
+        self.assertEqual(imported_event.start_time, start_time)
+        self.assertEqual(imported_event.custom_presale_start, presale_start)
+        self.assertFalse(imported_event.custom_display_seat_number)
+        self.assertTrue(imported_event.custom_allow_presale)
+        self.assertEqual(imported_event.custom_presale_ends_before, 3)
+        self.assertFalse(imported_event.custom_allow_door_selling)
 
 
 class EventTimezoneConversionTests(TestCase):

@@ -8,6 +8,7 @@ from django_celery_beat.models import IntervalSchedule, PeriodicTask
 from PIL import Image
 from pytz import common_timezones
 from pytz import timezone as pytz_timezone
+from functools import lru_cache
 import json
 
 import logging
@@ -107,6 +108,7 @@ class Branding(models.Model):
             Branding.objects.filter(is_active=True).update(is_active=False)
 
         super(Branding, self).save(*args, **kwargs)
+        clear_active_branding_cache()
         update_statistics_task_schedule(instance=self)  # update the statistics task schedule whenever
         update_timed_out_orders_task_schedule(instance=self)  # update the timed out orders task schedule whenever
 
@@ -116,6 +118,7 @@ class Branding(models.Model):
         self.favicon.delete()
         self.success_sound.delete()
         super(Branding, self).delete(*args, **kwargs)
+        clear_active_branding_cache()
         update_statistics_task_schedule()  # update the statistics task schedule
         update_timed_out_orders_task_schedule()  # update the timed out orders task schedule
 
@@ -148,13 +151,24 @@ class Branding(models.Model):
             return django_timezone.localtime(self.online_presale_end, timezone=self.timezone)
         return None
     
-    
-def get_active_branding():
+
+@lru_cache(maxsize=1)
+def _get_active_branding_cached():
     from django.db import connection
     if 'branding_branding' in connection.introspection.table_names():
-        if Branding.objects.filter(is_active=True).exists():
-            return Branding.objects.filter(is_active=True).first()
+        return Branding.objects.filter(is_active=True).first()
     return None
+
+
+def clear_active_branding_cache():
+    _get_active_branding_cached.cache_clear()
+
+
+def get_active_branding():
+    try:
+        return _get_active_branding_cached()
+    except (ProgrammingError, OperationalError):
+        return None
 
 def update_timed_out_orders_task_schedule(instance=None):
     logger.info("Updating timed out orders task schedule.")
