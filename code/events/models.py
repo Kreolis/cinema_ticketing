@@ -453,7 +453,7 @@ class Event(models.Model):
         if value is None:
             return None
         if django.utils.timezone.is_naive(value):
-            value = django.utils.timezone.make_aware(value, timezone.utc)
+            value = django.utils.timezone.make_aware(value, self.timezone)
 
         return value.astimezone(self.timezone)
 
@@ -588,7 +588,7 @@ class Event(models.Model):
         active_branding = get_active_branding()
         if active_branding and active_branding.display_seat_number is not None:
             return active_branding.display_seat_number
-        return True  # Default to displaying seat number
+        return False  # Default to not displaying seat number
 
     @property
     def allow_presale(self):
@@ -624,7 +624,7 @@ class Event(models.Model):
         active_branding = get_active_branding()
         if active_branding and active_branding.presale_ends_before is not None:
             return active_branding.presale_ends_before
-        return 2  # Default to ending presale 2 hours before event
+        return 1  # Default to ending presale 1 hour before event
 
     @property
     def allow_door_selling(self):

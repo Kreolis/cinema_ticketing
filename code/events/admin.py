@@ -440,6 +440,8 @@ class EventAdmin(admin.ModelAdmin):
                     time_format = '%Y-%m-%d %H:%M:%S'
 
                     event_data = dict(zip(headers, row))
+                    location_name = (event_data.get("location") or "").strip()
+                    location_total_seats_raw = (event_data.get("location_total_seats") or "").strip()
 
                     custom_tz_name = (event_data.get("custom_event_timezone") or "").strip()
                     if custom_tz_name:
@@ -463,8 +465,28 @@ class EventAdmin(admin.ModelAdmin):
                     duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]))
                     
                     presale_start = timezone.make_aware(datetime.strptime(event_data["presale_start"], time_format), import_timezone) if event_data.get("presale_start") else None
-                    
-                    location = Location.objects.get_or_create(name=event_data["location"])[0]
+
+                    location = Location.objects.filter(name=location_name).first()
+                    if location is None:
+                        if not location_total_seats_raw:
+                            raise ValueError(
+                                f"Location '{location_name}' does not exist. Provide location_total_seats in the CSV or create the location first."
+                            )
+                        try:
+                            location_total_seats = int(location_total_seats_raw)
+                        except ValueError as exc:
+                            raise ValueError(
+                                f"Location '{location_name}' has invalid location_total_seats '{location_total_seats_raw}'."
+                            ) from exc
+                        if location_total_seats <= 0:
+                            raise ValueError(
+                                f"Location '{location_name}' must have a positive location_total_seats value."
+                            )
+
+                        location, _ = Location.objects.get_or_create(
+                            name=location_name,
+                            defaults={'total_seats': location_total_seats},
+                        )
      
                     event = Event.objects.create(
                         name=event_data["name"],
@@ -537,8 +559,12 @@ class EventAdmin(admin.ModelAdmin):
             headers={'Content-Disposition': 'attachment; filename="event_import_template.csv"'},
         )
         writer = csv.writer(response)
+
+        def serialize_override(value):
+            return '' if value is None else value
+
         writer.writerow([
-            'name', 'start_time', 'duration', 'location', 'price_classes', 'program_link', 'is_active',
+            'name', 'start_time', 'duration', 'location', 'location_total_seats', 'price_classes', 'program_link', 'is_active',
             'custom_seats', 'custom_ticket_background', 'display_seat_number', 'custom_event_background', 'allow_presale',
             'presale_start', 'presale_ends_before', 'allow_door_selling', 'custom_event_timezone'
         ])
@@ -547,13 +573,13 @@ class EventAdmin(admin.ModelAdmin):
         else:
             price_classes = ', '.join([pc.name for pc in PriceClass.objects.all()])
         if Location.objects.count() == 0:
-            locations = ['Location 1']
+            locations = [('Location 1', 100)]
         else:  
-            locations = [loc.name for loc in Location.objects.all()]
+            locations = [(loc.name, loc.total_seats) for loc in Location.objects.all()]
 
-        for counter, location in enumerate(locations):
+        for counter, (location, location_total_seats) in enumerate(locations):
             writer.writerow([
-                f'Sample Event {counter}', '2023-12-31 18:00:00', '2:00', location, price_classes,
+                f'Sample Event {counter}', '2023-12-31 18:00:00', '2:00', location, location_total_seats, price_classes,
                 'http://example.com', 'True', '100', '', 'True',
                 '', 'True', '2023-12-01 00:00:00', '1', 'True', ''
             ])
@@ -562,13 +588,16 @@ class EventAdmin(admin.ModelAdmin):
             events = Event.objects.all()
             for event in events:
                 writer.writerow([
-                    event.name, event.start_time, event.duration, event.location.name, price_classes,
+                    event.name, event.start_time, event.duration, event.location.name, event.location.total_seats, price_classes,
                     event.program_link, event.is_active, event.custom_seats,
                     event.custom_ticket_background.name if event.custom_ticket_background else '',
-                    event.display_seat_number,
+                    serialize_override(event.custom_display_seat_number),
                     event.custom_event_background.name if event.custom_event_background else '',
-                    event.allow_presale,
-                    event.presale_start, event.presale_ends_before, event.allow_door_selling, event.custom_event_timezone or ''
+                    serialize_override(event.custom_allow_presale),
+                    serialize_override(event.custom_presale_start),
+                    serialize_override(event.custom_presale_ends_before),
+                    serialize_override(event.custom_allow_door_selling),
+                    event.custom_event_timezone or ''
                 ])
         return response
 
