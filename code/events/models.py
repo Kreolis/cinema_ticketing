@@ -166,9 +166,9 @@ class Ticket(models.Model):
             pdf.set_font(font)
 
             # If a template is provided, use it as the canvas
-            if self.event.ticket_background:
+            if self.event.ticket_background_path:
                 try:
-                    pdf.set_page_background(self.event.ticket_background)
+                    pdf.set_page_background(self.event.ticket_background_path)
                 except Exception as e:
                     logger.error(f"Error loading template image: {e}")
             
@@ -455,7 +455,6 @@ class Event(models.Model):
         if django.utils.timezone.is_naive(value):
             value = django.utils.timezone.make_aware(value, timezone.utc)
 
-        print(f"Converting {value} to timezone {self.timezone}: {value.astimezone(self.timezone)}")
         return value.astimezone(self.timezone)
 
     @property
@@ -463,7 +462,7 @@ class Event(models.Model):
         """
         Return the duration of the event in minutes.
         """
-        return self.duration.total_seconds() / 60
+        return int(self.duration.total_seconds() / 60)
 
     @property
     def presale_end_time(self):
@@ -507,10 +506,24 @@ class Event(models.Model):
     def timezone(self):
         """Return the pytz timezone object for this event."""
         if self.custom_event_timezone:
-            return pytz_timezone(self.custom_event_timezone)
+            try:
+                return pytz_timezone(self.custom_event_timezone)
+            except Exception as e:
+                logger.error(
+                    f"Invalid custom_event_timezone '{self.custom_event_timezone}' "
+                    f"on event pk={self.pk}: {e}"
+                )
         # Fetch active branding dynamically to avoid stale cached values
         active_branding = get_active_branding()
-        return pytz_timezone(active_branding.default_event_timezone) if active_branding and active_branding.default_event_timezone else pytz_timezone('UTC')
+        if active_branding and active_branding.default_event_timezone:
+            try:
+                return pytz_timezone(active_branding.default_event_timezone)
+            except Exception as e:
+                logger.error(
+                    f"Invalid default_event_timezone '{active_branding.default_event_timezone}' "
+                    f"in branding settings: {e}"
+                )
+        return pytz_timezone('UTC')
 
     @property
     def start_time_in_timezone(self):
@@ -530,14 +543,31 @@ class Event(models.Model):
     @property
     def ticket_background(self):
         """
-        Return the ticket background image for this event, or None if not set.
+        Return the ticket background image FieldFile for this event, or None if not set.
         """
         if self.custom_ticket_background and os.path.exists(self.custom_ticket_background.path):
-            return self.custom_ticket_background.path
+            return self.custom_ticket_background
         active_branding = get_active_branding()
         if active_branding and active_branding.ticket_background and os.path.exists(active_branding.ticket_background.path):
-            return active_branding.ticket_background.path
+            return active_branding.ticket_background
         return None
+
+    @property
+    def ticket_background_path(self):
+        """
+        Return the filesystem path for the resolved ticket background, or None.
+        Use this for FPDF/background rendering.
+        """
+        background = self.ticket_background
+        return background.path if background else None
+
+    @property
+    def ticket_background_url(self):
+        """
+        Return the URL for the resolved ticket background, or None.
+        """
+        background = self.ticket_background
+        return background.url if background else None
 
     @property
     def total_seats(self):
@@ -611,14 +641,31 @@ class Event(models.Model):
     @property
     def event_background(self):
         """
-        Return the event background image for this event, or None if not set.
+        Return the event background image FieldFile for this event, or None if not set.
         """
         if self.custom_event_background and os.path.exists(self.custom_event_background.path):
-            return self.custom_event_background.path
+            return self.custom_event_background
         active_branding = get_active_branding()
         if active_branding and active_branding.event_background and os.path.exists(active_branding.event_background.path):
-            return active_branding.event_background.path
+            return active_branding.event_background
         return None
+
+    @property
+    def event_background_path(self):
+        """
+        Return the filesystem path for the resolved event background, or None.
+        Use this for libraries that need a local file path.
+        """
+        background = self.event_background
+        return background.path if background else None
+
+    @property
+    def event_background_url(self):
+        """
+        Return the URL of the resolved event background image for this event, or None.
+        """
+        background = self.event_background
+        return background.url if background else None
 
     def calculate_statistics(self):
         """

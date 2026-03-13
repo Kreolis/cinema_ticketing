@@ -124,6 +124,8 @@ class Branding(models.Model):
             image = Image.open(self.favicon)
             if image.width > 64 or image.height > 64:
                 raise ValidationError(_("Favicon size should not exceed 64x64 pixels."))
+        if self.order_timeout is not None and self.order_timeout <= 0:
+            raise ValidationError({"order_timeout": _("Order timeout must be a positive integer (greater than 0).")})
     
     @property
     def timezone(self):

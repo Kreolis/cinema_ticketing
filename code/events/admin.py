@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from .models import Location, PriceClass, Event, Ticket, TicketMaster
 
 from django.urls import reverse
@@ -352,11 +352,23 @@ class EventAdmin(admin.ModelAdmin):
 
     def _get_event_timezone(self, event=None):
         if event and event.custom_event_timezone:
-            return pytz_timezone(event.custom_event_timezone)
+            try:
+                return pytz_timezone(event.custom_event_timezone)
+            except Exception as e:
+                logger.error(
+                    f"Invalid custom_event_timezone '{event.custom_event_timezone}' "
+                    f"on event pk={event.pk}: {e}"
+                )
 
         branding = get_active_branding()
         if branding and branding.default_event_timezone:
-            return pytz_timezone(branding.default_event_timezone)
+            try:
+                return pytz_timezone(branding.default_event_timezone)
+            except Exception as e:
+                logger.error(
+                    f"Invalid default_event_timezone '{branding.default_event_timezone}' "
+                    f"in branding settings: {e}"
+                )
 
         return timezone.get_default_timezone()
 
@@ -423,14 +435,28 @@ class EventAdmin(admin.ModelAdmin):
                 default_import_timezone = self._get_event_timezone()
                 reader = csv.reader(csv_file.read().decode('utf-8').splitlines())
                 headers = next(reader)
+                import_warnings = []
                 for row in reader:
                     time_format = '%Y-%m-%d %H:%M:%S'
 
                     event_data = dict(zip(headers, row))
 
                     custom_tz_name = (event_data.get("custom_event_timezone") or "").strip()
-                    import_timezone = pytz_timezone(custom_tz_name) if custom_tz_name else default_import_timezone
-                    
+                    if custom_tz_name:
+                        try:
+                            import_timezone = pytz_timezone(custom_tz_name)
+                        except Exception as tz_err:
+                            warn_msg = (
+                                f"Row '{event_data.get('name', '?')}': invalid timezone "
+                                f"'{custom_tz_name}' ({tz_err}) — falling back to default timezone."
+                            )
+                            logger.warning(warn_msg)
+                            import_warnings.append(warn_msg)
+                            import_timezone = default_import_timezone
+                            custom_tz_name = ""  # don't persist the invalid value
+                    else:
+                        import_timezone = default_import_timezone
+
                     start_time = timezone.make_aware(datetime.strptime(event_data["start_time"], time_format), import_timezone)
                     
                     duration_parts = event_data["duration"].split(':')
@@ -465,30 +491,33 @@ class EventAdmin(admin.ModelAdmin):
                     if event_data.get("custom_seats"):
                         event.custom_seats = int(event_data.get("custom_seats"))
 
-                    if event_data.get("ticket_background"):
-                        event.ticket_background = event_data.get("ticket_background")
+                    if event_data.get("custom_ticket_background"):
+                        event.custom_ticket_background = event_data.get("custom_ticket_background")
 
                     if event_data.get("display_seat_number"):
-                        event.display_seat_number = event_data.get("display_seat_number", "").upper() == 'TRUE'
-                    
-                    if event_data.get("event_background"):
-                        event.event_background = event_data.get("event_background")
+                        event.custom_display_seat_number = event_data.get("display_seat_number", "").upper() == 'TRUE'
+
+                    if event_data.get("custom_event_background"):
+                        event.custom_event_background = event_data.get("custom_event_background")
 
                     if event_data.get("allow_presale"):
-                        event.allow_presale = event_data.get("allow_presale", "").upper() == 'TRUE'
+                        event.custom_allow_presale = event_data.get("allow_presale", "").upper() == 'TRUE'
 
                     if presale_start:
-                        event.presale_start = presale_start
+                        event.custom_presale_start = presale_start
 
                     if event_data.get("presale_ends_before"):
-                        event.presale_ends_before = int(event_data.get("presale_ends_before"))
+                        event.custom_presale_ends_before = int(event_data.get("presale_ends_before"))
 
                     if event_data.get("allow_door_selling"):
-                        event.allow_door_selling = event_data.get("allow_door_selling", "").upper() == 'TRUE'
+                        event.custom_allow_door_selling = event_data.get("allow_door_selling", "").upper() == 'TRUE'
 
                     event.save()
                     logger.info(f"Event saved: {event}")
 
+                if import_warnings:
+                    for w in import_warnings:
+                        self.message_user(request, w, level=messages.WARNING)
                 self.message_user(request, "Events imported successfully.")
                 return redirect("..")
             except Exception as e:
@@ -509,8 +538,8 @@ class EventAdmin(admin.ModelAdmin):
         )
         writer = csv.writer(response)
         writer.writerow([
-            'name', 'start_time', 'duration', 'location', 'price_classes', 'program_link', 'is_active', 
-            'custom_seats', 'ticket_background', 'display_seat_number', 'event_background', 'allow_presale', 
+            'name', 'start_time', 'duration', 'location', 'price_classes', 'program_link', 'is_active',
+            'custom_seats', 'custom_ticket_background', 'display_seat_number', 'custom_event_background', 'allow_presale',
             'presale_start', 'presale_ends_before', 'allow_door_selling', 'custom_event_timezone'
         ])
         if PriceClass.objects.count() == 0:
@@ -524,18 +553,21 @@ class EventAdmin(admin.ModelAdmin):
 
         for counter, location in enumerate(locations):
             writer.writerow([
-                f'Sample Event {counter}', '2023-12-31 18:00:00', '2:00', location, price_classes, 
-                'http://example.com', 'True', '100', 'path/to/ticket_background.jpg', 'True', 
-                'path/to/event_background.jpg', 'True', '2023-12-01 00:00:00', '1', 'True', ''
+                f'Sample Event {counter}', '2023-12-31 18:00:00', '2:00', location, price_classes,
+                'http://example.com', 'True', '100', '', 'True',
+                '', 'True', '2023-12-01 00:00:00', '1', 'True', ''
             ])
 
         if Event.objects.count() != 0:
             events = Event.objects.all()
             for event in events:
                 writer.writerow([
-                    event.name, event.start_time, event.duration, event.location.name, price_classes, 
-                    event.program_link, event.is_active, event.custom_seats, event.ticket_background, 
-                    event.display_seat_number, event.event_background, event.allow_presale, 
+                    event.name, event.start_time, event.duration, event.location.name, price_classes,
+                    event.program_link, event.is_active, event.custom_seats,
+                    event.custom_ticket_background.name if event.custom_ticket_background else '',
+                    event.display_seat_number,
+                    event.custom_event_background.name if event.custom_event_background else '',
+                    event.allow_presale,
                     event.presale_start, event.presale_ends_before, event.allow_door_selling, event.custom_event_timezone or ''
                 ])
         return response

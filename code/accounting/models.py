@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 def get_order_timeout_default():
     branding = get_active_branding()
-    if branding and branding.order_timeout:
+    if branding and branding.order_timeout is not None:
         return branding.order_timeout
     return 10
 

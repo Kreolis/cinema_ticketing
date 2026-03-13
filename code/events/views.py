@@ -128,7 +128,7 @@ def event_detail(request, event_id):
                         new_ticket.save()
                         selected_tickets.append(new_ticket)
                         
-            branding_timeout = branding.order_timeout if branding and branding.order_timeout else 10
+            branding_timeout = branding.order_timeout if branding and branding.order_timeout is not None else 10
             order, _  = get_payment_model().objects.get_or_create(
                 session_id=request.session.session_key,
                 defaults={'timeout': branding_timeout},

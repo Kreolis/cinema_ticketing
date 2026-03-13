@@ -181,6 +181,7 @@
                 <thead>
                     <tr>
                         <th>{% translate "Action" %}</th>
+                        <th style="display:none">{% translate "Activated" %}</th>
                         {% if event.display_seat_number %}
                             <th>{% translate "Seat Number" %}</th>
                         {% endif %}
@@ -198,6 +199,7 @@
                                     {% if ticket.activated %}{% translate 'Deactivate' %}{% else %}{% translate 'Activate' %}{% endif %}
                                 </button>
                             </td>
+                            <td id="activated-cell-{{ ticket.id }}" style="display:none">{% if ticket.activated %}{% translate 'True' %}{% else %}{% translate 'False' %}{% endif %}</td>
                             {% if event.display_seat_number %}
                                 <td>{{ ticket.seat }}</td>
                             {% endif %}
