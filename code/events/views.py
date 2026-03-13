@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import FileResponse, JsonResponse
 from django.conf import settings
+from django.utils import timezone as django_timezone
 
 from django.utils.translation import gettext as _
 
@@ -450,6 +451,9 @@ def all_events_statistics(request):
 def generate_global_statistics_pdf(locations=None):
     # Generate statistics for all events
     # Create the PDF
+    branding = get_active_branding()
+    report_timezone = branding.timezone if branding else django_timezone.get_current_timezone()
+
     statistic_labels = {
         'waiting': _('Waiting'),
         'presale_online_waiting': _('Presale Online Waiting'),
@@ -507,8 +511,9 @@ def generate_global_statistics_pdf(locations=None):
     pdf.cell(19.0, 1.0, text=_("All Events - Statistics"), border=0, align='C')
     pdf.ln(1.0)
     # created at
+    created_at = django_timezone.localtime(django_timezone.now(), timezone=report_timezone)
     pdf.set_font(font, size=10)
-    pdf.cell(19.0, 0.6, text=_("Created at:") + f" {datetime.now().strftime('%d.%m.%Y %H:%M')}", border=0, align='L')
+    pdf.cell(19.0, 0.6, text=_("Created at:") + f" {created_at.strftime('%d.%m.%Y %H:%M %Z')}", border=0, align='L')
     pdf.ln(0.6)
 
     # add global statistics
@@ -572,7 +577,7 @@ def generate_global_statistics_pdf(locations=None):
         pdf.ln(0.8)
         pdf.set_font(font, size=12, style='B')
         pdf.cell(4.0, 0.6, text=_("Start:"), border=0, align='L')
-        pdf.cell(5.0, 0.6, text=f"{event.start_time.strftime('%H:%M %d.%m.%Y')}", border=0, align='L')
+        pdf.cell(5.0, 0.6, text=f"{event.start_time_in_timezone.strftime('%H:%M %d.%m.%Y %Z')}", border=0, align='L')
         pdf.ln(0.8)
         pdf.cell(4.0, 0.6, text=_("Venue:"), border=0, align='L')
         pdf.cell(10.0, 0.6, text=f"{event.location.name}", border=0, align='L')
