@@ -5,6 +5,7 @@ from django.core.mail import EmailMessage
 from django.utils.translation import gettext_lazy as _
 import django.utils.timezone
 from pytz import common_timezones, timezone as pytz_timezone
+from django.utils import timezone as django_timezone
 
 from datetime import datetime, timedelta, timezone
 
@@ -760,7 +761,8 @@ class Event(models.Model):
 
         # created at
         pdf.set_font(font, size=10)
-        pdf.cell(19.0, 0.6, text=f"Created at: {datetime.now().strftime('%d.%m.%Y %H:%M')}", border=0, align='L')
+        created_at = django_timezone.localtime(django_timezone.now(), timezone=self.timezone)
+        pdf.cell(19.0, 0.6, text=_("Created at:") + f" {created_at.strftime('%d.%m.%Y %H:%M %Z')}", border=0, align='L')
         pdf.ln(0.6)
 
         # Fetch statistics
