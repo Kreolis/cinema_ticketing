@@ -125,7 +125,6 @@ Paypal gateway support can be added with the following variables:
 For SOFORT / KLARNA support add the following variables:
 (currently untested!)
 
-
 ```bash
   USE_SOFORT=True
   SOFORT_KLARNA_ID=your-sofort-klarna-id

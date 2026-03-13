@@ -125,7 +125,8 @@ class Branding(models.Model):
             if image.width > 64 or image.height > 64:
                 raise ValidationError(_("Favicon size should not exceed 64x64 pixels."))
     
-    def get_timezone(self):
+    @property
+    def timezone(self):
         tz_name = self.default_event_timezone or 'UTC'
         try:
             return pytz_timezone(tz_name)
@@ -133,14 +134,16 @@ class Branding(models.Model):
             logger.error(f"Invalid timezone '{tz_name}' in branding settings: {e}")
             return pytz_timezone('UTC')
 
-    def get_presale_start_time_in_timezone(self):
+    @property
+    def presale_start_time_in_timezone(self):
         if self.presale_start:
-            return django_timezone.localtime(self.presale_start, timezone=self.get_timezone())
+            return django_timezone.localtime(self.presale_start, timezone=self.timezone)
         return None
 
-    def get_presale_end_time_in_timezone(self):
+    @property
+    def presale_end_time_in_timezone(self):
         if self.use_online_presale_end and self.online_presale_end:
-            return django_timezone.localtime(self.online_presale_end, timezone=self.get_timezone())
+            return django_timezone.localtime(self.online_presale_end, timezone=self.timezone)
         return None
     
     

@@ -95,9 +95,9 @@ def event_detail(request, event_id):
     price_classes = event.price_classes.all().exclude(secret=True)
 
     if branding and branding.use_online_presale_end and branding.online_presale_end:
-        presale_end_time = branding.get_presale_end_time_in_timezone()
+        presale_end_time = branding.presale_end_time_in_timezone
     else:
-        presale_end_time = event.get_presale_end_time_in_timezone
+        presale_end_time = event.presale_end_time_in_timezone
 
     # Ensure the session is created
     if not request.session.session_key:
@@ -128,7 +128,11 @@ def event_detail(request, event_id):
                         new_ticket.save()
                         selected_tickets.append(new_ticket)
                         
-            order, _  = get_payment_model().objects.get_or_create(session_id=request.session.session_key)
+            branding_timeout = branding.order_timeout if branding and branding.order_timeout else 10
+            order, _  = get_payment_model().objects.get_or_create(
+                session_id=request.session.session_key,
+                defaults={'timeout': branding_timeout},
+            )
             order.update_tickets(selected_tickets)
             
     else:
@@ -141,7 +145,7 @@ def event_detail(request, event_id):
         'form': form,
         'is_ticket_manager': is_ticket_manager,
         'presale_end_time': presale_end_time,
-        'presale_start_time': event.get_presale_start_time_in_timezone,
+        'presale_start_time': event.presale_start_time_in_timezone,
         'currency': settings.DEFAULT_CURRENCY,
     })
 
@@ -239,7 +243,7 @@ def event_door_selling(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     price_classes = event.price_classes.all()
 
-    presale_end_time = event.presale_end_time()
+    presale_end_time = event.presale_end_time_in_timezone
 
     if request.method == 'POST':
         form = TicketSelectionForm(request.POST, price_classes=price_classes, display_name_fields=True)
@@ -298,7 +302,7 @@ def event_door_selling(request, event_id):
         'event': event,
         'event_active': event.check_active(),
         'presale_end_time': presale_end_time,
-        'presale_start_time': event.get_presale_start_time_in_timezone,
+        'presale_start_time': event.presale_start_time_in_timezone,
         'price_classes': price_classes,
         'tickets_door_and_presale': tickets_door_and_presale,
         'form': form,

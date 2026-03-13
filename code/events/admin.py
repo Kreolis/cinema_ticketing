@@ -11,10 +11,13 @@ from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from datetime import datetime, timedelta
 from django.utils import timezone
+from pytz import timezone as pytz_timezone
 
 import logging
 
 logger = logging.getLogger(__name__)
+
+from branding.models import get_active_branding
 
 
 def is_admin_user(user):
@@ -347,6 +350,25 @@ class EventAdmin(admin.ModelAdmin):
             return True
         return False
 
+    def _get_event_timezone(self, event=None):
+        if event and event.custom_event_timezone:
+            return pytz_timezone(event.custom_event_timezone)
+
+        branding = get_active_branding()
+        if branding and branding.default_event_timezone:
+            return pytz_timezone(branding.default_event_timezone)
+
+        return timezone.get_default_timezone()
+
+    def add_view(self, request, form_url='', extra_context=None):
+        with timezone.override(self._get_event_timezone()):
+            return super().add_view(request, form_url=form_url, extra_context=extra_context)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        event = Event.objects.filter(pk=object_id).first()
+        with timezone.override(self._get_event_timezone(event)):
+            return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
+
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         active_locations = get_user_active_locations(request.user)
@@ -398,19 +420,23 @@ class EventAdmin(admin.ModelAdmin):
         if request.method == "POST":
             csv_file = request.FILES["csv_file"]
             try:
+                default_import_timezone = self._get_event_timezone()
                 reader = csv.reader(csv_file.read().decode('utf-8').splitlines())
                 headers = next(reader)
                 for row in reader:
                     time_format = '%Y-%m-%d %H:%M:%S'
 
                     event_data = dict(zip(headers, row))
+
+                    custom_tz_name = (event_data.get("custom_event_timezone") or "").strip()
+                    import_timezone = pytz_timezone(custom_tz_name) if custom_tz_name else default_import_timezone
                     
-                    start_time = timezone.make_aware(datetime.strptime(event_data["start_time"], time_format))
+                    start_time = timezone.make_aware(datetime.strptime(event_data["start_time"], time_format), import_timezone)
                     
                     duration_parts = event_data["duration"].split(':')
                     duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]))
                     
-                    presale_start = timezone.make_aware(datetime.strptime(event_data["presale_start"], time_format)) if event_data.get("presale_start") else None
+                    presale_start = timezone.make_aware(datetime.strptime(event_data["presale_start"], time_format), import_timezone) if event_data.get("presale_start") else None
                     
                     location = Location.objects.get_or_create(name=event_data["location"])[0]
      
@@ -419,6 +445,7 @@ class EventAdmin(admin.ModelAdmin):
                         start_time=start_time,
                         duration=duration,
                         location=location,
+                        custom_event_timezone=custom_tz_name or None,
                     )
                     logger.info(f"Created event: {event}")
                     
@@ -484,7 +511,7 @@ class EventAdmin(admin.ModelAdmin):
         writer.writerow([
             'name', 'start_time', 'duration', 'location', 'price_classes', 'program_link', 'is_active', 
             'custom_seats', 'ticket_background', 'display_seat_number', 'event_background', 'allow_presale', 
-            'presale_start', 'presale_ends_before', 'allow_door_selling'
+            'presale_start', 'presale_ends_before', 'allow_door_selling', 'custom_event_timezone'
         ])
         if PriceClass.objects.count() == 0:
             price_classes = 'Price Class 1, Price Class 2'
@@ -499,7 +526,7 @@ class EventAdmin(admin.ModelAdmin):
             writer.writerow([
                 f'Sample Event {counter}', '2023-12-31 18:00:00', '2:00', location, price_classes, 
                 'http://example.com', 'True', '100', 'path/to/ticket_background.jpg', 'True', 
-                'path/to/event_background.jpg', 'True', '2023-12-01 00:00:00', '1', 'True'
+                'path/to/event_background.jpg', 'True', '2023-12-01 00:00:00', '1', 'True', ''
             ])
 
         if Event.objects.count() != 0:
@@ -509,7 +536,7 @@ class EventAdmin(admin.ModelAdmin):
                     event.name, event.start_time, event.duration, event.location.name, price_classes, 
                     event.program_link, event.is_active, event.custom_seats, event.ticket_background, 
                     event.display_seat_number, event.event_background, event.allow_presale, 
-                    event.presale_start, event.presale_ends_before, event.allow_door_selling
+                    event.presale_start, event.presale_ends_before, event.allow_door_selling, event.custom_event_timezone or ''
                 ])
         return response
 

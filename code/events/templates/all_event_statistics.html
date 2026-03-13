@@ -4,6 +4,7 @@
 {% bootstrap_javascript %}
 
 {% load i18n %}
+{% load tz %}
 
 {% block title %}{% translate "Overall Statistics" %}{% endblock %}
 
@@ -141,7 +142,7 @@
     {% for event_stats in events_stats %}
 
     <h3 class="mt-4"><a href="{% url 'event_details' event_stats.event.id %}">{{ event_stats.event.name }}</a></h3>
-    <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {{ event_stats.event.get_start_time_in_timezone|date:"H:i d.m.Y (T)" }}</p>
+        <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {% localtime off %}{{ event_stats.event.start_time_in_timezone|date:"H:i d.m.Y (e)" }}{% endlocaltime %}</p>
     <p class="card-text"><strong>{% translate "Location" %}:</strong> {{ event_stats.event.location.name }}</p>
     <p class="card-text"><strong>{% translate "Remaining Seats" %}:</strong> {{ event_stats.event.remaining_seats }} / {{ event_stats.event.total_seats }}</p>
     <div class="table-responsive">

@@ -4,12 +4,13 @@
 {% bootstrap_javascript %}
 
 {% load i18n %}
+{% load tz %}
 
 {% block title %}{% translate "Event Statistics" %} - {{ event.name }}{% endblock %}
 
 {% block content %}
     <h1 class="mt-4">{% translate "Event Statistics" %} - {{ event.name }}</h1>
-    <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {{ event.get_start_time_in_timezone|date:"H:i d.m.Y (T)" }}</p>
+    <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {% localtime off %}{{ event.start_time_in_timezone|date:"H:i d.m.Y (e)" }}{% endlocaltime %}</p>
     <p class="card-text"><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
     
     <!-- Include jQuery library via CDN -->

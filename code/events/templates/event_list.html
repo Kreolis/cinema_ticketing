@@ -4,6 +4,7 @@
 {% bootstrap_javascript %}
 
 {% load i18n %}
+{% load tz %}
 
 {% block title %}
     {% translate "Upcoming Events" %}
@@ -47,16 +48,16 @@
                         style="border: none;
                             {% if event.event_background %} 
                             background: linear-gradient(rgba(var(--bs-light-rgb), 0.5), 
-                            rgba({{ event.get_color_rgb }}, 0.5)), 
+                            rgba({{ event.color_rgb }}, 0.5)), 
                             url('{{ event.event_background.url }}'); 
                             background-size: cover; background-position: center;
                             {% else %} 
-                            background: linear-gradient(rgba(var(--bs-light-rgb), 1), rgba({{ event.get_color_rgb }}, 1));
+                            background: linear-gradient(rgba(var(--bs-light-rgb), 1), rgba({{ event.color_rgb }}, 1));
                             {% endif %}
                             ">
                             <div style="padding: 1.5rem 1.5rem;">
                                 <h2 class="card-title">{{ event.name }}</h2>
-                                <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {{ event.get_start_time_in_timezone|date:"H:i d.m.Y (T)" }}</p>
+                                <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {% localtime off %}{{ event.start_time_in_timezone|date:"H:i d.m.Y (e)" }}{% endlocaltime %}</p>
                                 <p class="card-text"><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
                                 <p class="card-text"><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
                                 <p class="card-text"><strong>{% translate "Price Classes" %}:</strong>
