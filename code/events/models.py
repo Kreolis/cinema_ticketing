@@ -546,10 +546,10 @@ class Event(models.Model):
         """
         Return the ticket background image FieldFile for this event, or None if not set.
         """
-        if self.custom_ticket_background and os.path.exists(self.custom_ticket_background.path):
+        if self.custom_ticket_background:
             return self.custom_ticket_background
         active_branding = get_active_branding()
-        if active_branding and active_branding.ticket_background and os.path.exists(active_branding.ticket_background.path):
+        if active_branding and active_branding.ticket_background:
             return active_branding.ticket_background
         return None
 
@@ -560,7 +560,12 @@ class Event(models.Model):
         Use this for FPDF/background rendering.
         """
         background = self.ticket_background
-        return background.path if background else None
+        if not background:
+            return None
+        try:
+            return background.path
+        except (AttributeError, NotImplementedError, ValueError, OSError):
+            return None
 
     @property
     def ticket_background_url(self):
@@ -568,7 +573,12 @@ class Event(models.Model):
         Return the URL for the resolved ticket background, or None.
         """
         background = self.ticket_background
-        return background.url if background else None
+        if not background:
+            return None
+        try:
+            return background.url
+        except (AttributeError, ValueError):
+            return None
 
     @property
     def total_seats(self):
@@ -644,10 +654,10 @@ class Event(models.Model):
         """
         Return the event background image FieldFile for this event, or None if not set.
         """
-        if self.custom_event_background and os.path.exists(self.custom_event_background.path):
+        if self.custom_event_background:
             return self.custom_event_background
         active_branding = get_active_branding()
-        if active_branding and active_branding.event_background and os.path.exists(active_branding.event_background.path):
+        if active_branding and active_branding.event_background:
             return active_branding.event_background
         return None
 
@@ -658,7 +668,12 @@ class Event(models.Model):
         Use this for libraries that need a local file path.
         """
         background = self.event_background
-        return background.path if background else None
+        if not background:
+            return None
+        try:
+            return background.path
+        except (AttributeError, NotImplementedError, ValueError, OSError):
+            return None
 
     @property
     def event_background_url(self):
@@ -666,7 +681,12 @@ class Event(models.Model):
         Return the URL of the resolved event background image for this event, or None.
         """
         background = self.event_background
-        return background.url if background else None
+        if not background:
+            return None
+        try:
+            return background.url
+        except (AttributeError, ValueError):
+            return None
 
     def calculate_statistics(self):
         """

@@ -480,9 +480,6 @@ def _get_statistics_location_scope(user, selected_location_id=None):
         if active_locations is not None:
             location_options = active_locations.order_by('name')
             locations = active_locations
-        else:
-            location_options = Location.objects.none()
-            locations = Location.objects.none()
 
     if selected_location_id:
         if locations is not None:

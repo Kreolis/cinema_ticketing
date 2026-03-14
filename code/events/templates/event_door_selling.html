@@ -205,10 +205,16 @@
             }
 
             function appendMessage(message, level) {
+                const alertElement = $('<div>')
+                    .addClass('alert')
+                    .addClass(`alert-${level}`)
+                    .text(message)
+                    .hide();
+
                 $('#message-container')
-                    .append('<div class="alert alert-' + level + '">' + message + '</div>')
-                    .children()
-                    .last()
+                    .append(alertElement);
+
+                alertElement
                     .fadeIn()
                     .delay(1500)
                     .fadeOut();
