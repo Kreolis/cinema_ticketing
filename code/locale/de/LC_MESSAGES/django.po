@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-14 16:48+0200\n"
-"PO-Revision-Date: 2026-03-14 14:50+0000\n"
+"POT-Creation-Date: 2026-03-14 18:59+0200\n"
+"PO-Revision-Date: 2026-03-14 17:03+0000\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -42,7 +42,7 @@ msgid "Delete selected orders"
 msgstr "Ausgewählte Bestellungen löschen"
 
 #: accounting/forms.py:12 events/forms.py:39
-#: events/templates/event_check_in.html:189
+#: events/templates/event_check_in.html:193
 #: events/templates/event_door_selling.html:97
 msgid "First Name"
 msgstr "Vorname"
@@ -52,7 +52,7 @@ msgid "Enter the first name as it appears on the billing statement."
 msgstr "Geben Sie den Vornamen so ein, wie er auf der Abrechnung erscheint."
 
 #: accounting/forms.py:17 events/forms.py:46
-#: events/templates/event_check_in.html:190
+#: events/templates/event_check_in.html:194
 #: events/templates/event_door_selling.html:98
 msgid "Last Name"
 msgstr "Nachname"
@@ -116,7 +116,7 @@ msgstr ""
 #: accounting/templates/cart.html:50
 #: accounting/templates/order_payment_overview.html:31
 #: accounting/templates/ticket_list.html:33 events/forms.py:32
-#: events/templates/event_check_in.html:188
+#: events/templates/event_check_in.html:192
 #: events/templates/event_door_selling.html:99
 msgid "Email"
 msgstr "E-Mail"
@@ -178,23 +178,23 @@ msgstr "Fester Betrag pro Ticket"
 msgid "Percentage per Ticket"
 msgstr "Prozentsatz pro Ticket"
 
-#: accounting/models.py:45 cinema_tickets/settings.py:347
+#: accounting/models.py:45 cinema_tickets/settings.py:322
 msgid "Stripe (Credit Card)"
 msgstr "Stripe (Kreditkarte)"
 
-#: accounting/models.py:46 cinema_tickets/settings.py:348
+#: accounting/models.py:46 cinema_tickets/settings.py:323
 msgid "Paypal"
 msgstr "Paypal"
 
-#: accounting/models.py:47 cinema_tickets/settings.py:349
+#: accounting/models.py:47 cinema_tickets/settings.py:324
 msgid "Sofort/Klarna"
 msgstr "Sofort/Klarna"
 
-#: accounting/models.py:48 cinema_tickets/settings.py:350
+#: accounting/models.py:48 cinema_tickets/settings.py:325
 msgid "Advance Payment"
 msgstr "Vorauszahlung"
 
-#: accounting/models.py:49 cinema_tickets/settings.py:351
+#: accounting/models.py:49 cinema_tickets/settings.py:326
 msgid "Dummy Payment"
 msgstr "Dummy-Zahlung"
 
@@ -344,12 +344,12 @@ msgid "Unit Price"
 msgstr "Stückpreis"
 
 #: accounting/models.py:525 accounting/models.py:563
-#: accounting/templates/cart.html:91 events/models.py:752
+#: accounting/templates/cart.html:91 events/models.py:772
 #: events/templates/all_event_statistics.html:54
 #: events/templates/all_event_statistics.html:157
 #: events/templates/all_event_statistics.html:204
 #: events/templates/event_statistics.html:62
-#: events/templates/event_statistics.html:109 events/views.py:466
+#: events/templates/event_statistics.html:109 events/views.py:528
 msgid "Total"
 msgstr "Gesamt"
 
@@ -629,7 +629,7 @@ msgstr "Ort"
 #: accounting/templates/cart.html:49
 #: accounting/templates/order_payment_overview.html:30
 #: accounting/templates/ticket_list.html:32
-#: events/templates/event_check_in.html:186
+#: events/templates/event_check_in.html:190
 #: events/templates/event_door_selling.html:94
 msgid "Seat Number"
 msgstr "Sitznummer"
@@ -637,7 +637,7 @@ msgstr "Sitznummer"
 #: accounting/templates/cart.html:51
 #: accounting/templates/order_payment_overview.html:32
 #: accounting/templates/ticket_list.html:34
-#: events/templates/event_door_selling.html:95 events/views.py:625
+#: events/templates/event_door_selling.html:95 events/views.py:687
 msgid "Price"
 msgstr "Preis"
 
@@ -691,7 +691,7 @@ msgstr "Ihre Bestellung ist abgelaufen."
 #: accounting/templates/login.html:9 accounting/templates/login.html:13
 #: accounting/templates/login.html:20 branding/templates/login.html:9
 #: branding/templates/login.html:13 branding/templates/login.html:20
-#: templates/master.html:93
+#: templates/master.html:103
 msgid "Login"
 msgstr "Login"
 
@@ -756,7 +756,7 @@ msgstr "Kunden-Nachname"
 #: accounting/templates/manage_orders.html:52
 #: accounting/templates/manage_orders.html:101
 #: accounting/templates/manage_orders.html:144
-#: accounting/templates/manage_orders.html:181 events/views.py:563
+#: accounting/templates/manage_orders.html:181 events/views.py:625
 msgid "Total Amount"
 msgstr "Gesamtbetrag"
 
@@ -1042,11 +1042,11 @@ msgstr ""
 "Wählen Sie eine Veranstaltung aus, auf die sich Ihre Nachricht bezieht "
 "(optional)."
 
-#: branding/models.py:20 events/models.py:865 events/models.py:978
+#: branding/models.py:20 events/models.py:885 events/models.py:998
 msgid "Enter the first name"
 msgstr "Geben Sie den Vornamen ein"
 
-#: branding/models.py:21 events/models.py:866 events/models.py:979
+#: branding/models.py:21 events/models.py:886 events/models.py:999
 msgid "Enter the last name"
 msgstr "Geben Sie den Nachnamen ein"
 
@@ -1055,7 +1055,7 @@ msgid "Enter the email address to which the contact form is sent"
 msgstr ""
 "Geben Sie die E-Mail-Adresse ein, an die das Kontaktformular gesendet wird"
 
-#: branding/models.py:23 events/models.py:868 events/models.py:981
+#: branding/models.py:23 events/models.py:888 events/models.py:1001
 msgid "Indicates if the contact is active"
 msgstr "Gibt an, ob der Kontakt aktiv ist"
 
@@ -1322,7 +1322,7 @@ msgstr ""
 "Das Bestellungs-Timeout muss eine positive ganze Zahl (größer als 0) sein."
 
 #: branding/templates/contact.html:9 branding/templates/contact.html:13
-#: templates/master.html:134
+#: templates/master.html:144
 msgid "Contact Us"
 msgstr "Kontaktieren Sie uns"
 
@@ -1338,11 +1338,11 @@ msgstr "Absenden"
 msgid "Message sent successfully!"
 msgstr "Nachricht erfolgreich gesendet!"
 
-#: cinema_tickets/settings.py:193
+#: cinema_tickets/settings.py:168
 msgid "English"
 msgstr "Englisch"
 
-#: cinema_tickets/settings.py:194
+#: cinema_tickets/settings.py:169
 msgid "German"
 msgstr "Deutsch"
 
@@ -1526,7 +1526,7 @@ msgstr "E-Mail"
 msgid "activated"
 msgstr "aktiviert"
 
-#: events/models.py:187 events/models.py:777 events/views.py:585
+#: events/models.py:187 events/models.py:797 events/views.py:647
 msgid "Start:"
 msgstr "Start:"
 
@@ -1534,7 +1534,7 @@ msgstr "Start:"
 msgid "Duration:"
 msgstr "Dauer:"
 
-#: events/models.py:194 events/models.py:780 events/views.py:588
+#: events/models.py:194 events/models.py:800 events/views.py:650
 msgid "Venue:"
 msgstr "Veranstaltungsort:"
 
@@ -1807,73 +1807,73 @@ msgstr ""
 "Ob der Direktverkauf erlaubt sein soll. Falls keine Einstellung vorgenommen "
 "wird, wird die Standardeinstellung des Brandings verwendet."
 
-#: events/models.py:746 events/templates/all_event_statistics.html:47
+#: events/models.py:766 events/templates/all_event_statistics.html:47
 #: events/templates/all_event_statistics.html:162
-#: events/templates/event_statistics.html:67 events/views.py:460
+#: events/templates/event_statistics.html:67 events/views.py:522
 msgid "Waiting"
 msgstr "Warten"
 
-#: events/models.py:747 events/templates/all_event_statistics.html:48
+#: events/models.py:767 events/templates/all_event_statistics.html:48
 #: events/templates/all_event_statistics.html:169
-#: events/templates/event_statistics.html:74 events/views.py:461
+#: events/templates/event_statistics.html:74 events/views.py:523
 msgid "Presale Online Waiting"
 msgstr "Online-Vorverkauf (Wartend)"
 
-#: events/models.py:748 events/views.py:462
+#: events/models.py:768 events/views.py:524
 msgid "Presale Online (activated / sold)"
 msgstr "Online-Vorverkauf (entwertet / verkauft)"
 
-#: events/models.py:749 events/views.py:463
+#: events/models.py:769 events/views.py:525
 msgid "Presale Door (activated / sold)"
 msgstr "Tür-Vorverkauf (entwertet / verkauft)"
 
-#: events/models.py:750 events/views.py:464
+#: events/models.py:770 events/views.py:526
 msgid "Door (activated / sold)"
 msgstr "Tür (entwertet / verkauft)"
 
-#: events/models.py:751 events/views.py:465
+#: events/models.py:771 events/views.py:527
 msgid "Total Sold (activated / sold)"
 msgstr "Gesamt verkauft (entwertet / verkauft)"
 
-#: events/models.py:753 events/templates/all_event_statistics.html:62
+#: events/models.py:773 events/templates/all_event_statistics.html:62
 #: events/templates/all_event_statistics.html:218
-#: events/templates/event_statistics.html:123 events/views.py:467
+#: events/templates/event_statistics.html:123 events/views.py:529
 msgid "Total Earned Presale Online"
 msgstr "Gesamt im Online-Vorverkauf"
 
-#: events/models.py:754 events/templates/all_event_statistics.html:63
+#: events/models.py:774 events/templates/all_event_statistics.html:63
 #: events/templates/all_event_statistics.html:225
-#: events/templates/event_statistics.html:130 events/views.py:468
+#: events/templates/event_statistics.html:130 events/views.py:530
 msgid "Total Earned Presale Door"
 msgstr "Gesamt im Tür-Vorverkauf"
 
-#: events/models.py:755 events/templates/all_event_statistics.html:64
+#: events/models.py:775 events/templates/all_event_statistics.html:64
 #: events/templates/all_event_statistics.html:232
-#: events/templates/event_statistics.html:137 events/views.py:469
+#: events/templates/event_statistics.html:137 events/views.py:531
 msgid "Total Earned Door"
 msgstr "Gesamt an der Tür"
 
-#: events/models.py:756 events/templates/all_event_statistics.html:67
+#: events/models.py:776 events/templates/all_event_statistics.html:67
 #: events/templates/all_event_statistics.html:239
-#: events/templates/event_statistics.html:144 events/views.py:470
+#: events/templates/event_statistics.html:144 events/views.py:532
 msgid "Total Earned"
 msgstr "Gesamt"
 
-#: events/models.py:787 events/views.py:521
+#: events/models.py:807 events/views.py:583
 msgid "Created at:"
 msgstr "Erstellt am:"
 
-#: events/models.py:863
+#: events/models.py:883
 msgid "Optional direct link to the Django user for this ticket manager."
 msgstr ""
 "Optionaler direkter Link zum Django-Benutzer für diesen Ticketmanager."
 
-#: events/models.py:867 events/models.py:980
+#: events/models.py:887 events/models.py:1000
 msgid "Enter the email address to which all ticket sales are sent"
 msgstr ""
 "Geben Sie die E-Mail-Adresse ein, an die alle Ticketverkäufe gesendet werden"
 
-#: events/models.py:870
+#: events/models.py:890
 msgid ""
 "Select the locations for which this ticket master is responsible. If no "
 "location is selected this ticket master will be responsible for all "
@@ -1883,18 +1883,12 @@ msgstr ""
 "Wenn kein Standort ausgewählt wird, ist dieser Ticketmaster für alle "
 "Standorte zuständig."
 
-#: events/models.py:976
-#| msgid ""
-#| "Optional direct link to the Django user for this ticket manager."
+#: events/models.py:996
 msgid "Optional direct link to the Django user for this ticket checker."
 msgstr ""
 "Optionaler direkter Link zum Django-Benutzer für diesen Ticketchecker."
 
-#: events/models.py:983
-#| msgid ""
-#| "Select the locations for which this ticket master is responsible. If no "
-#| "location is selected this ticket master will be responsible for all "
-#| "locations."
+#: events/models.py:1003
 msgid ""
 "Select the locations for which this ticket checker is responsible. If no "
 "location is selected this ticket checker will be responsible for all "
@@ -2014,8 +2008,8 @@ msgid "Remaining Seats"
 msgstr "Verbleibende Sitze: "
 
 #: events/templates/all_event_statistics.html:153
-#: events/templates/event_statistics.html:58 events/views.py:537
-#: events/views.py:557 events/views.py:603 events/views.py:621
+#: events/templates/event_statistics.html:58 events/views.py:599
+#: events/views.py:619 events/views.py:665 events/views.py:683
 msgid "Statistic"
 msgstr "Statistik"
 
@@ -2035,94 +2029,94 @@ msgstr "Veranstaltungs-Check-In"
 msgid "Go to Event Details"
 msgstr "Zu den Veranstaltungsdetails gehen"
 
-#: events/templates/event_check_in.html:15
-#: events/templates/event_details.html:55
+#: events/templates/event_check_in.html:16
+#: events/templates/event_details.html:56
 #: events/templates/event_statistics.html:49
 msgid "Go to Ticket Door Selling"
 msgstr "Zum Ticket-Türverkauf gehen"
 
-#: events/templates/event_check_in.html:16
-#: events/templates/event_details.html:56
+#: events/templates/event_check_in.html:17
+#: events/templates/event_details.html:57
 #: events/templates/event_door_selling.html:17
 msgid "Go to Statistics"
 msgstr "Zur Statistik gehen"
 
-#: events/templates/event_check_in.html:21
-#: events/templates/event_check_in.html:110
+#: events/templates/event_check_in.html:23
+#: events/templates/event_check_in.html:112
 msgid "Start Camera"
 msgstr "Starte Kamera"
 
-#: events/templates/event_check_in.html:42
 #: events/templates/event_check_in.html:44
-#: events/templates/event_check_in.html:203
+#: events/templates/event_check_in.html:46
+#: events/templates/event_check_in.html:207
 msgid "True"
 msgstr "Wahr"
 
-#: events/templates/event_check_in.html:42
 #: events/templates/event_check_in.html:44
-#: events/templates/event_check_in.html:203
+#: events/templates/event_check_in.html:46
+#: events/templates/event_check_in.html:207
 msgid "False"
 msgstr "Falsch"
 
-#: events/templates/event_check_in.html:55
+#: events/templates/event_check_in.html:57
 msgid "Last QR Code Detected"
 msgstr "Letzter QR-Code erkannt"
 
-#: events/templates/event_check_in.html:73
-#: events/templates/event_check_in.html:144
-#: events/templates/event_check_in.html:200
+#: events/templates/event_check_in.html:75
+#: events/templates/event_check_in.html:148
+#: events/templates/event_check_in.html:204
 msgid "Deactivate"
 msgstr "Deaktivieren"
 
-#: events/templates/event_check_in.html:98
+#: events/templates/event_check_in.html:100
 msgid "Scan error"
 msgstr "Scan-Fehler"
 
-#: events/templates/event_check_in.html:112
+#: events/templates/event_check_in.html:114
 msgid "Error stopping QR scanner"
 msgstr "Fehler beim Stoppen des QR-Scanners"
 
-#: events/templates/event_check_in.html:121
+#: events/templates/event_check_in.html:123
 msgid "Stop Camera"
 msgstr "Stoppe Kamera"
 
-#: events/templates/event_check_in.html:124
+#: events/templates/event_check_in.html:126
 msgid "Error starting QR scanner"
 msgstr "Fehler beim Starten des QR-Scanners"
 
-#: events/templates/event_check_in.html:126
+#: events/templates/event_check_in.html:128
 msgid "Please grant camera permissions to scan QR codes."
 msgstr "Bitte erteilen Sie Kameraberechtigungen, um QR-Codes zu scannen."
 
-#: events/templates/event_check_in.html:144
-#: events/templates/event_check_in.html:200
+#: events/templates/event_check_in.html:148
+#: events/templates/event_check_in.html:204
 msgid "Activate"
 msgstr "Aktivieren"
 
-#: events/templates/event_check_in.html:178
+#: events/templates/event_check_in.html:182
 #: events/templates/event_door_selling.html:89
 msgid "Event Tickets"
 msgstr "Veranstaltungstickets"
 
-#: events/templates/event_check_in.html:183
+#: events/templates/event_check_in.html:187
 #: events/templates/event_door_selling.html:100
 msgid "Action"
 msgstr "Aktion"
 
-#: events/templates/event_check_in.html:184
+#: events/templates/event_check_in.html:188
 msgid "Activated"
 msgstr "Aktiviert"
 
-#: events/templates/event_check_in.html:191
+#: events/templates/event_check_in.html:195
 msgid "Ticket ID"
 msgstr "Ticket-ID"
 
-#: events/templates/event_check_in.html:192
+#: events/templates/event_check_in.html:196
 msgid "Sold as"
 msgstr "Verkauft als"
 
-#: events/templates/event_check_in.html:254
-#: events/templates/event_door_selling.html:270
+#: events/templates/event_check_in.html:258
+#: events/templates/event_door_selling.html:318
 msgid "Event is not active or is in the past."
 msgstr "Veranstaltung ist nicht aktiv oder liegt in der Vergangenheit."
 
@@ -2166,24 +2160,24 @@ msgstr "Diese Veranstaltung ist ausverkauft."
 msgid "Go to Ticket Check-In"
 msgstr "Zum Ticket-Check-In gehen"
 
-#: events/templates/event_details.html:60
+#: events/templates/event_details.html:62
 msgid "Select Tickets"
 msgstr "Tickets auswählen"
 
-#: events/templates/event_details.html:82
+#: events/templates/event_details.html:84
 msgid "Add to Cart"
 msgstr "In den Warenkorb legen"
 
-#: events/templates/event_details.html:83
+#: events/templates/event_details.html:85
 msgid "Go to cart"
 msgstr "Zum Warenkorb gehen"
 
-#: events/templates/event_details.html:113
+#: events/templates/event_details.html:115
 #: events/templates/event_door_selling.html:166
 msgid "Presale will become active later."
 msgstr "Vorverkauf wird später aktiv."
 
-#: events/templates/event_details.html:121
+#: events/templates/event_details.html:123
 msgid "Presale has ended."
 msgstr "Vorverkauf ist beendet."
 
@@ -2211,6 +2205,29 @@ msgstr "Vorverkauf ist aktiv - NUR Vorverkauf - ENDE: "
 #: events/templates/event_door_selling.html:172
 msgid "Presale is inactive - Door ONLY"
 msgstr "Vorverkauf ist inaktiv - NUR Türverkauf"
+
+#: events/templates/event_door_selling.html:237
+#| msgid "You do not have permission to access this page."
+msgid "You do not have permission to perform this action."
+msgstr "Sie haben keine Berechtigung, diese Aktion durchzuführen."
+
+#: events/templates/event_door_selling.html:253
+#: events/templates/event_door_selling.html:262
+#| msgid "An error occurred while queueing the email."
+msgid "An error occurred while updating the email."
+msgstr "Beim Aktualisieren der E-Mail ist ein Fehler aufgetreten."
+
+#: events/templates/event_door_selling.html:277
+#: events/templates/event_door_selling.html:287
+#| msgid "An error occurred while queueing the email."
+msgid "An error occurred while updating the name."
+msgstr "Beim Aktualisieren des Namens ist ein Fehler aufgetreten."
+
+#: events/templates/event_door_selling.html:304
+#: events/templates/event_door_selling.html:311
+#| msgid "An error occurred while queueing the email."
+msgid "An error occurred while sending the ticket email."
+msgstr "Beim Versenden der Ticket-E-Mail ist ein Fehler aufgetreten."
 
 #: events/templates/event_list.html:10 events/templates/event_list.html:15
 msgid "Upcoming Events"
@@ -2249,72 +2266,106 @@ msgstr "Statistik drucken"
 msgid "Per Price Class Statistics"
 msgstr "Statistik pro Preisklasse"
 
-#: events/views.py:93
+#: events/views.py:95
 msgid "Presale has ended for this event."
 msgstr "Der Vorverkauf für diese Veranstaltung ist beendet."
 
-#: events/views.py:97
+#: events/views.py:99
 msgid "Presale has not started yet."
 msgstr "Der Vorverkauf hat noch nicht begonnen."
 
-#: events/views.py:197
+#: events/views.py:142 events/views.py:158 events/views.py:170
+#: events/views.py:187 events/views.py:290
+msgid "Invalid request."
+msgstr "Ungültige Anfrage."
+
+#: events/views.py:150 events/views.py:154 events/views.py:178
+#: events/views.py:182
+msgid "Not authorized to update this ticket."
+msgstr "Nicht berechtigt, dieses Ticket zu aktualisieren."
+
+#: events/views.py:164
+#, python-format
+msgid "Email updated to %(email)s"
+msgstr "E-Mail-Adresse aktualisiert auf %(email)s"
+
+#: events/views.py:198
+#, python-format
+msgid "Name updated to %(name)s"
+msgstr "Name aktualisiert auf %(name)s"
+
+#: events/views.py:234
 msgid "Email queued successfully."
 msgstr "E-Mail erfolgreich in die Warteschlange gestellt."
 
-#: events/views.py:200
+#: events/views.py:237
 msgid "An error occurred while queueing the email."
 msgstr ""
 "Beim Einreihen der E-Mail in die Warteschlange ist ein Fehler aufgetreten."
 
-#: events/views.py:201
+#: events/views.py:238
 msgid "No email address provided."
 msgstr "Keine E-Mail-Adresse verknüpft."
 
-#: events/views.py:276
+#: events/views.py:271
+msgid "Not authorized to access this event."
+msgstr "Nicht berechtigt, auf diese Veranstaltung zuzugreifen."
+
+#: events/views.py:280
+#, python-format
+msgid "Ticket %(ticket_id)s is already activated."
+msgstr "Ticket %(ticket_id)s ist bereits aktiviert."
+
+#: events/views.py:288
+#, python-format
+msgid "Ticket %(ticket_id)s was not found."
+msgstr "Ticket %(ticket_id)s wurde nicht gefunden."
+
+#: events/views.py:333
 msgid "Door selling is not allowed for this event."
 msgstr "Türverkauf ist für diese Veranstaltung nicht erlaubt."
 
-#: events/views.py:298
+#: events/views.py:355
 msgid "Event is not active."
 msgstr "Veranstaltung ist nicht aktiv."
 
-#: events/views.py:516
+#: events/views.py:578
 msgid "All Events - Statistics"
 msgstr "Alle Veranstaltungen – Statistiken"
 
-#: events/views.py:528 templates/master.html:51
+#: events/views.py:590 templates/master.html:51
 msgid "Global Statistics"
 msgstr "Globale Statistik"
 
-#: events/views.py:540
+#: events/views.py:602
 msgid "Global"
 msgstr "Global"
 
-#: events/views.py:553
+#: events/views.py:615
 msgid "Refunded/Canceled Orders Statistics"
 msgstr "Statistik stornierter/erstatteter Bestellungen"
 
-#: events/views.py:558 events/views.py:604
+#: events/views.py:620 events/views.py:666
 msgid "Value"
 msgstr "Wert"
 
-#: events/views.py:560
+#: events/views.py:622
 msgid "Total Refunded/Canceled Orders"
 msgstr "Gesamt stornierte/erstattete Bestellungen"
 
-#: events/views.py:582
+#: events/views.py:644
 msgid "Statistics"
 msgstr "Statistiken"
 
-#: events/views.py:591
+#: events/views.py:653
 msgid "Capacity:"
 msgstr "Kapazität:"
 
-#: events/views.py:597
+#: events/views.py:659
 msgid "Total Statistics"
 msgstr "Globale Statistik"
 
-#: events/views.py:615
+#: events/views.py:677
 msgid "Price Class Statistics"
 msgstr "Statistik pro Preisklasse"
 
@@ -2398,31 +2449,55 @@ msgstr "Sprache"
 msgid "Logout"
 msgstr "Logout"
 
-#: templates/master.html:119
+#: templates/master.html:97 templates/master.html:98
+msgid "Session"
+msgstr "Sitzung"
+
+#: templates/master.html:129
 msgid "Legal"
 msgstr "Rechtliches"
 
-#: templates/master.html:122 templates/privacy_policy.html:5
+#: templates/master.html:132 templates/privacy_policy.html:5
 #: templates/privacy_policy.html:10
 msgid "Privacy Policy"
 msgstr "Datenschutzrichtlinie"
 
-#: templates/master.html:125 templates/terms_of_service.html:5
+#: templates/master.html:135 templates/terms_of_service.html:5
 #: templates/terms_of_service.html:10
 msgid "Terms of Service"
 msgstr "Nutzungsbedingungen"
 
-#: templates/master.html:132
+#: templates/master.html:142
 msgid "Support"
 msgstr "Support"
 
-#: templates/master.html:140
+#: templates/master.html:150
 msgid "About"
 msgstr "Über uns"
 
-#: templates/master.html:152
+#: templates/master.html:162
 msgid "All rights reserved."
 msgstr "Alle Rechte vorbehalten."
+
+#: templates/master.html:172
+#| msgid "Permission Denied"
+msgid "Session expired"
+msgstr "Sitzung abgelaufen"
+
+#: templates/master.html:175
+msgid "Your session has expired. You will be logged out now."
+msgstr "Ihre Sitzung ist abgelaufen. Sie werden nun abgemeldet."
+
+#: templates/master.html:178
+msgid "OK"
+msgstr "OK"
+
+#: templates/master.html:249
+msgid ""
+"Your session may have expired. Please save your work and reload or log out."
+msgstr ""
+"Ihre Sitzung ist möglicherweise abgelaufen. Bitte speichern Sie Ihre Arbeit "
+"und laden Sie die Seite neu oder melden Sie sich ab."
 
 #: templates/privacy_policy.html:13
 msgid "1. Introduction"

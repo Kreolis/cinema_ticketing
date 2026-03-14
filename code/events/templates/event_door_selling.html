@@ -109,14 +109,14 @@
                             <td>
                                 <form action="{% url 'update_ticket_name' ticket.id %}" method="post" class="update-name-form" style="display:inline-flex;">
                                     {% csrf_token %}
-                                    <input type="text" name="first_name" value="{{ ticket.first_name|default:'' }}" class="form-control form-control-sm" required style="margin-right: 5px;">
+                                    <input type="text" name="first_name" value="{{ ticket.first_name|default:'' }}" class="form-control form-control-sm" style="margin-right: 5px;">
                                     {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
                                 </form>
                             </td>
                             <td>
                                 <form action="{% url 'update_ticket_name' ticket.id %}" method="post" class="update-name-form" style="display:inline-flex;">
                                     {% csrf_token %}
-                                    <input type="text" name="last_name" value="{{ ticket.last_name|default:'' }}" class="form-control form-control-sm" required style="margin-right: 5px;">
+                                    <input type="text" name="last_name" value="{{ ticket.last_name|default:'' }}" class="form-control form-control-sm" style="margin-right: 5px;">
                                     {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
                                 </form>
                             </td>

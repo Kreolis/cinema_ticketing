@@ -8,12 +8,16 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls import reverse
 from django.test import RequestFactory, TestCase
 from django.utils import timezone
 
+from payments import get_payment_model
+
+from accounting.models import get_order_create_defaults
 from branding.models import Branding
 from events.admin import EventAdmin
-from events.models import Event, Location
+from events.models import Event, Location, PriceClass, Ticket
 
 
 class EventAdminDownloadTemplateCsvTests(TestCase):
@@ -180,3 +184,54 @@ class EventTimezoneConversionTests(TestCase):
         self.assertEqual(converted.hour, 10)
         self.assertEqual(converted.minute, 30)
         self.assertEqual(converted.tzinfo.zone, 'America/New_York')
+
+
+class UpdateTicketNameAuthorizationTests(TestCase):
+
+    def setUp(self):
+        self.location = Location.objects.create(name='Authorization Hall', total_seats=50)
+        self.event = Event.objects.create(
+            name='Authorization Event',
+            start_time=timezone.now(),
+            duration=timedelta(hours=2),
+            location=self.location,
+        )
+        self.price_class = PriceClass.objects.create(name='Standard', price='10.00')
+        self.ticket = Ticket.objects.create(
+            event=self.event,
+            price_class=self.price_class,
+            first_name='Old',
+            last_name='Name',
+        )
+        self.url = reverse('update_ticket_name', args=[self.ticket.id])
+
+    def _ensure_client_session(self):
+        session = self.client.session
+        if not session.session_key:
+            session['initialized'] = True
+            session.save()
+        return session.session_key
+
+    def test_update_ticket_name_denies_anonymous_without_matching_session_order(self):
+        response = self.client.post(self.url, {'first_name': 'New', 'last_name': 'Name'})
+
+        self.assertEqual(response.status_code, 403)
+        self.ticket.refresh_from_db()
+        self.assertEqual(self.ticket.first_name, 'Old')
+        self.assertEqual(self.ticket.last_name, 'Name')
+
+    def test_update_ticket_name_allows_anonymous_with_matching_session_order(self):
+        session_key = self._ensure_client_session()
+        order, _ = get_payment_model().objects.get_or_create(
+            session_id=session_key,
+            defaults=get_order_create_defaults(),
+        )
+        order.tickets.add(self.ticket)
+
+        response = self.client.post(self.url, {'first_name': 'New', 'last_name': 'Customer'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'success')
+        self.ticket.refresh_from_db()
+        self.assertEqual(self.ticket.first_name, 'New')
+        self.assertEqual(self.ticket.last_name, 'Customer')

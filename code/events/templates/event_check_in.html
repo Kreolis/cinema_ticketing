@@ -125,7 +125,9 @@
                     }).catch(err => {
                         console.error("{% translate 'Error starting QR scanner' %}:", err);
                         if (err.name === 'NotAllowedError' || err.name === 'NotFoundError') {
-                            alert("{% translate 'Please grant camera permissions to scan QR codes.' %}");
+                            {% translate 'Please grant camera permissions to scan QR codes.' as camera_permissions_message %}
+                            const cameraPermissionsMessage = "{{ camera_permissions_message|escapejs }}";
+                            alert(cameraPermissionsMessage);
                         }
                     });
                 }

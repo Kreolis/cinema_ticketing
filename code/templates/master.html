@@ -206,7 +206,6 @@ function changeLanguage(languageCode) {
 }
 
 {% if user.is_authenticated and session_remaining_seconds %}
-const logoutLink = document.getElementById('logout-link');
 const sessionTimeoutDisplay = document.getElementById('session-timeout-display');
 let remainingSeconds = {{ session_remaining_seconds }};
 let timeoutModal = null;
@@ -247,7 +246,9 @@ function handleSessionTimeout() {
     return;
   }
 
-  alert('{% translate "Your session may have expired. Please save your work and reload or log out." %}');
+  {% translate "Your session may have expired. Please save your work and reload or log out." as session_timeout_alert_message %}
+  const sessionTimeoutAlertMessage = '{{ session_timeout_alert_message|escapejs }}';
+  alert(sessionTimeoutAlertMessage);
   // Do not force automatic logout based solely on this client-side timer;
   // the server remains the source of truth for session validity.
 }

@@ -265,6 +265,11 @@ def event_check_in(request, event_id):
 @login_required
 @user_passes_test(is_user_in_ticket_managers_or_checkers_group_or_admin)
 def handle_qr_result(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    active_locations = get_user_active_locations(request.user)
+    if active_locations is not None and event.location not in active_locations:
+        return JsonResponse({"status": "error", "message": _("Not authorized to access this event.")}, status=403)
+
     if request.method == "POST":
         qr_code_data = request.POST.get('qr_code')
         try:
