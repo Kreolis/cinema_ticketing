@@ -138,7 +138,7 @@ For Klarna support one needs to install the following
   pip install xmltodict
 ```
 
-For ReCAPTCHA support add `YourMyRecaptchaKey` / `YourRecaptchaPrivateKey`. 
+For ReCAPTCHA support add `YourMyRecaptchaKey` / `YourRecaptchaPrivateKey`.
 
 If you want to use a postgres database set `USE_POSTGRES` to `True` and add the following variables:
 
