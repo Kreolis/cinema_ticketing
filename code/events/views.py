@@ -138,36 +138,67 @@ def event_detail(request, event_id):
 
 # user ticket controls during order
 def update_ticket_email(request, ticket_id):
-    ticket = get_object_or_404(Ticket, id=ticket_id)
-    if request.method == 'POST':
-        new_email = request.POST.get('email')
-        if new_email:
-            ticket.email = new_email
-            ticket.save()
-            return JsonResponse({"status": "success", "message": "Email updated to " + ticket.email, "updated_email": ticket.email})
-    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+    if request.method != 'POST':
+        return JsonResponse({"status": "error", "message": _("Invalid request.")}, status=400)
 
-@login_required
-@user_passes_test(is_user_in_ticket_managers_group_or_admin)
-def update_ticket_name(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
-    if request.method == 'POST':
-        new_first_name = request.POST.get('first_name')
-        new_last_name = request.POST.get('last_name')
-        if new_first_name is not None or new_last_name is not None:
-            if new_first_name is not None:
-                ticket.first_name = new_first_name
-            if new_last_name is not None:
-                ticket.last_name = new_last_name
-            ticket.save()
-            full_name = f"{ticket.first_name or ''} {ticket.last_name or ''}".strip()
-            return JsonResponse({
-                "status": "success",
-                "message": "Name updated to " + full_name,
-                "updated_first_name": ticket.first_name,
-                "updated_last_name": ticket.last_name
-            })
-    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+
+    is_staff_user = is_user_in_ticket_managers_group_or_admin(request.user)
+    if not is_staff_user:
+        session_key = request.session.session_key
+        if not session_key:
+            return JsonResponse({"status": "error", "message": _("Not authorized to update this ticket.")}, status=403)
+
+        order = get_payment_model().objects.filter(session_id=session_key, tickets=ticket).first()
+        if order is None:
+            return JsonResponse({"status": "error", "message": _("Not authorized to update this ticket.")}, status=403)
+
+    new_email = request.POST.get('email')
+    if not new_email:
+        return JsonResponse({"status": "error", "message": _("Invalid request.")}, status=400)
+
+    ticket.email = new_email
+    ticket.save()
+    return JsonResponse({
+        "status": "success",
+        "message": _("Email updated to %(email)s") % {"email": ticket.email},
+        "updated_email": ticket.email
+    })
+
+def update_ticket_name(request, ticket_id):
+    if request.method != 'POST':
+        return JsonResponse({"status": "error", "message": _("Invalid request.")}, status=400)
+
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+
+    is_staff_user = is_user_in_ticket_managers_group_or_admin(request.user)
+    if not is_staff_user:
+        session_key = request.session.session_key
+        if not session_key:
+            return JsonResponse({"status": "error", "message": _("Not authorized to update this ticket.")}, status=403)
+
+        order = get_payment_model().objects.filter(session_id=session_key, tickets=ticket).first()
+        if order is None:
+            return JsonResponse({"status": "error", "message": _("Not authorized to update this ticket.")}, status=403)
+
+    new_first_name = request.POST.get('first_name')
+    new_last_name = request.POST.get('last_name')
+    if new_first_name is None and new_last_name is None:
+        return JsonResponse({"status": "error", "message": _("Invalid request.")}, status=400)
+
+    if new_first_name is not None:
+        ticket.first_name = new_first_name
+    if new_last_name is not None:
+        ticket.last_name = new_last_name
+
+    ticket.save()
+    full_name = f"{ticket.first_name or ''} {ticket.last_name or ''}".strip()
+    return JsonResponse({
+        "status": "success",
+        "message": _("Name updated to %(name)s") % {"name": full_name},
+        "updated_first_name": ticket.first_name,
+        "updated_last_name": ticket.last_name
+    })
 
 def delete_ticket(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
@@ -210,6 +241,11 @@ def send_ticket_email(request, ticket_id):
 @user_passes_test(is_user_in_ticket_managers_or_checkers_group_or_admin)
 def event_check_in(request, event_id):
     event = get_object_or_404(Event, id=event_id)
+
+    active_locations = get_user_active_locations(request.user)
+    if active_locations is not None and event.location not in active_locations:
+        return redirect('event_list')
+
     # filter out waiting tickets = not sold yet, SoldAsStatus.PRESALE_ONLINE_WAITING and SoldAsStatus.WAITING
     tickets = Ticket.objects.filter(event=event).exclude(sold_as__in=[SoldAsStatus.PRESALE_ONLINE_WAITING, SoldAsStatus.WAITING])
     branding = get_active_branding()
@@ -234,13 +270,19 @@ def handle_qr_result(request, event_id):
         try:
             ticket = Ticket.objects.get(id=qr_code_data, event_id=event_id)
             if ticket.activated:
-                return JsonResponse({"status": "error", "message": "Ticket already activated"})
+                return JsonResponse({
+                    "status": "error",
+                    "message": _("Ticket %(ticket_id)s is already activated.") % {"ticket_id": ticket.id}
+                })
             ticket.activated = True
             ticket.save()
             return JsonResponse({"status": "success", "activated": ticket.activated, "ticket_id": str(ticket.id)})
         except Ticket.DoesNotExist:
-            return JsonResponse({"status": "error", "message": "Ticket not found"})
-    return JsonResponse({"status": "error", "message": "Invalid request"})
+            return JsonResponse({
+                "status": "error",
+                "message": _("Ticket %(ticket_id)s was not found.") % {"ticket_id": qr_code_data}
+            })
+    return JsonResponse({"status": "error", "message": _("Invalid request.")})
 
 @login_required
 @user_passes_test(is_user_in_ticket_managers_or_checkers_group_or_admin)

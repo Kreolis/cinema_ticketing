@@ -248,7 +248,8 @@ function handleSessionTimeout() {
   }
 
   alert('{% translate "Your session may have expired. Please save your work and reload or log out." %}');
-  window.location.href = logoutLink.href;
+  // Do not force automatic logout based solely on this client-side timer;
+  // the server remains the source of truth for session validity.
 }
 
 updateSessionTimeoutDisplay();
