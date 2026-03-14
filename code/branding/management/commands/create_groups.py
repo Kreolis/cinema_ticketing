@@ -14,6 +14,7 @@ class Command(BaseCommand):
                 'view_location',
                 'view_priceclass',
                 'add_ticket', 'change_ticket', 'delete_ticket', 'view_ticket',
+                'add_ticketchecker', 'change_ticketchecker', 'delete_ticketchecker', 'view_ticketchecker',
                 'view_order'
             ]
 
@@ -21,6 +22,25 @@ class Command(BaseCommand):
                 try:
                     permission = Permission.objects.get(codename=perm)
                     ticket_managers_group.permissions.add(permission)
+                except Permission.DoesNotExist:
+                    self.stdout.write(self.style.ERROR(f"Permission {perm} not found"))
+
+        # create ticket checkers group
+        ticket_checkers_group, created = Group.objects.get_or_create(name='Ticket Checkers')
+        if created:
+            # Assign permissions for viewing tickets and events
+            permissions = [
+                'view_event',
+                'view_location',
+                'view_priceclass',
+                'view_ticket', 
+                'view_ticketmaster',
+            ]
+
+            for perm in permissions:
+                try:
+                    permission = Permission.objects.get(codename=perm)
+                    ticket_checkers_group.permissions.add(permission)
                 except Permission.DoesNotExist:
                     self.stdout.write(self.style.ERROR(f"Permission {perm} not found"))
 
@@ -35,6 +55,7 @@ class Command(BaseCommand):
                 'view_priceclass', 'change_priceclass', 'delete_priceclass', 'add_priceclass',
                 'view_ticket', 
                 'view_ticketmaster',
+                'view_ticketchecker',
             ]
 
             for perm in permissions:

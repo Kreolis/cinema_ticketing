@@ -3,9 +3,6 @@ from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.urls import reverse
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login as auth_login 
-from django.contrib.auth import logout as auth_logout
 from django.utils.translation import gettext_lazy as _ 
 
 import io
@@ -497,19 +494,3 @@ def manage_orders(request):
         'currency': settings.DEFAULT_CURRENCY
     })
 
-# create login page
-def login(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            auth_login(request, user)
-            return redirect('event_list') 
-    else:
-        form = AuthenticationForm()
-    return TemplateResponse(request, 'login.html', {'form': form})
-
-def logout(request):
-    # Log out the user
-    auth_logout(request)
-    return redirect('event_list')

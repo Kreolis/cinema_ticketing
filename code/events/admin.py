@@ -1,5 +1,6 @@
 from django.contrib import admin, messages
-from .models import Location, PriceClass, Event, Ticket, TicketMaster
+from .models import Location, PriceClass, Event, Ticket, TicketMaster, TicketChecker
+from .models import get_user_active_locations, is_ticket_manager_user, is_admin_user
 
 from django.urls import reverse
 from django.utils.html import format_html
@@ -19,34 +20,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 from branding.models import get_active_branding
-
-
-def is_admin_user(user):
-    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins']).exists()
-
-
-def is_ticket_manager_user(user):
-    return user.groups.filter(name='Ticket Managers').exists()
-
-
-def get_ticketmaster_for_user(user):
-    return TicketMaster.for_user(user)
-
-
-def get_user_active_locations(user):
-    if is_admin_user(user):
-        return None
-    if not is_ticket_manager_user(user):
-        return Location.objects.none()
-
-    ticket_master = get_ticketmaster_for_user(user)
-    if not ticket_master:
-        return Location.objects.none()
-
-    active_locations = ticket_master.active_locations.all()
-    if active_locations.exists():
-        return active_locations
-    return None
 
 class CSVImportForm(forms.Form):
     csv_file = forms.FileField(label='CSV file')
@@ -657,5 +630,45 @@ class TicketMasterAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return True
         if is_admin_user(request.user):
+            return True
+        return False
+    
+
+@admin.register(TicketChecker)
+class TicketCheckerAdmin(admin.ModelAdmin):
+    list_display = ('firstname', 'lastname', 'email', 'user', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('firstname', 'lastname', 'email', 'user__username', 'user__email')
+
+    def has_view_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
             return True
         return False

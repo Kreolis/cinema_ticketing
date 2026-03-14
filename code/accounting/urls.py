@@ -17,8 +17,6 @@ from .views import (
     ticket_list,
     show_generated_invoice,
     manage_orders,
-    login,
-    logout
 )
 
 urlpatterns = [
@@ -38,8 +36,6 @@ urlpatterns = [
     path('refund_order/<str:order_id>', refund_order, name='refund_order'),
     path('send_refund_notification/<str:order_id>', send_refund_notification, name='send_refund_notification'),
     path('cancel_order/<str:order_id>', cancel_order, name='cancel_order'),
-    path('login/', login, name='login'),
-    path('logout/', logout, name='logout')
 ]
 
 

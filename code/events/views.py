@@ -19,21 +19,10 @@ from payments.models import PaymentStatus
 from accounting.models import get_order_create_defaults
 
 
-from .models import Event, Ticket, SoldAsStatus, TicketMaster, Location
+from .models import Event, Ticket, SoldAsStatus, Location
+from .models import get_user_active_locations, is_admin_user, is_user_in_ticket_managers_group_or_admin, is_user_in_ticket_managers_or_checkers_group_or_admin
 from branding.models import get_active_branding
 from .forms import TicketSelectionForm
-
-# check if user is in ticket managers group or admin
-def is_user_in_ticket_managers_group_or_admin(user):
-    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins', 'Ticket Managers']).exists()
-
-# check if user is in ticket managers group or admin
-def is_user_in_admin(user):
-    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins']).exists()
-
-# get ticket manager for user
-def get_ticketmaster_for_user(user):
-    return TicketMaster.for_user(user)
 
 def event_list(request):
     # Retrieve all events, you can filter if they are active
@@ -41,17 +30,13 @@ def event_list(request):
     selected_location_id = request.GET.get('location')
     selected_day = request.GET.get('day')
 
-    is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
+    is_special_staff_user = is_user_in_ticket_managers_or_checkers_group_or_admin(request.user)
 
     # restrict the events shown to ticket managers to only those that are in their active locations if they have any
-    if is_ticket_manager and not is_user_in_admin(request.user):
-        ticket_master = get_ticketmaster_for_user(request.user)
-        if not ticket_master:
-            events = events.none()
-        else:
-            active_locations = ticket_master.active_locations.all()
-            if active_locations.exists():
-                events = events.filter(location__in=active_locations)
+    if is_special_staff_user:
+        active_locations = get_user_active_locations(request.user)
+        if active_locations is not None and active_locations.exists():
+            events = events.filter(location__in=active_locations)
 
     location_options = Location.objects.filter(event__in=events).distinct().order_by('name')
 
@@ -70,7 +55,7 @@ def event_list(request):
     return render(request, 'event_list.html', {
         'events': events,
         'currency': settings.DEFAULT_CURRENCY,
-        'is_ticket_manager': is_ticket_manager,
+        'is_special_staff_user': is_special_staff_user,
         'location_options': location_options,
         'selected_location_id': selected_location_id,
         'selected_day': selected_day,
@@ -84,13 +69,10 @@ def event_detail(request, event_id):
     branding = get_active_branding()
 
     # Check ticket manager access early, before any POST processing
-    is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
-    if is_ticket_manager and not is_user_in_admin(request.user):
-        ticket_master = get_ticketmaster_for_user(request.user)
-        if not ticket_master:
-            return redirect('event_list')
-        active_locations = ticket_master.active_locations.all()
-        if active_locations.exists() and event.location not in active_locations:
+    is_special_staff_user = is_user_in_ticket_managers_or_checkers_group_or_admin(request.user)
+    if is_special_staff_user:
+        active_locations = get_user_active_locations(request.user)
+        if active_locations is not None and active_locations.exists() and event.location not in active_locations:
             return redirect('event_list')
 
     # select all price classes for the event apart from secret ones
@@ -144,7 +126,7 @@ def event_detail(request, event_id):
         'event_active': event.check_active(),
         'price_classes': price_classes,
         'form': form,
-        'is_ticket_manager': is_ticket_manager,
+        'is_special_staff_user': is_special_staff_user,
         'presale_end_time': presale_end_time,
         'presale_start_time': event.presale_start_time_in_timezone,
         'currency': settings.DEFAULT_CURRENCY,
@@ -219,7 +201,7 @@ def send_ticket_email(request, ticket_id):
     return JsonResponse({"status": "error", "message": _("No email address provided.")})
 
 @login_required
-@user_passes_test(is_user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_or_checkers_group_or_admin)
 def event_check_in(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     # filter out waiting tickets = not sold yet, SoldAsStatus.PRESALE_ONLINE_WAITING and SoldAsStatus.WAITING
@@ -235,7 +217,7 @@ def event_check_in(request, event_id):
     })
 
 @login_required
-@user_passes_test(is_user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_or_checkers_group_or_admin)
 def handle_qr_result(request, event_id):
     if request.method == "POST":
         qr_code_data = request.POST.get('qr_code')
@@ -251,7 +233,7 @@ def handle_qr_result(request, event_id):
     return JsonResponse({"status": "error", "message": "Invalid request"})
 
 @login_required
-@user_passes_test(is_user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_or_checkers_group_or_admin)
 def toggle_ticket_activation(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
     ticket.activated = not ticket.activated
@@ -434,28 +416,34 @@ def get_all_event_statistics(locations=None):
 
     return events_stats, per_location_stats, overall_total_stats, overall_refunded
 
+
+def _get_statistics_location_scope(user, selected_location_id=None):
+    location_options = Location.objects.filter(event__isnull=False).distinct().order_by('name')
+    locations = None
+
+    if is_user_in_ticket_managers_group_or_admin(user) and not is_admin_user(user):
+        active_locations = get_user_active_locations(user)
+        if active_locations is not None and active_locations.exists():
+            location_options = active_locations.order_by('name')
+            locations = active_locations
+        else:
+            location_options = Location.objects.none()
+            locations = Location.objects.none()
+
+    if selected_location_id:
+        if locations is not None:
+            locations = locations.filter(id=selected_location_id)
+        else:
+            locations = location_options.filter(id=selected_location_id)
+
+    return locations, location_options
+
 @login_required
 @user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def all_events_statistics(request):
-    is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
     selected_location_id = request.GET.get('location')
-    locations = None
-
-    # restrict the events shown to ticket managers to only those that are in their active locations if they have any
-    if is_ticket_manager and not is_user_in_admin(request.user):
-        ticket_master = get_ticketmaster_for_user(request.user)
-        locations = ticket_master.active_locations.all() if ticket_master else Location.objects.none()
-
-        if selected_location_id:
-            locations = locations.filter(id=selected_location_id)
-
-        events_stats, per_location_stats, overall_total_stats, overall_refunded = get_all_event_statistics(locations=locations)
-        location_options = ticket_master.active_locations.all().order_by('name') if ticket_master else Location.objects.none()
-    else:
-        location_options = Location.objects.filter(event__isnull=False).distinct().order_by('name')
-        if selected_location_id:
-            locations = location_options.filter(id=selected_location_id)
-        events_stats, per_location_stats, overall_total_stats, overall_refunded = get_all_event_statistics(locations=locations)
+    locations, location_options = _get_statistics_location_scope(request.user, selected_location_id)
+    events_stats, per_location_stats, overall_total_stats, overall_refunded = get_all_event_statistics(locations=locations)
 
     return render(request, 'all_event_statistics.html', {
         'events_stats': events_stats,
@@ -656,16 +644,7 @@ def generate_global_statistics_pdf(locations=None):
 @user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def show_generated_global_statistics_pdf(request):
     selected_location_id = request.GET.get('location')
-    locations = None
-
-    if is_user_in_ticket_managers_group_or_admin(request.user) and not is_user_in_admin(request.user):
-        ticket_master = get_ticketmaster_for_user(request.user)
-        locations = ticket_master.active_locations.all() if ticket_master else Location.objects.none()
-
-        if selected_location_id:
-            locations = locations.filter(id=selected_location_id)
-    elif selected_location_id:
-        locations = Location.objects.filter(id=selected_location_id)
+    locations, _ = _get_statistics_location_scope(request.user, selected_location_id)
 
     # Generate PDF for the selected ticket
     pdf = generate_global_statistics_pdf(locations=locations)

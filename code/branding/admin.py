@@ -58,6 +58,7 @@ class ContactAdmin(admin.ModelAdmin):
         if is_admin_user(request.user):
             return True
         return False
+
 @admin.register(Branding)
 class BrandingAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_active')

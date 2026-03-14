@@ -965,3 +965,169 @@ class TicketMaster(models.Model):
 
         super().delete(*args, **kwargs)  # Call the original delete method to delete the instance
         
+
+class TicketChecker(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='ticket_checker_profile',
+        help_text=_("Optional direct link to the Django user for this ticket checker."),
+    )
+    firstname = models.CharField(max_length=100, help_text=_("Enter the first name"))
+    lastname = models.CharField(max_length=100, help_text=_("Enter the last name"))
+    email = models.EmailField(help_text=_("Enter the email address to which all ticket sales are sent"))
+    is_active = models.BooleanField(default=False, help_text=_("Indicates if the contact is active"))
+
+    active_locations = models.ManyToManyField(Location, blank=True, help_text=_("Select the locations for which this ticket checker is responsible. If no location is selected this ticket checker will be responsible for all locations."))
+
+    def __str__(self):
+        return f"{self.firstname} {self.lastname}"    
+
+    @classmethod
+    def for_user(cls, user):
+        if not user or not user.is_authenticated:
+            return None
+
+        ticket_checker = cls.objects.filter(user=user).first()
+        if ticket_checker:
+            return ticket_checker
+
+        if user.email:
+            return cls.objects.filter(email=user.email, is_active=True).first()
+        return None
+    
+    def get_active_locations(self):
+        """
+        Return the active locations for this ticket checker. If no location is selected, return all locations.
+        """
+        if self.active_locations.exists():
+            return self.active_locations.all()
+        else:
+            return Location.objects.all()
+        
+    def save(self, *args, **kwargs):
+        from django.contrib.auth.models import Group
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        with transaction.atomic():
+            # Get or create the 'Ticket Checkers' group before saving the instance
+            ticket_checkers_group, created = Group.objects.get_or_create(name='Ticket Checkers')
+
+            # Update user groups and staff status before saving the ticket checker
+            user = None
+            if self.user:
+                # Prefer direct FK link to user
+                user = self.user
+            elif self.email:
+                # Fall back to email lookup only if no direct user link
+                try:
+                    user = User.objects.get(email=self.email)
+                except User.DoesNotExist:
+                    logger.debug(f"No user found with email {self.email} for ticket checker {self.firstname} {self.lastname}")
+                except User.MultipleObjectsReturned:
+                    logger.warning(f"Multiple users found with email {self.email} for ticket checker {self.firstname} {self.lastname}. Using user FK only.")
+
+            # Update user's group and is_staff status
+            if user:
+                if self.is_active:
+                    if not user.is_staff:
+                        user.is_staff = True
+                        user.save(update_fields=['is_staff'])
+                    user.groups.add(ticket_checkers_group)  # Add to group if active
+                else:
+                    user.groups.remove(ticket_checkers_group)  # Remove from group if not active
+                    if (
+                        user.is_staff
+                        and not user.is_superuser
+                        and not user.groups.filter(name__in=['admin', 'Admins']).exists()
+                    ):
+                        user.is_staff = False
+                        user.save(update_fields=['is_staff'])
+
+            # Save the ticket checker instance only after user operations succeed
+            super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        from django.contrib.auth.models import Group
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        # Get the 'Ticket Checkers' group
+        ticket_checkers_group = Group.objects.filter(name='Ticket Checkers').first()
+
+        # Find the user associated with this ticket checker
+        try:
+            user = self.user or User.objects.get(email=self.email)
+            if ticket_checkers_group:
+                user.groups.remove(ticket_checkers_group)  # Remove from group when ticket checker is deleted
+            if (
+                user.is_staff
+                and not user.is_superuser
+                and not user.groups.filter(name__in=['admin', 'Admins']).exists()
+            ):
+                user.is_staff = False
+                user.save(update_fields=['is_staff'])
+        except User.DoesNotExist:
+            pass  # If no user exists with this email, do nothing
+
+        super().delete(*args, **kwargs)  # Call the original delete method to delete the instance
+
+
+def is_admin_user(user):
+    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins']).exists()
+
+# check if user is in ticket managers group or admin
+def is_user_in_ticket_managers_group_or_admin(user):
+    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins', 'Ticket Managers']).exists()
+
+# check if user is in ticket managers, ticket checkers group or admin
+def is_user_in_ticket_managers_or_checkers_group_or_admin(user):
+    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins', 'Ticket Managers', 'Ticket Checkers']).exists()
+
+def is_ticket_manager_user(user):
+    return user.groups.filter(name='Ticket Managers').exists()
+
+def is_ticket_checker_user(user):
+    return user.groups.filter(name='Ticket Checkers').exists()
+
+def is_ticket_manager_or_checker_user(user):
+    return user.groups.filter(name__in=['Ticket Managers', 'Ticket Checkers']).exists()
+
+def get_ticketmaster_for_user(user):
+    return TicketMaster.for_user(user)
+
+def get_ticketchecker_for_user(user):
+    return TicketChecker.for_user(user)
+
+def get_user_active_locations(user):
+    if is_admin_user(user):
+        return None
+    if not is_ticket_manager_or_checker_user(user):
+        return Location.objects.none()
+
+    # location based permissions only apply to ticket managers and checkers
+    if is_ticket_manager_user(user):
+        ticket_master = get_ticketmaster_for_user(user)
+        if not ticket_master:
+            return Location.objects.none()
+
+        active_locations = ticket_master.active_locations.all()
+        if active_locations.exists():
+            return active_locations
+        return None
+    
+    if is_ticket_checker_user(user):
+        ticket_checker = get_ticketchecker_for_user(user)
+        if not ticket_checker:
+            return Location.objects.none()
+
+        active_locations = ticket_checker.active_locations.all()
+        if active_locations.exists():
+            return active_locations
+        
+    return None
