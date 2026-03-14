@@ -299,7 +299,7 @@ class TicketAdmin(admin.ModelAdmin):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('name', 'start_time', 'location')
+    list_display = ('name', 'start_time_in_event_timezone', 'location')
     list_filter = ('location', 'start_time')
     search_fields = ('name', 'location__name')  # Updated search_fields
     
@@ -346,21 +346,19 @@ class EventAdmin(admin.ModelAdmin):
 
         return timezone.get_default_timezone()
 
-    def add_view(self, request, form_url='', extra_context=None):
-        with timezone.override(self._get_event_timezone()):
-            return super().add_view(request, form_url=form_url, extra_context=extra_context)
-
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        event = Event.objects.filter(pk=object_id).first()
-        with timezone.override(self._get_event_timezone(event)):
-            return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
-
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         active_locations = get_user_active_locations(request.user)
         if active_locations is None:
             return queryset
         return queryset.filter(location__in=active_locations)
+
+    @admin.display(description='start time', ordering='start_time')
+    def start_time_in_event_timezone(self, obj):
+        start_time = obj.start_time_in_timezone
+        if not start_time:
+            return "-"
+        return start_time.strftime('%Y-%m-%d %H:%M %Z')
 
     def has_change_permission(self, request, obj=None):
         """Allow superusers and users in 'admin' group to change."""
@@ -581,13 +579,13 @@ class EventAdmin(admin.ModelAdmin):
             events = Event.objects.all()
             for event in events:
                 writer.writerow([
-                    event.name, self._serialize_csv_datetime(event.start_time), event.duration, event.location.name, event.location.total_seats, price_classes,
+                    event.name, self._serialize_csv_datetime(event.start_time_in_timezone), event.duration, event.location.name, event.location.total_seats, price_classes,
                     event.program_link, event.is_active, event.custom_seats,
                     event.custom_ticket_background.name if event.custom_ticket_background else '',
                     serialize_override(event.custom_display_seat_number),
                     event.custom_event_background.name if event.custom_event_background else '',
                     serialize_override(event.custom_allow_presale),
-                    self._serialize_csv_datetime(event.custom_presale_start),
+                    self._serialize_csv_datetime(event.presale_start_time_in_timezone),
                     serialize_override(event.custom_presale_ends_before),
                     serialize_override(event.custom_allow_door_selling),
                     event.custom_event_timezone or ''

@@ -459,6 +459,20 @@ class Event(models.Model):
 
         return value.astimezone(self.timezone)
 
+    def _normalize_datetime_for_storage(self, value):
+        """Return datetime normalized to event timezone before persistence."""
+        if value is None:
+            return None
+        if django.utils.timezone.is_naive(value):
+            return django.utils.timezone.make_aware(value, self.timezone)
+        return value.astimezone(self.timezone)
+
+    def save(self, *args, **kwargs):
+        self.start_time = self._normalize_datetime_for_storage(self.start_time)
+        if self.custom_presale_start:
+            self.custom_presale_start = self._normalize_datetime_for_storage(self.custom_presale_start)
+        super().save(*args, **kwargs)
+
     @property
     def duration_minutes(self):
         """
