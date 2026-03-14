@@ -145,8 +145,9 @@
         <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {% localtime off %}{{ event_stats.event.start_time_in_timezone|date:"H:i d.m.Y (e)" }}{% endlocaltime %}</p>
     <p class="card-text"><strong>{% translate "Location" %}:</strong> {{ event_stats.event.location.name }}</p>
     <p class="card-text"><strong>{% translate "Remaining Seats" %}:</strong> {{ event_stats.event.remaining_seats }} / {{ event_stats.event.total_seats }}</p>
+
     <div class="table-responsive">
-        <table id="statistics-table-{{ event_stats.event.id }}" class="table table-striped mt-3">
+        <table id="statistics-table-{{ event_stats.event.id }}" class="table table-striped table-sm mt-2">
             <thead>
                 <tr>
                     <th>{% translate "Statistic" %}</th>
@@ -172,32 +173,32 @@
                     <td>{{ event_stats.total_stats.presale_online_waiting }}</td>
                 </tr>
                 <tr>
-                    <td>{% translate "Presale Online" %}</td>
+                    <td>{% translate "Presale Online" %} (activated / sold)</td>
                     {% for stats in event_stats.price_class_stats.values %}
-                    <td>{{ stats.presale_online }}</td>
+                    <td>{{ stats.activated_presale_online }} / {{ stats.presale_online }}</td>
                     {% endfor %}
-                    <td>{{ event_stats.total_stats.presale_online }}</td>
+                    <td>{{ event_stats.total_stats.activated_presale_online }} / {{ event_stats.total_stats.presale_online }}</td>
                 </tr>
                 <tr>
-                    <td>{% translate "Presale Door" %}</td>
+                    <td>{% translate "Presale Door" %} (activated / sold)</td>
                     {% for stats in event_stats.price_class_stats.values %}
-                    <td>{{ stats.presale_door }}</td>
+                    <td>{{ stats.activated_presale_door }} / {{ stats.presale_door }}</td>
                     {% endfor %}
-                    <td>{{ event_stats.total_stats.presale_door }}</td>
+                    <td>{{ event_stats.total_stats.activated_presale_door }} / {{ event_stats.total_stats.presale_door }}</td>
                 </tr>
                 <tr>
-                    <td>{% translate "Door" %}</td>
+                    <td>{% translate "Door" %} (activated / sold)</td>
                     {% for stats in event_stats.price_class_stats.values %}
-                    <td>{{ stats.door }}</td>
+                    <td>{{ stats.activated_door }} / {{ stats.door }}</td>
                     {% endfor %}
-                    <td>{{ event_stats.total_stats.door }}</td>
+                    <td>{{ event_stats.total_stats.activated_door }} / {{ event_stats.total_stats.door }}</td>
                 </tr>
                 <tr>
-                    <td>{% translate "Total Sold" %}</td>
+                    <td>{% translate "Total Sold" %} (activated / sold)</td>
                     {% for stats in event_stats.price_class_stats.values %}
-                    <td>{{ stats.total_sold }}</td>
+                    <td>{{ stats.total_activated }} / {{ stats.total_sold }}</td>
                     {% endfor %}
-                    <td>{{ event_stats.total_stats.total_sold }}</td>
+                    <td>{{ event_stats.total_stats.total_activated }} / {{ event_stats.total_stats.total_sold }}</td>
                 </tr>
                 <tr>
                     <td>{% translate "Total" %}</td>
@@ -205,34 +206,6 @@
                     <td>{{ stats.total_count }}</td>
                     {% endfor %}
                     <td>{{ event_stats.total_stats.total_count }}</td>
-                </tr>
-                <tr>
-                    <td>{% translate "Activated Presale Online" %}</td>
-                    {% for stats in event_stats.price_class_stats.values %}
-                    <td>{{ stats.activated_presale_online }}</td>
-                    {% endfor %}
-                    <td>{{ event_stats.total_stats.activated_presale_online }}</td>
-                </tr>
-                <tr>
-                    <td>{% translate "Activated Presale Door" %}</td>
-                    {% for stats in event_stats.price_class_stats.values %}
-                    <td>{{ stats.activated_presale_door }}</td>
-                    {% endfor %}
-                    <td>{{ event_stats.total_stats.activated_presale_door }}</td>
-                </tr>
-                <tr>
-                    <td>{% translate "Activated Door" %}</td>
-                    {% for stats in event_stats.price_class_stats.values %}
-                    <td>{{ stats.activated_door }}</td>
-                    {% endfor %}
-                    <td>{{ event_stats.total_stats.activated_door }}</td>
-                </tr>
-                <tr>
-                    <td>{% translate "Total Sold Activated" %}</td>
-                    {% for stats in event_stats.price_class_stats.values %}
-                    <td>{{ stats.total_activated }}</td>
-                    {% endfor %}
-                    <td>{{ event_stats.total_stats.total_activated }}</td>
                 </tr>
                 <tr>
                     <td>{% translate "Ticket Price" %}</td>
@@ -278,15 +251,27 @@
         $(document).ready(function() {
             {% for event_stats in events_stats %}
                 $('#statistics-table-{{ event_stats.event.id }}').DataTable({
-                    "pageLength": 16,
                     "order": [],
-                    "ordering": false
+                    "ordering": false,
+                    "paging": false,
+                    "searching": false,
+                    "info": false,
+                    "lengthChange": false,
+                    "dom": 't',
+                    "scrollX": true,
+                    "autoWidth": false
                 });
             {% endfor %}
             $('#overall-statistics-table').DataTable({
-                "pageLength": 16,
                 "order": [],
-                "ordering": false
+                "ordering": false,
+                "paging": false,
+                "searching": false,
+                "info": false,
+                "lengthChange": false,
+                "dom": 't',
+                "scrollX": true,
+                "autoWidth": false
             });
         });
     </script>

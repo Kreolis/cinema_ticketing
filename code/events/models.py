@@ -742,12 +742,34 @@ class Event(models.Model):
         """
         Generate a PDF with statistics for the event.
         """
+        compact_row_specs = [
+            (_('Waiting'), 'single', 'waiting'),
+            (_('Presale Online Waiting'), 'single', 'presale_online_waiting'),
+            (_('Presale Online (activated / sold)'), 'pair', 'activated_presale_online', 'presale_online'),
+            (_('Presale Door (activated / sold)'), 'pair', 'activated_presale_door', 'presale_door'),
+            (_('Door (activated / sold)'), 'pair', 'activated_door', 'door'),
+            (_('Total Sold (activated / sold)'), 'pair', 'total_activated', 'total_sold'),
+            (_('Total'), 'single', 'total_count'),
+            (_('Total Earned Presale Online'), 'single', 'earned_presale_online'),
+            (_('Total Earned Presale Door'), 'single', 'earned_presale_door'),
+            (_('Total Earned Door'), 'single', 'earned_door'),
+            (_('Total Earned'), 'single', 'total_earned'),
+        ]
+
+        def _format_compact_row(stats_source, row_spec):
+            if row_spec[1] == 'pair':
+                return f"{stats_source[row_spec[2]]} / {stats_source[row_spec[3]]}"
+            key = row_spec[2]
+            value = stats_source[key]
+            return f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else f"{value}"
+
         # Create the PDF
         pdf = FPDF(unit="cm", format=(21.0, 29.7))  # A4 format
         pdf.set_margins(1.0, 1.0)
         pdf.set_auto_page_break(auto=True, margin=0.2)
         pdf.add_page()
         font = "Helvetica"
+
         pdf.set_font(font, size=18, style='B')
         pdf.cell(19.0, 1.0, text=f"{self.name} - Statistics", border=0, align='C')
         pdf.ln(1.0)
@@ -768,6 +790,9 @@ class Event(models.Model):
         # Fetch statistics
         total_stats, price_class_stats = self.calculate_statistics()
 
+        statistic_column_width = 6.5
+        value_column_width = (19.0 - statistic_column_width) / max(len(price_class_stats.keys()) + 1, 1)
+
         # Add total statistics
         pdf.set_font(font, size=12, style='B')
         pdf.cell(19.0, 0.8, text="Total Statistics", border=0, align='L')
@@ -776,13 +801,12 @@ class Event(models.Model):
 
         # Create table for total statistics
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(9.0, 0.6, text="Statistic", border=1, align='C', fill=True)
-        pdf.cell(10.0, 0.6, text="Value", border=1, align='C', fill=True)
+        pdf.cell(statistic_column_width, 0.6, text="Statistic", border=1, align='C', fill=True)
+        pdf.cell(value_column_width, 0.6, text="Value", border=1, align='C', fill=True)
         pdf.ln(0.6)
-        for key, value in total_stats.items():
-            display_value = f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else value
-            pdf.cell(9.0, 0.6, text=f"{key.replace('_', ' ').title()}", border=1, align='L')
-            pdf.cell(10.0, 0.6, text=f"{display_value}", border=1, align='L')
+        for row_spec in compact_row_specs:
+            pdf.cell(statistic_column_width, 0.6, text=row_spec[0], border=1, align='L')
+            pdf.cell(value_column_width, 0.6, text=_format_compact_row(total_stats, row_spec), border=1, align='L')
             pdf.ln(0.6)
 
         pdf.ln(1.0)
@@ -796,19 +820,18 @@ class Event(models.Model):
 
         # Create table for price class statistics
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(5.0, 1.2, text="Statistic", border=1, align='C', fill=True)
+        pdf.cell(statistic_column_width, 1.2, text="Statistic", border=1, align='C', fill=True)
         for price_class in price_class_stats.keys():
-            pdf.multi_cell(3.0, 1.2, text=f"{price_class.name}", border=1, align='C', fill=True, ln=3, max_line_height=pdf.font_size*1.5)
+            pdf.multi_cell(value_column_width, 1.2, text=f"{price_class.name}", border=1, align='C', fill=True, ln=3, max_line_height=pdf.font_size*1.5)
         pdf.ln(1.2)
-        pdf.cell(5.0, 0.6, text=f"Price", border=1, align='C', fill=True)
+        pdf.cell(statistic_column_width, 0.6, text=f"Price", border=1, align='C', fill=True)
         for price_class in price_class_stats.keys():
-            pdf.cell(3.0, 0.6, text=f"{price_class.price} {settings.DEFAULT_CURRENCY}", border=1, align='C', fill=True)
+            pdf.cell(value_column_width, 0.6, text=f"{price_class.price} {settings.DEFAULT_CURRENCY}", border=1, align='C', fill=True)
         pdf.ln(0.6)
-        for key in next(iter(price_class_stats.values())).keys():
-            pdf.cell(5.0, 0.6, text=f"{key.replace('_', ' ').title()}", border=1, align='L')
+        for row_spec in compact_row_specs:
+            pdf.cell(statistic_column_width, 0.6, text=row_spec[0], border=1, align='L')
             for price_class, stats in price_class_stats.items():
-                display_value = f"{stats[key]} {settings.DEFAULT_CURRENCY}" if 'earned' in key else stats[key]
-                pdf.cell(3.0, 0.6, text=f"{display_value}", border=1, align='L')
+                pdf.cell(value_column_width, 0.6, text=_format_compact_row(stats, row_spec), border=1, align='L')
             pdf.ln(0.6)
 
         return pdf

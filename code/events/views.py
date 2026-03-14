@@ -474,23 +474,26 @@ def generate_global_statistics_pdf(locations=None):
     branding = get_active_branding()
     report_timezone = branding.timezone if branding else django_timezone.get_current_timezone()
 
-    statistic_labels = {
-        'waiting': _('Waiting'),
-        'presale_online_waiting': _('Presale Online Waiting'),
-        'presale_online': _('Presale Online'),
-        'presale_door': _('Presale Door'),
-        'door': _('Door'),
-        'total_sold': _('Total Sold'),
-        'total_count': _('Total'),
-        'activated_presale_online': _('Activated Presale Online'),
-        'activated_presale_door': _('Activated Presale Door'),
-        'activated_door': _('Activated Door'),
-        'total_activated': _('Total Sold Activated'),
-        'earned_presale_online': _('Total Earned Presale Online'),
-        'earned_presale_door': _('Total Earned Presale Door'),
-        'earned_door': _('Total Earned Door'),
-        'total_earned': _('Total Earned'),
-    }
+    compact_row_specs = [
+        (_('Waiting'), 'single', 'waiting'),
+        (_('Presale Online Waiting'), 'single', 'presale_online_waiting'),
+        (_('Presale Online (activated / sold)'), 'pair', 'activated_presale_online', 'presale_online'),
+        (_('Presale Door (activated / sold)'), 'pair', 'activated_presale_door', 'presale_door'),
+        (_('Door (activated / sold)'), 'pair', 'activated_door', 'door'),
+        (_('Total Sold (activated / sold)'), 'pair', 'total_activated', 'total_sold'),
+        (_('Total'), 'single', 'total_count'),
+        (_('Total Earned Presale Online'), 'single', 'earned_presale_online'),
+        (_('Total Earned Presale Door'), 'single', 'earned_presale_door'),
+        (_('Total Earned Door'), 'single', 'earned_door'),
+        (_('Total Earned'), 'single', 'total_earned'),
+    ]
+
+    def _format_compact_row(stats_source, row_spec):
+        if row_spec[1] == 'pair':
+            return f"{stats_source[row_spec[2]]} / {stats_source[row_spec[3]]}"
+        key = row_spec[2]
+        value = stats_source[key]
+        return f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else f"{value}"
 
     pdf = FPDF(unit="cm", format=(21.0, 29.7))  # A4 format
 
@@ -544,7 +547,7 @@ def generate_global_statistics_pdf(locations=None):
     pdf.ln(0.8)
     pdf.set_font(font, size=10)
     location_entries = per_location_stats
-    statistic_column_width = 5.0
+    statistic_column_width = 6.5
     value_column_width = (19.0 - statistic_column_width) / max(len(location_entries) + 1, 1)
 
     # Create table for global statistics
@@ -554,14 +557,12 @@ def generate_global_statistics_pdf(locations=None):
         pdf.cell(value_column_width, 0.6, text=f"{entry['location'].name}", border=1, align='C', fill=True)
     pdf.cell(value_column_width, 0.6, text=_("Global"), border=1, align='C', fill=True)
     pdf.ln(0.6)
-    for key, value in overall_total_stats.items():
-        pdf.cell(statistic_column_width, 0.6, text=statistic_labels.get(key, key.replace('_', ' ').title()), border=1, align='L')
+    for row_spec in compact_row_specs:
+        pdf.cell(statistic_column_width, 0.6, text=row_spec[0], border=1, align='L')
         for entry in location_entries:
             location_stats = entry['stats']
-            display_value = f"{location_stats[key]} {settings.DEFAULT_CURRENCY}" if 'earned' in key else location_stats[key]
-            pdf.cell(value_column_width, 0.6, text=f"{display_value}", border=1, align='L')
-        display_value = f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else value
-        pdf.cell(value_column_width, 0.6, text=f"{display_value}", border=1, align='L')
+            pdf.cell(value_column_width, 0.6, text=_format_compact_row(location_stats, row_spec), border=1, align='L')
+        pdf.cell(value_column_width, 0.6, text=_format_compact_row(overall_total_stats, row_spec), border=1, align='L')
         pdf.ln(0.6)
 
     # Add refunded statistics in separate table as they are not included in the overall total statistics
@@ -580,6 +581,7 @@ def generate_global_statistics_pdf(locations=None):
     pdf.cell(9.0, 0.6, text=_("Total Amount"), border=1, align='L')
     pdf.cell(10.0, 0.6, text=f"{overall_refunded['total_amount_refunded']} {settings.DEFAULT_CURRENCY}", border=1, align='L')
     pdf.ln(0.6)
+    
 
     for event_stats in events_stats:
         # Add a new page for each event
@@ -590,6 +592,8 @@ def generate_global_statistics_pdf(locations=None):
         # Fetch statistics
         total_stats = event_stats['total_stats']
         price_class_stats = event_stats['price_class_stats']
+
+        value_column_width = (19.0 - statistic_column_width) / max(len(price_class_stats.keys()) + 1, 1)
 
         # Add event name
         pdf.set_font(font, size=14, style='B')
@@ -614,13 +618,12 @@ def generate_global_statistics_pdf(locations=None):
 
         # Create table for total statistics
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(9.0, 0.6, text=_("Statistic"), border=1, align='C', fill=True)
-        pdf.cell(10.0, 0.6, text=_("Value"), border=1, align='C', fill=True)
+        pdf.cell(statistic_column_width, 0.6, text=_("Statistic"), border=1, align='C', fill=True)
+        pdf.cell(value_column_width, 0.6, text=_("Value"), border=1, align='C', fill=True)
         pdf.ln(0.6)
-        for key, value in total_stats.items():
-            display_value = f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else value
-            pdf.cell(9.0, 0.6, text=statistic_labels.get(key, key.replace('_', ' ').title()), border=1, align='L')
-            pdf.cell(10.0, 0.6, text=f"{display_value}", border=1, align='L')
+        for row_spec in compact_row_specs:
+            pdf.cell(statistic_column_width, 0.6, text=row_spec[0], border=1, align='L')
+            pdf.cell(value_column_width, 0.6, text=_format_compact_row(total_stats, row_spec), border=1, align='L')
             pdf.ln(0.6)
 
         pdf.ln(1.0)
@@ -633,19 +636,18 @@ def generate_global_statistics_pdf(locations=None):
 
         # Create table for price class statistics
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(5.0, 1.2, text=_("Statistic"), border=1, align='C', fill=True)
+        pdf.cell(statistic_column_width, 1.2, text=_("Statistic"), border=1, align='C', fill=True)
         for price_class in price_class_stats.keys():
-            pdf.multi_cell(3.0, 1.2, text=f"{price_class.name}", border=1, align='C', fill=True, ln=3, max_line_height=pdf.font_size*1.5)
+            pdf.multi_cell(value_column_width, 1.2, text=f"{price_class.name}", border=1, align='C', fill=True, ln=3, max_line_height=pdf.font_size*1.5)
         pdf.ln(1.2)
-        pdf.cell(5.0, 0.6, text=_("Price"), border=1, align='C', fill=True)
+        pdf.cell(statistic_column_width, 0.6, text=_("Price"), border=1, align='C', fill=True)
         for price_class in price_class_stats.keys():
-            pdf.cell(3.0, 0.6, text=f"{price_class.price} {settings.DEFAULT_CURRENCY}", border=1, align='C', fill=True)
+            pdf.cell(value_column_width, 0.6, text=f"{price_class.price} {settings.DEFAULT_CURRENCY}", border=1, align='C', fill=True)
         pdf.ln(0.6)
-        for key in next(iter(price_class_stats.values())).keys():
-            pdf.cell(5.0, 0.6, text=statistic_labels.get(key, key.replace('_', ' ').title()), border=1, align='L')
+        for row_spec in compact_row_specs:
+            pdf.cell(statistic_column_width, 0.6, text=row_spec[0], border=1, align='L')
             for price_class, stats in price_class_stats.items():
-                display_value = f"{stats[key]} {settings.DEFAULT_CURRENCY}" if 'earned' in key else stats[key]
-                pdf.cell(3.0, 0.6, text=f"{display_value}", border=1, align='L')
+                pdf.cell(value_column_width, 0.6, text=_format_compact_row(stats, row_spec), border=1, align='L')
             pdf.ln(0.6)
         
     return pdf
