@@ -13,7 +13,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.dateparse import parse_datetime
 from datetime import datetime, timedelta
 from django.utils import timezone
-from pytz import timezone as pytz_timezone
+from zoneinfo import ZoneInfo
 
 import logging
 
@@ -327,7 +327,7 @@ class EventAdmin(admin.ModelAdmin):
     def _get_event_timezone(self, event=None):
         if event and event.custom_event_timezone:
             try:
-                return pytz_timezone(event.custom_event_timezone)
+                return ZoneInfo(event.custom_event_timezone)
             except Exception as e:
                 logger.error(
                     f"Invalid custom_event_timezone '{event.custom_event_timezone}' "
@@ -337,7 +337,7 @@ class EventAdmin(admin.ModelAdmin):
         branding = get_active_branding()
         if branding and branding.default_event_timezone:
             try:
-                return pytz_timezone(branding.default_event_timezone)
+                return ZoneInfo(branding.default_event_timezone)
             except Exception as e:
                 logger.error(
                     f"Invalid default_event_timezone '{branding.default_event_timezone}' "
@@ -439,7 +439,7 @@ class EventAdmin(admin.ModelAdmin):
                     custom_tz_name = (event_data.get("custom_event_timezone") or "").strip()
                     if custom_tz_name:
                         try:
-                            import_timezone = pytz_timezone(custom_tz_name)
+                            import_timezone = ZoneInfo(custom_tz_name)
                         except Exception as tz_err:
                             warn_msg = (
                                 f"Row '{event_data.get('name', '?')}': invalid timezone "
