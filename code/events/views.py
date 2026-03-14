@@ -303,8 +303,6 @@ def event_door_selling(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     price_classes = event.price_classes.all()
 
-    presale_end_time = event.presale_end_time_in_timezone
-
     if request.method == 'POST':
         form = TicketSelectionForm(request.POST, price_classes=price_classes, display_name_fields=True)
         if form.is_valid():
@@ -363,8 +361,6 @@ def event_door_selling(request, event_id):
         'event_active': event.check_active(),
         'is_ticket_manager': True,
         'is_ticket_checker': False,
-        'presale_end_time': presale_end_time,
-        'presale_start_time': event.presale_start_time_in_timezone,
         'price_classes': price_classes,
         'tickets_door_and_presale': tickets_door_and_presale,
         'form': form,

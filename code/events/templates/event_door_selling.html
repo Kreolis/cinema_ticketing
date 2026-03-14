@@ -22,7 +22,7 @@
 
         <!-- Elements to show/hide based on presale status -->
         {% if event.allow_presale %}
-            <p>{% translate "Presale starts at " %} {% localtime off %}{{ presale_start_time|date:"H:i (e) d.m.Y" }}{% endlocaltime %} {% translate "Presale ends at " %} {% localtime off %}{{ presale_end_time|date:"H:i (e) d.m.Y" }}{% endlocaltime %}</p>
+            <p>{% translate "Presale starts at " %} {% localtime off %}{{ event.presale_start_time_in_timezone|date:"H:i (e) d.m.Y" }}{% endlocaltime %} {% translate "Presale ends at " %} {% localtime off %}{{ event.presale_end_time_in_timezone|date:"H:i (e) d.m.Y" }}{% endlocaltime %}</p>
         {% endif %}
         {% if event.allow_door_selling %}
             <p>{% translate "Tickets are sold at the door. Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} {% localtime off %}{{ event.start_time_in_timezone|date:"H:i (e) d.m.Y" }}{% endlocaltime %}</p>
@@ -148,8 +148,8 @@
         </script>
 
         <script>
-            const presaleStartTime = new Date("{{ presale_start_time|date:'c' }}");
-            const presaleEndTime = new Date("{{ presale_end_time|date:'c' }}"); 
+            const presaleStartTime = new Date("{{ event.presale_start_time_in_timezone|date:'c' }}");
+            const presaleEndTime = new Date("{{ event.presale_end_time_in_timezone|date:'c' }}"); 
             const presaleStatusElement = document.getElementById('presale-status');
             const ticketForm = document.getElementById('ticket-form');
             const buyerDetailsFields = document.getElementById('buyer-details-fields');
@@ -157,7 +157,7 @@
             function updatePresaleStatus() {
                 const now = new Date();
                 if (now >= presaleStartTime && now < presaleEndTime) {
-                    presaleStatusElement.textContent = "{% translate 'Presale is active - Presale ONLY - END: ' %} {% localtime off %}{{ presale_end_time|date:'H:i d.m.Y (e)' }}{% endlocaltime %}";
+                    presaleStatusElement.textContent = "{% translate 'Presale is active - Presale ONLY - END: ' %} {% localtime off %}{{ event.presale_end_time_in_timezone|date:'H:i d.m.Y (e)' }}{% endlocaltime %}";
                     ticketForm.style.display = 'block';
                     if (buyerDetailsFields) {
                         buyerDetailsFields.style.display = 'block';
