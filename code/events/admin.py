@@ -1,5 +1,6 @@
-from django.contrib import admin
-from .models import Location, PriceClass, Event, Ticket, TicketMaster
+from django.contrib import admin, messages
+from .models import Location, PriceClass, Event, Ticket, TicketMaster, TicketChecker
+from .models import get_user_active_locations, is_ticket_manager_user, is_admin_user
 
 from django.urls import reverse
 from django.utils.html import format_html
@@ -9,40 +10,16 @@ from django.urls import path
 from django import forms
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
+from django.utils.dateparse import parse_datetime
 from datetime import datetime, timedelta
 from django.utils import timezone
+from pytz import timezone as pytz_timezone
 
 import logging
 
 logger = logging.getLogger(__name__)
 
-
-def is_admin_user(user):
-    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins']).exists()
-
-
-def is_ticket_manager_user(user):
-    return user.groups.filter(name='Ticket Managers').exists()
-
-
-def get_ticketmaster_for_user(user):
-    return TicketMaster.for_user(user)
-
-
-def get_user_active_locations(user):
-    if is_admin_user(user):
-        return None
-    if not is_ticket_manager_user(user):
-        return Location.objects.none()
-
-    ticket_master = get_ticketmaster_for_user(user)
-    if not ticket_master:
-        return Location.objects.none()
-
-    active_locations = ticket_master.active_locations.all()
-    if active_locations.exists():
-        return active_locations
-    return None
+from branding.models import get_active_branding
 
 class CSVImportForm(forms.Form):
     csv_file = forms.FileField(label='CSV file')
@@ -347,6 +324,37 @@ class EventAdmin(admin.ModelAdmin):
             return True
         return False
 
+    def _get_event_timezone(self, event=None):
+        if event and event.custom_event_timezone:
+            try:
+                return pytz_timezone(event.custom_event_timezone)
+            except Exception as e:
+                logger.error(
+                    f"Invalid custom_event_timezone '{event.custom_event_timezone}' "
+                    f"on event pk={event.pk}: {e}"
+                )
+
+        branding = get_active_branding()
+        if branding and branding.default_event_timezone:
+            try:
+                return pytz_timezone(branding.default_event_timezone)
+            except Exception as e:
+                logger.error(
+                    f"Invalid default_event_timezone '{branding.default_event_timezone}' "
+                    f"in branding settings: {e}"
+                )
+
+        return timezone.get_default_timezone()
+
+    def add_view(self, request, form_url='', extra_context=None):
+        with timezone.override(self._get_event_timezone()):
+            return super().add_view(request, form_url=form_url, extra_context=extra_context)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        event = Event.objects.filter(pk=object_id).first()
+        with timezone.override(self._get_event_timezone(event)):
+            return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
+
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         active_locations = get_user_active_locations(request.user)
@@ -392,33 +400,93 @@ class EventAdmin(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
+    def _parse_csv_datetime(self, value, import_timezone):
+        value = (value or '').strip()
+        if not value:
+            return None
+
+        parsed = parse_datetime(value)
+        if parsed is None:
+            parsed = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+
+        if timezone.is_naive(parsed):
+            return timezone.make_aware(parsed, import_timezone)
+
+        return parsed
+
+    def _serialize_csv_datetime(self, value):
+        if value is None:
+            return ''
+        if timezone.is_aware(value):
+            return value.isoformat(sep=' ')
+        return value.strftime('%Y-%m-%d %H:%M:%S')
+
     def import_csv(self, request):        
         if not self.has_add_permission(request):
             raise PermissionDenied
         if request.method == "POST":
             csv_file = request.FILES["csv_file"]
             try:
+                default_import_timezone = self._get_event_timezone()
                 reader = csv.reader(csv_file.read().decode('utf-8').splitlines())
                 headers = next(reader)
+                import_warnings = []
                 for row in reader:
-                    time_format = '%Y-%m-%d %H:%M:%S'
-
                     event_data = dict(zip(headers, row))
-                    
-                    start_time = timezone.make_aware(datetime.strptime(event_data["start_time"], time_format))
+                    location_name = (event_data.get("location") or "").strip()
+                    location_total_seats_raw = (event_data.get("location_total_seats") or "").strip()
+
+                    custom_tz_name = (event_data.get("custom_event_timezone") or "").strip()
+                    if custom_tz_name:
+                        try:
+                            import_timezone = pytz_timezone(custom_tz_name)
+                        except Exception as tz_err:
+                            warn_msg = (
+                                f"Row '{event_data.get('name', '?')}': invalid timezone "
+                                f"'{custom_tz_name}' ({tz_err}) — falling back to default timezone."
+                            )
+                            logger.warning(warn_msg)
+                            import_warnings.append(warn_msg)
+                            import_timezone = default_import_timezone
+                            custom_tz_name = ""  # don't persist the invalid value
+                    else:
+                        import_timezone = default_import_timezone
+
+                    start_time = self._parse_csv_datetime(event_data["start_time"], import_timezone)
                     
                     duration_parts = event_data["duration"].split(':')
                     duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]))
                     
-                    presale_start = timezone.make_aware(datetime.strptime(event_data["presale_start"], time_format)) if event_data.get("presale_start") else None
-                    
-                    location = Location.objects.get_or_create(name=event_data["location"])[0]
+                    presale_start = self._parse_csv_datetime(event_data.get("presale_start"), import_timezone)
+
+                    location = Location.objects.filter(name=location_name).first()
+                    if location is None:
+                        if not location_total_seats_raw:
+                            raise ValueError(
+                                f"Location '{location_name}' does not exist. Provide location_total_seats in the CSV or create the location first."
+                            )
+                        try:
+                            location_total_seats = int(location_total_seats_raw)
+                        except ValueError as exc:
+                            raise ValueError(
+                                f"Location '{location_name}' has invalid location_total_seats '{location_total_seats_raw}'."
+                            ) from exc
+                        if location_total_seats <= 0:
+                            raise ValueError(
+                                f"Location '{location_name}' must have a positive location_total_seats value."
+                            )
+
+                        location, _ = Location.objects.get_or_create(
+                            name=location_name,
+                            defaults={'total_seats': location_total_seats},
+                        )
      
                     event = Event.objects.create(
                         name=event_data["name"],
                         start_time=start_time,
                         duration=duration,
                         location=location,
+                        custom_event_timezone=custom_tz_name or None,
                     )
                     logger.info(f"Created event: {event}")
                     
@@ -438,30 +506,33 @@ class EventAdmin(admin.ModelAdmin):
                     if event_data.get("custom_seats"):
                         event.custom_seats = int(event_data.get("custom_seats"))
 
-                    if event_data.get("ticket_background"):
-                        event.ticket_background = event_data.get("ticket_background")
+                    if event_data.get("custom_ticket_background"):
+                        event.custom_ticket_background = event_data.get("custom_ticket_background")
 
                     if event_data.get("display_seat_number"):
-                        event.display_seat_number = event_data.get("display_seat_number", "").upper() == 'TRUE'
-                    
-                    if event_data.get("event_background"):
-                        event.event_background = event_data.get("event_background")
+                        event.custom_display_seat_number = event_data.get("display_seat_number", "").upper() == 'TRUE'
+
+                    if event_data.get("custom_event_background"):
+                        event.custom_event_background = event_data.get("custom_event_background")
 
                     if event_data.get("allow_presale"):
-                        event.allow_presale = event_data.get("allow_presale", "").upper() == 'TRUE'
+                        event.custom_allow_presale = event_data.get("allow_presale", "").upper() == 'TRUE'
 
                     if presale_start:
-                        event.presale_start = presale_start
+                        event.custom_presale_start = presale_start
 
                     if event_data.get("presale_ends_before"):
-                        event.presale_ends_before = int(event_data.get("presale_ends_before"))
+                        event.custom_presale_ends_before = int(event_data.get("presale_ends_before"))
 
                     if event_data.get("allow_door_selling"):
-                        event.allow_door_selling = event_data.get("allow_door_selling", "").upper() == 'TRUE'
+                        event.custom_allow_door_selling = event_data.get("allow_door_selling", "").upper() == 'TRUE'
 
                     event.save()
                     logger.info(f"Event saved: {event}")
 
+                if import_warnings:
+                    for w in import_warnings:
+                        self.message_user(request, w, level=messages.WARNING)
                 self.message_user(request, "Events imported successfully.")
                 return redirect("..")
             except Exception as e:
@@ -481,35 +552,45 @@ class EventAdmin(admin.ModelAdmin):
             headers={'Content-Disposition': 'attachment; filename="event_import_template.csv"'},
         )
         writer = csv.writer(response)
+
+        def serialize_override(value):
+            return '' if value is None else value
+
         writer.writerow([
-            'name', 'start_time', 'duration', 'location', 'price_classes', 'program_link', 'is_active', 
-            'custom_seats', 'ticket_background', 'display_seat_number', 'event_background', 'allow_presale', 
-            'presale_start', 'presale_ends_before', 'allow_door_selling'
+            'name', 'start_time', 'duration', 'location', 'location_total_seats', 'price_classes', 'program_link', 'is_active',
+            'custom_seats', 'custom_ticket_background', 'display_seat_number', 'custom_event_background', 'allow_presale',
+            'presale_start', 'presale_ends_before', 'allow_door_selling', 'custom_event_timezone'
         ])
         if PriceClass.objects.count() == 0:
             price_classes = 'Price Class 1, Price Class 2'
         else:
             price_classes = ', '.join([pc.name for pc in PriceClass.objects.all()])
         if Location.objects.count() == 0:
-            locations = ['Location 1']
+            locations = [('Location 1', 100)]
         else:  
-            locations = [loc.name for loc in Location.objects.all()]
+            locations = [(loc.name, loc.total_seats) for loc in Location.objects.all()]
 
-        for counter, location in enumerate(locations):
+        for counter, (location, location_total_seats) in enumerate(locations):
             writer.writerow([
-                f'Sample Event {counter}', '2023-12-31 18:00:00', '2:00', location, price_classes, 
-                'http://example.com', 'True', '100', 'path/to/ticket_background.jpg', 'True', 
-                'path/to/event_background.jpg', 'True', '2023-12-01 00:00:00', '1', 'True'
+                f'Sample Event {counter}', '2023-12-31 18:00:00', '2:00', location, location_total_seats, price_classes,
+                'http://example.com', 'True', '100', '', 'True',
+                '', 'True', '2023-12-01 00:00:00', '1', 'True', ''
             ])
 
         if Event.objects.count() != 0:
             events = Event.objects.all()
             for event in events:
                 writer.writerow([
-                    event.name, event.start_time, event.duration, event.location.name, price_classes, 
-                    event.program_link, event.is_active, event.custom_seats, event.ticket_background, 
-                    event.display_seat_number, event.event_background, event.allow_presale, 
-                    event.presale_start, event.presale_ends_before, event.allow_door_selling
+                    event.name, self._serialize_csv_datetime(event.start_time), event.duration, event.location.name, event.location.total_seats, price_classes,
+                    event.program_link, event.is_active, event.custom_seats,
+                    event.custom_ticket_background.name if event.custom_ticket_background else '',
+                    serialize_override(event.custom_display_seat_number),
+                    event.custom_event_background.name if event.custom_event_background else '',
+                    serialize_override(event.custom_allow_presale),
+                    self._serialize_csv_datetime(event.custom_presale_start),
+                    serialize_override(event.custom_presale_ends_before),
+                    serialize_override(event.custom_allow_door_selling),
+                    event.custom_event_timezone or ''
                 ])
         return response
 
@@ -549,5 +630,45 @@ class TicketMasterAdmin(admin.ModelAdmin):
         if request.user.is_superuser:
             return True
         if is_admin_user(request.user):
+            return True
+        return False
+    
+
+@admin.register(TicketChecker)
+class TicketCheckerAdmin(admin.ModelAdmin):
+    list_display = ('firstname', 'lastname', 'email', 'user', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('firstname', 'lastname', 'email', 'user__username', 'user__email')
+
+    def has_view_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group and 'ticketmaster' group to view."""
+        if request.user.is_superuser:
+            return True
+        # Check if user is in 'admin' group
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+            return True
+        return False
+
+    def has_add_permission(self, request):
+        """Allow superusers and users in 'admin' group to add."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+            return True
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to change."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
+            return True
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Allow superusers and users in 'admin' group to delete."""
+        if request.user.is_superuser:
+            return True
+        if is_admin_user(request.user) or is_ticket_manager_user(request.user):
             return True
         return False

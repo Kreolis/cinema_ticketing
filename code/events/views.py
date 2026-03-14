@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import FileResponse, JsonResponse
 from django.conf import settings
+from django.utils import timezone as django_timezone
 
 from django.utils.translation import gettext as _
 
@@ -15,23 +16,13 @@ logger = logging.getLogger(__name__)
 
 from payments import get_payment_model
 from payments.models import PaymentStatus
+from accounting.models import get_order_create_defaults
 
 
-from .models import Event, Ticket, SoldAsStatus, TicketMaster, Location
+from .models import Event, Ticket, SoldAsStatus, Location
+from .models import get_user_active_locations, is_admin_user, is_ticket_checker_user, is_ticket_manager_user, is_user_in_ticket_managers_group_or_admin, is_user_in_ticket_managers_or_checkers_group_or_admin
 from branding.models import get_active_branding
 from .forms import TicketSelectionForm
-
-# check if user is in ticket managers group or admin
-def is_user_in_ticket_managers_group_or_admin(user):
-    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins', 'Ticket Managers']).exists()
-
-# check if user is in ticket managers group or admin
-def is_user_in_admin(user):
-    return user.is_superuser or user.groups.filter(name__in=['admin', 'Admins']).exists()
-
-# get ticket manager for user
-def get_ticketmaster_for_user(user):
-    return TicketMaster.for_user(user)
 
 def event_list(request):
     # Retrieve all events, you can filter if they are active
@@ -39,17 +30,13 @@ def event_list(request):
     selected_location_id = request.GET.get('location')
     selected_day = request.GET.get('day')
 
-    is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
+    is_special_staff_user = is_user_in_ticket_managers_or_checkers_group_or_admin(request.user)
 
     # restrict the events shown to ticket managers to only those that are in their active locations if they have any
-    if is_ticket_manager and not is_user_in_admin(request.user):
-        ticket_master = get_ticketmaster_for_user(request.user)
-        if not ticket_master:
-            events = events.none()
-        else:
-            active_locations = ticket_master.active_locations.all()
-            if active_locations.exists():
-                events = events.filter(location__in=active_locations)
+    if is_special_staff_user:
+        active_locations = get_user_active_locations(request.user)
+        if active_locations is not None:
+            events = events.filter(location__in=active_locations)
 
     location_options = Location.objects.filter(event__in=events).distinct().order_by('name')
 
@@ -68,7 +55,7 @@ def event_list(request):
     return render(request, 'event_list.html', {
         'events': events,
         'currency': settings.DEFAULT_CURRENCY,
-        'is_ticket_manager': is_ticket_manager,
+        'is_special_staff_user': is_special_staff_user,
         'location_options': location_options,
         'selected_location_id': selected_location_id,
         'selected_day': selected_day,
@@ -80,24 +67,23 @@ def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
     branding = get_active_branding()
+    is_ticket_manager = is_ticket_manager_user(request.user) or is_admin_user(request.user)
+    is_ticket_checker = is_ticket_checker_user(request.user) and not is_ticket_manager
 
     # Check ticket manager access early, before any POST processing
-    is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
-    if is_ticket_manager and not is_user_in_admin(request.user):
-        ticket_master = get_ticketmaster_for_user(request.user)
-        if not ticket_master:
-            return redirect('event_list')
-        active_locations = ticket_master.active_locations.all()
-        if active_locations.exists() and event.location not in active_locations:
+    is_special_staff_user = is_user_in_ticket_managers_or_checkers_group_or_admin(request.user)
+    if is_special_staff_user:
+        active_locations = get_user_active_locations(request.user)
+        if active_locations is not None and event.location not in active_locations:
             return redirect('event_list')
 
     # select all price classes for the event apart from secret ones
     price_classes = event.price_classes.all().exclude(secret=True)
 
     if branding and branding.use_online_presale_end and branding.online_presale_end:
-        presale_end_time = branding.get_presale_end_time_in_timezone()
+        presale_end_time = branding.presale_end_time_in_timezone
     else:
-        presale_end_time = event.get_presale_end_time_in_timezone
+        presale_end_time = event.presale_end_time_in_timezone
 
     # Ensure the session is created
     if not request.session.session_key:
@@ -128,7 +114,10 @@ def event_detail(request, event_id):
                         new_ticket.save()
                         selected_tickets.append(new_ticket)
                         
-            order, _  = get_payment_model().objects.get_or_create(session_id=request.session.session_key)
+            order, _  = get_payment_model().objects.get_or_create(
+                session_id=request.session.session_key,
+                defaults=get_order_create_defaults(),
+            )
             order.update_tickets(selected_tickets)
             
     else:
@@ -139,22 +128,77 @@ def event_detail(request, event_id):
         'event_active': event.check_active(),
         'price_classes': price_classes,
         'form': form,
+        'is_special_staff_user': is_special_staff_user,
         'is_ticket_manager': is_ticket_manager,
+        'is_ticket_checker': is_ticket_checker,
         'presale_end_time': presale_end_time,
-        'presale_start_time': event.get_presale_start_time_in_timezone,
+        'presale_start_time': event.presale_start_time_in_timezone,
         'currency': settings.DEFAULT_CURRENCY,
     })
 
 # user ticket controls during order
 def update_ticket_email(request, ticket_id):
+    if request.method != 'POST':
+        return JsonResponse({"status": "error", "message": _("Invalid request.")}, status=400)
+
     ticket = get_object_or_404(Ticket, id=ticket_id)
-    if request.method == 'POST':
-        new_email = request.POST.get('email')
-        if new_email:
-            ticket.email = new_email
-            ticket.save()
-            return JsonResponse({"status": "success", "message": "Email updated to " + ticket.email, "updated_email": ticket.email})
-    return JsonResponse({"status": "error", "message": "Invalid request"})
+
+    is_staff_user = is_user_in_ticket_managers_group_or_admin(request.user)
+    if not is_staff_user:
+        session_key = request.session.session_key
+        if not session_key:
+            return JsonResponse({"status": "error", "message": _("Not authorized to update this ticket.")}, status=403)
+
+        order = get_payment_model().objects.filter(session_id=session_key, tickets=ticket).first()
+        if order is None:
+            return JsonResponse({"status": "error", "message": _("Not authorized to update this ticket.")}, status=403)
+
+    new_email = request.POST.get('email')
+    if not new_email:
+        return JsonResponse({"status": "error", "message": _("Invalid request.")}, status=400)
+
+    ticket.email = new_email
+    ticket.save()
+    return JsonResponse({
+        "status": "success",
+        "message": _("Email updated to %(email)s") % {"email": ticket.email},
+        "updated_email": ticket.email
+    })
+
+def update_ticket_name(request, ticket_id):
+    if request.method != 'POST':
+        return JsonResponse({"status": "error", "message": _("Invalid request.")}, status=400)
+
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+
+    is_staff_user = is_user_in_ticket_managers_group_or_admin(request.user)
+    if not is_staff_user:
+        session_key = request.session.session_key
+        if not session_key:
+            return JsonResponse({"status": "error", "message": _("Not authorized to update this ticket.")}, status=403)
+
+        order = get_payment_model().objects.filter(session_id=session_key, tickets=ticket).first()
+        if order is None:
+            return JsonResponse({"status": "error", "message": _("Not authorized to update this ticket.")}, status=403)
+
+    new_first_name = request.POST.get('first_name')
+    new_last_name = request.POST.get('last_name')
+    if new_first_name is None and new_last_name is None:
+        return JsonResponse({"status": "error", "message": _("Invalid request.")}, status=400)
+
+    if new_first_name is not None:
+        ticket.first_name = new_first_name
+    if new_last_name is not None:
+        ticket.last_name = new_last_name
+
+    ticket.save()
+    full_name = f"{ticket.first_name or ''} {ticket.last_name or ''}".strip()
+    return JsonResponse({
+        "status": "success",
+        "message": _("Name updated to %(name)s") % {"name": full_name},
+        "updated_first_name": ticket.first_name,
+        "updated_last_name": ticket.last_name
+    })
 
 def delete_ticket(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
@@ -194,39 +238,59 @@ def send_ticket_email(request, ticket_id):
     return JsonResponse({"status": "error", "message": _("No email address provided.")})
 
 @login_required
-@user_passes_test(is_user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_or_checkers_group_or_admin)
 def event_check_in(request, event_id):
     event = get_object_or_404(Event, id=event_id)
+
+    active_locations = get_user_active_locations(request.user)
+    if active_locations is not None and event.location not in active_locations:
+        return redirect('event_list')
+
     # filter out waiting tickets = not sold yet, SoldAsStatus.PRESALE_ONLINE_WAITING and SoldAsStatus.WAITING
     tickets = Ticket.objects.filter(event=event).exclude(sold_as__in=[SoldAsStatus.PRESALE_ONLINE_WAITING, SoldAsStatus.WAITING])
     branding = get_active_branding()
+    is_ticket_manager = is_ticket_manager_user(request.user) or is_admin_user(request.user)
+    is_ticket_checker = is_ticket_checker_user(request.user) and not is_ticket_manager
 
     return render(request, 'event_check_in.html', {
         'event': event,
         'event_active': event.check_active(),
         'tickets': tickets,
         'branding': branding,
+        'is_ticket_manager': is_ticket_manager,
+        'is_ticket_checker': is_ticket_checker,
         'currency': settings.DEFAULT_CURRENCY
     })
 
 @login_required
-@user_passes_test(is_user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_or_checkers_group_or_admin)
 def handle_qr_result(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    active_locations = get_user_active_locations(request.user)
+    if active_locations is not None and event.location not in active_locations:
+        return JsonResponse({"status": "error", "message": _("Not authorized to access this event.")}, status=403)
+
     if request.method == "POST":
         qr_code_data = request.POST.get('qr_code')
         try:
             ticket = Ticket.objects.get(id=qr_code_data, event_id=event_id)
             if ticket.activated:
-                return JsonResponse({"status": "error", "message": "Ticket already activated"})
+                return JsonResponse({
+                    "status": "error",
+                    "message": _("Ticket %(ticket_id)s is already activated.") % {"ticket_id": ticket.id}
+                })
             ticket.activated = True
             ticket.save()
             return JsonResponse({"status": "success", "activated": ticket.activated, "ticket_id": str(ticket.id)})
         except Ticket.DoesNotExist:
-            return JsonResponse({"status": "error", "message": "Ticket not found"})
-    return JsonResponse({"status": "error", "message": "Invalid request"})
+            return JsonResponse({
+                "status": "error",
+                "message": _("Ticket %(ticket_id)s was not found.") % {"ticket_id": qr_code_data}
+            })
+    return JsonResponse({"status": "error", "message": _("Invalid request.")})
 
 @login_required
-@user_passes_test(is_user_in_ticket_managers_group_or_admin)
+@user_passes_test(is_user_in_ticket_managers_or_checkers_group_or_admin)
 def toggle_ticket_activation(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
     ticket.activated = not ticket.activated
@@ -239,7 +303,7 @@ def event_door_selling(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     price_classes = event.price_classes.all()
 
-    presale_end_time = event.presale_end_time()
+    presale_end_time = event.presale_end_time_in_timezone
 
     if request.method == 'POST':
         form = TicketSelectionForm(request.POST, price_classes=price_classes, display_name_fields=True)
@@ -297,8 +361,10 @@ def event_door_selling(request, event_id):
     return render(request, 'event_door_selling.html', {
         'event': event,
         'event_active': event.check_active(),
+        'is_ticket_manager': True,
+        'is_ticket_checker': False,
         'presale_end_time': presale_end_time,
-        'presale_start_time': event.get_presale_start_time_in_timezone,
+        'presale_start_time': event.presale_start_time_in_timezone,
         'price_classes': price_classes,
         'tickets_door_and_presale': tickets_door_and_presale,
         'form': form,
@@ -409,28 +475,31 @@ def get_all_event_statistics(locations=None):
 
     return events_stats, per_location_stats, overall_total_stats, overall_refunded
 
+
+def _get_statistics_location_scope(user, selected_location_id=None):
+    location_options = Location.objects.filter(event__isnull=False).distinct().order_by('name')
+    locations = None
+
+    if is_user_in_ticket_managers_group_or_admin(user) and not is_admin_user(user):
+        active_locations = get_user_active_locations(user)
+        if active_locations is not None:
+            location_options = active_locations.order_by('name')
+            locations = active_locations
+
+    if selected_location_id:
+        if locations is not None:
+            locations = locations.filter(id=selected_location_id)
+        else:
+            locations = location_options.filter(id=selected_location_id)
+
+    return locations, location_options
+
 @login_required
 @user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def all_events_statistics(request):
-    is_ticket_manager = is_user_in_ticket_managers_group_or_admin(request.user)
     selected_location_id = request.GET.get('location')
-    locations = None
-
-    # restrict the events shown to ticket managers to only those that are in their active locations if they have any
-    if is_ticket_manager and not is_user_in_admin(request.user):
-        ticket_master = get_ticketmaster_for_user(request.user)
-        locations = ticket_master.active_locations.all() if ticket_master else Location.objects.none()
-
-        if selected_location_id:
-            locations = locations.filter(id=selected_location_id)
-
-        events_stats, per_location_stats, overall_total_stats, overall_refunded = get_all_event_statistics(locations=locations)
-        location_options = ticket_master.active_locations.all().order_by('name') if ticket_master else Location.objects.none()
-    else:
-        location_options = Location.objects.filter(event__isnull=False).distinct().order_by('name')
-        if selected_location_id:
-            locations = location_options.filter(id=selected_location_id)
-        events_stats, per_location_stats, overall_total_stats, overall_refunded = get_all_event_statistics(locations=locations)
+    locations, location_options = _get_statistics_location_scope(request.user, selected_location_id)
+    events_stats, per_location_stats, overall_total_stats, overall_refunded = get_all_event_statistics(locations=locations)
 
     return render(request, 'all_event_statistics.html', {
         'events_stats': events_stats,
@@ -446,23 +515,29 @@ def all_events_statistics(request):
 def generate_global_statistics_pdf(locations=None):
     # Generate statistics for all events
     # Create the PDF
-    statistic_labels = {
-        'waiting': _('Waiting'),
-        'presale_online_waiting': _('Presale Online Waiting'),
-        'presale_online': _('Presale Online'),
-        'presale_door': _('Presale Door'),
-        'door': _('Door'),
-        'total_sold': _('Total Sold'),
-        'total_count': _('Total'),
-        'activated_presale_online': _('Activated Presale Online'),
-        'activated_presale_door': _('Activated Presale Door'),
-        'activated_door': _('Activated Door'),
-        'total_activated': _('Total Sold Activated'),
-        'earned_presale_online': _('Total Earned Presale Online'),
-        'earned_presale_door': _('Total Earned Presale Door'),
-        'earned_door': _('Total Earned Door'),
-        'total_earned': _('Total Earned'),
-    }
+    branding = get_active_branding()
+    report_timezone = branding.timezone if branding else django_timezone.get_current_timezone()
+
+    compact_row_specs = [
+        (_('Waiting'), 'single', 'waiting'),
+        (_('Presale Online Waiting'), 'single', 'presale_online_waiting'),
+        (_('Presale Online (activated / sold)'), 'pair', 'activated_presale_online', 'presale_online'),
+        (_('Presale Door (activated / sold)'), 'pair', 'activated_presale_door', 'presale_door'),
+        (_('Door (activated / sold)'), 'pair', 'activated_door', 'door'),
+        (_('Total Sold (activated / sold)'), 'pair', 'total_activated', 'total_sold'),
+        (_('Total'), 'single', 'total_count'),
+        (_('Total Earned Presale Online'), 'single', 'earned_presale_online'),
+        (_('Total Earned Presale Door'), 'single', 'earned_presale_door'),
+        (_('Total Earned Door'), 'single', 'earned_door'),
+        (_('Total Earned'), 'single', 'total_earned'),
+    ]
+
+    def _format_compact_row(stats_source, row_spec):
+        if row_spec[1] == 'pair':
+            return f"{stats_source[row_spec[2]]} / {stats_source[row_spec[3]]}"
+        key = row_spec[2]
+        value = stats_source[key]
+        return f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else f"{value}"
 
     pdf = FPDF(unit="cm", format=(21.0, 29.7))  # A4 format
 
@@ -503,8 +578,9 @@ def generate_global_statistics_pdf(locations=None):
     pdf.cell(19.0, 1.0, text=_("All Events - Statistics"), border=0, align='C')
     pdf.ln(1.0)
     # created at
+    created_at = django_timezone.localtime(django_timezone.now(), timezone=report_timezone)
     pdf.set_font(font, size=10)
-    pdf.cell(19.0, 0.6, text=_("Created at:") + f" {datetime.now().strftime('%d.%m.%Y %H:%M')}", border=0, align='L')
+    pdf.cell(19.0, 0.6, text=_("Created at:") + f" {created_at.strftime('%d.%m.%Y %Z %H:%M')}", border=0, align='L')
     pdf.ln(0.6)
 
     # add global statistics
@@ -515,7 +591,7 @@ def generate_global_statistics_pdf(locations=None):
     pdf.ln(0.8)
     pdf.set_font(font, size=10)
     location_entries = per_location_stats
-    statistic_column_width = 5.0
+    statistic_column_width = 6.5
     value_column_width = (19.0 - statistic_column_width) / max(len(location_entries) + 1, 1)
 
     # Create table for global statistics
@@ -525,14 +601,12 @@ def generate_global_statistics_pdf(locations=None):
         pdf.cell(value_column_width, 0.6, text=f"{entry['location'].name}", border=1, align='C', fill=True)
     pdf.cell(value_column_width, 0.6, text=_("Global"), border=1, align='C', fill=True)
     pdf.ln(0.6)
-    for key, value in overall_total_stats.items():
-        pdf.cell(statistic_column_width, 0.6, text=statistic_labels.get(key, key.replace('_', ' ').title()), border=1, align='L')
+    for row_spec in compact_row_specs:
+        pdf.cell(statistic_column_width, 0.6, text=row_spec[0], border=1, align='L')
         for entry in location_entries:
             location_stats = entry['stats']
-            display_value = f"{location_stats[key]} {settings.DEFAULT_CURRENCY}" if 'earned' in key else location_stats[key]
-            pdf.cell(value_column_width, 0.6, text=f"{display_value}", border=1, align='L')
-        display_value = f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else value
-        pdf.cell(value_column_width, 0.6, text=f"{display_value}", border=1, align='L')
+            pdf.cell(value_column_width, 0.6, text=_format_compact_row(location_stats, row_spec), border=1, align='L')
+        pdf.cell(value_column_width, 0.6, text=_format_compact_row(overall_total_stats, row_spec), border=1, align='L')
         pdf.ln(0.6)
 
     # Add refunded statistics in separate table as they are not included in the overall total statistics
@@ -551,6 +625,7 @@ def generate_global_statistics_pdf(locations=None):
     pdf.cell(9.0, 0.6, text=_("Total Amount"), border=1, align='L')
     pdf.cell(10.0, 0.6, text=f"{overall_refunded['total_amount_refunded']} {settings.DEFAULT_CURRENCY}", border=1, align='L')
     pdf.ln(0.6)
+    
 
     for event_stats in events_stats:
         # Add a new page for each event
@@ -562,13 +637,15 @@ def generate_global_statistics_pdf(locations=None):
         total_stats = event_stats['total_stats']
         price_class_stats = event_stats['price_class_stats']
 
+        value_column_width = (19.0 - statistic_column_width) / max(len(price_class_stats.keys()) + 1, 1)
+
         # Add event name
         pdf.set_font(font, size=14, style='B')
         pdf.cell(19.0, 0.8, text=f"{event.name} - { _('Statistics') }", border=0, align='L')
         pdf.ln(0.8)
         pdf.set_font(font, size=12, style='B')
         pdf.cell(4.0, 0.6, text=_("Start:"), border=0, align='L')
-        pdf.cell(5.0, 0.6, text=f"{event.start_time.strftime('%H:%M %d.%m.%Y')}", border=0, align='L')
+        pdf.cell(5.0, 0.6, text=f"{event.start_time_in_timezone.strftime('%H:%M %Z %d.%m.%Y')}", border=0, align='L')
         pdf.ln(0.8)
         pdf.cell(4.0, 0.6, text=_("Venue:"), border=0, align='L')
         pdf.cell(10.0, 0.6, text=f"{event.location.name}", border=0, align='L')
@@ -585,13 +662,12 @@ def generate_global_statistics_pdf(locations=None):
 
         # Create table for total statistics
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(9.0, 0.6, text=_("Statistic"), border=1, align='C', fill=True)
-        pdf.cell(10.0, 0.6, text=_("Value"), border=1, align='C', fill=True)
+        pdf.cell(statistic_column_width, 0.6, text=_("Statistic"), border=1, align='C', fill=True)
+        pdf.cell(value_column_width, 0.6, text=_("Value"), border=1, align='C', fill=True)
         pdf.ln(0.6)
-        for key, value in total_stats.items():
-            display_value = f"{value} {settings.DEFAULT_CURRENCY}" if 'earned' in key else value
-            pdf.cell(9.0, 0.6, text=statistic_labels.get(key, key.replace('_', ' ').title()), border=1, align='L')
-            pdf.cell(10.0, 0.6, text=f"{display_value}", border=1, align='L')
+        for row_spec in compact_row_specs:
+            pdf.cell(statistic_column_width, 0.6, text=row_spec[0], border=1, align='L')
+            pdf.cell(value_column_width, 0.6, text=_format_compact_row(total_stats, row_spec), border=1, align='L')
             pdf.ln(0.6)
 
         pdf.ln(1.0)
@@ -604,19 +680,18 @@ def generate_global_statistics_pdf(locations=None):
 
         # Create table for price class statistics
         pdf.set_fill_color(200, 220, 255)
-        pdf.cell(5.0, 1.2, text=_("Statistic"), border=1, align='C', fill=True)
+        pdf.cell(statistic_column_width, 1.2, text=_("Statistic"), border=1, align='C', fill=True)
         for price_class in price_class_stats.keys():
-            pdf.multi_cell(3.0, 1.2, text=f"{price_class.name}", border=1, align='C', fill=True, ln=3, max_line_height=pdf.font_size*1.5)
+            pdf.multi_cell(value_column_width, 1.2, text=f"{price_class.name}", border=1, align='C', fill=True, ln=3, max_line_height=pdf.font_size*1.5)
         pdf.ln(1.2)
-        pdf.cell(5.0, 0.6, text=_("Price"), border=1, align='C', fill=True)
+        pdf.cell(statistic_column_width, 0.6, text=_("Price"), border=1, align='C', fill=True)
         for price_class in price_class_stats.keys():
-            pdf.cell(3.0, 0.6, text=f"{price_class.price} {settings.DEFAULT_CURRENCY}", border=1, align='C', fill=True)
+            pdf.cell(value_column_width, 0.6, text=f"{price_class.price} {settings.DEFAULT_CURRENCY}", border=1, align='C', fill=True)
         pdf.ln(0.6)
-        for key in next(iter(price_class_stats.values())).keys():
-            pdf.cell(5.0, 0.6, text=statistic_labels.get(key, key.replace('_', ' ').title()), border=1, align='L')
+        for row_spec in compact_row_specs:
+            pdf.cell(statistic_column_width, 0.6, text=row_spec[0], border=1, align='L')
             for price_class, stats in price_class_stats.items():
-                display_value = f"{stats[key]} {settings.DEFAULT_CURRENCY}" if 'earned' in key else stats[key]
-                pdf.cell(3.0, 0.6, text=f"{display_value}", border=1, align='L')
+                pdf.cell(value_column_width, 0.6, text=_format_compact_row(stats, row_spec), border=1, align='L')
             pdf.ln(0.6)
         
     return pdf
@@ -625,16 +700,7 @@ def generate_global_statistics_pdf(locations=None):
 @user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def show_generated_global_statistics_pdf(request):
     selected_location_id = request.GET.get('location')
-    locations = None
-
-    if is_user_in_ticket_managers_group_or_admin(request.user) and not is_user_in_admin(request.user):
-        ticket_master = get_ticketmaster_for_user(request.user)
-        locations = ticket_master.active_locations.all() if ticket_master else Location.objects.none()
-
-        if selected_location_id:
-            locations = locations.filter(id=selected_location_id)
-    elif selected_location_id:
-        locations = Location.objects.filter(id=selected_location_id)
+    locations, _ = _get_statistics_location_scope(request.user, selected_location_id)
 
     # Generate PDF for the selected ticket
     pdf = generate_global_statistics_pdf(locations=locations)

@@ -3,9 +3,6 @@ from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.urls import reverse
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login as auth_login 
-from django.contrib.auth import logout as auth_logout
 from django.utils.translation import gettext_lazy as _ 
 
 import io
@@ -20,6 +17,7 @@ from payments.models import PaymentStatus
 
 from .forms import PaymentInfoForm
 from .forms import UpdateEmailsForm 
+from .models import get_order_create_defaults
 
 from events.models import SoldAsStatus
 from accounting.admin import is_admin_or_accountant_user
@@ -30,19 +28,28 @@ def cart_view(request):
     if not request.session.session_key:
         request.session.create()
 
-    order, _ = get_payment_model().objects.get_or_create(session_id=request.session.session_key)
+    order, _ = get_payment_model().objects.get_or_create(
+        session_id=request.session.session_key,
+        defaults=get_order_create_defaults(),
+    )
 
     if order.status == PaymentStatus.CONFIRMED:
         # this is an old order that has already been paid
         # create a new session and order
         request.session.cycle_key()
-        order, _ = get_payment_model().objects.get_or_create(session_id=request.session.session_key)
+        order, _ = get_payment_model().objects.get_or_create(
+            session_id=request.session.session_key,
+            defaults=get_order_create_defaults(),
+        )
 
     elif not order.is_valid():
         # this is an old order that has expired
         # delete the order and create a new one
         order.delete()
-        order = get_payment_model().objects.create(session_id=request.session.session_key)
+        order = get_payment_model().objects.create(
+            session_id=request.session.session_key,
+            **get_order_create_defaults(),
+        )
 
     if request.method == 'POST':
         form = UpdateEmailsForm(request.POST)
@@ -70,7 +77,10 @@ def order_information_form(request):
         
     if not order.is_valid():
         order.delete()
-        order = get_payment_model().objects.create(session_id=request.session.session_key)
+        order = get_payment_model().objects.create(
+            session_id=request.session.session_key,
+            **get_order_create_defaults(),
+        )
         return redirect('cart_view')
         
     gateway_form = None  # Initialize gateway_form to None
@@ -175,7 +185,10 @@ def payment_form(request, order_id):
 
     if not order.is_valid():
         order.delete()
-        order = get_payment_model().objects.create(session_id=request.session.session_key)
+        order = get_payment_model().objects.create(
+            session_id=request.session.session_key,
+            **get_order_create_defaults(),
+        )
         return redirect('cart_view')
 
     try:
@@ -481,19 +494,3 @@ def manage_orders(request):
         'currency': settings.DEFAULT_CURRENCY
     })
 
-# create login page
-def login(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            auth_login(request, user)
-            return redirect('event_list') 
-    else:
-        form = AuthenticationForm()
-    return TemplateResponse(request, 'login.html', {'form': form})
-
-def logout(request):
-    # Log out the user
-    auth_logout(request)
-    return redirect('event_list')

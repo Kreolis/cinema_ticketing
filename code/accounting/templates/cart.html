@@ -4,6 +4,7 @@
 {% bootstrap_javascript %}
 
 {% load i18n %}
+{% load tz %}
 
 {% block title %}
     {% translate "Order Overview" %}
@@ -45,7 +46,7 @@
                 <tr>
                     <th>{% translate "Event Name" %}</th>
                     <th>{% translate "Start Time" %}</th>
-                    <th>{% translate "Location" %}</th>
+                    <th>{% translate "Venue" %}</th>
                     <th>{% translate "Seat Number" %}</th>
                     <th>{% translate "Email" %}</th>
                     <th>{% translate "Price" %}</th>
@@ -57,7 +58,7 @@
                 {% for ticket in order.tickets.all %}
                     <tr>
                         <td><a href="{% url 'event_details' ticket.event.id %}">{{ ticket.event.name }}</a></td>
-                        <td>{{ ticket.event.start_time }}</td>
+                        <td>{% localtime off %}{{ ticket.event.start_time_in_timezone|date:"H:i (e) d.m.Y" }}{% endlocaltime %}</td>
                         <td>{{ ticket.event.location.name }}</td>
                         {% if ticket.event.display_seat_number %}
                             <td>{{ ticket.seat }}</td>

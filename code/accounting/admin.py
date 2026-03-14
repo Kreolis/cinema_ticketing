@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.admin import SimpleListFilter
 from .models import Order, ServiceFee
 
-from events.admin import is_admin_user, is_ticket_manager_user
+from events.models import is_admin_user, is_ticket_manager_user
 
 def is_accountant_user(user):
     return user.groups.filter(name='Accountants').exists()

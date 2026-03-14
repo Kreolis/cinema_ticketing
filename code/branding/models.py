@@ -8,6 +8,7 @@ from django_celery_beat.models import IntervalSchedule, PeriodicTask
 from PIL import Image
 from pytz import common_timezones
 from pytz import timezone as pytz_timezone
+from functools import lru_cache
 import json
 
 import logging
@@ -107,6 +108,7 @@ class Branding(models.Model):
             Branding.objects.filter(is_active=True).update(is_active=False)
 
         super(Branding, self).save(*args, **kwargs)
+        clear_active_branding_cache()
         update_statistics_task_schedule(instance=self)  # update the statistics task schedule whenever
         update_timed_out_orders_task_schedule(instance=self)  # update the timed out orders task schedule whenever
 
@@ -116,6 +118,7 @@ class Branding(models.Model):
         self.favicon.delete()
         self.success_sound.delete()
         super(Branding, self).delete(*args, **kwargs)
+        clear_active_branding_cache()
         update_statistics_task_schedule()  # update the statistics task schedule
         update_timed_out_orders_task_schedule()  # update the timed out orders task schedule
 
@@ -124,8 +127,11 @@ class Branding(models.Model):
             image = Image.open(self.favicon)
             if image.width > 64 or image.height > 64:
                 raise ValidationError(_("Favicon size should not exceed 64x64 pixels."))
+        if self.order_timeout is not None and self.order_timeout <= 0:
+            raise ValidationError({"order_timeout": _("Order timeout must be a positive integer (greater than 0).")})
     
-    def get_timezone(self):
+    @property
+    def timezone(self):
         tz_name = self.default_event_timezone or 'UTC'
         try:
             return pytz_timezone(tz_name)
@@ -133,23 +139,36 @@ class Branding(models.Model):
             logger.error(f"Invalid timezone '{tz_name}' in branding settings: {e}")
             return pytz_timezone('UTC')
 
-    def get_presale_start_time_in_timezone(self):
+    @property
+    def presale_start_time_in_timezone(self):
         if self.presale_start:
-            return django_timezone.localtime(self.presale_start, timezone=self.get_timezone())
+            return django_timezone.localtime(self.presale_start, timezone=self.timezone)
         return None
 
-    def get_presale_end_time_in_timezone(self):
+    @property
+    def presale_end_time_in_timezone(self):
         if self.use_online_presale_end and self.online_presale_end:
-            return django_timezone.localtime(self.online_presale_end, timezone=self.get_timezone())
+            return django_timezone.localtime(self.online_presale_end, timezone=self.timezone)
         return None
     
-    
-def get_active_branding():
+
+@lru_cache(maxsize=1)
+def _get_active_branding_cached():
     from django.db import connection
     if 'branding_branding' in connection.introspection.table_names():
-        if Branding.objects.filter(is_active=True).exists():
-            return Branding.objects.filter(is_active=True).first()
+        return Branding.objects.filter(is_active=True).first()
     return None
+
+
+def clear_active_branding_cache():
+    _get_active_branding_cached.cache_clear()
+
+
+def get_active_branding():
+    try:
+        return _get_active_branding_cached()
+    except (ProgrammingError, OperationalError):
+        return None
 
 def update_timed_out_orders_task_schedule(instance=None):
     logger.info("Updating timed out orders task schedule.")

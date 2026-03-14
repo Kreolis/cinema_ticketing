@@ -15,4 +15,11 @@ def cart_count(request):
         except get_payment_model().DoesNotExist:
             ticket_count = 0
     
-    return {'cart_ticket_count': ticket_count}
+    session_remaining_seconds = None
+    if request.user.is_authenticated:
+        session_remaining_seconds = request.session.get_expiry_age()
+
+    return {
+        'cart_ticket_count': ticket_count,
+        'session_remaining_seconds': session_remaining_seconds,
+    }

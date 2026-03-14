@@ -22,6 +22,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+def get_order_timeout_default():
+    branding = get_active_branding()
+    if branding and branding.order_timeout is not None:
+        return branding.order_timeout
+    return 10
+
+
+def get_order_create_defaults():
+    return {"timeout": get_order_timeout_default()}
+
 # service fee types choices
 SERVICE_FEE_TYPE_CHOICES = [
     ('fixed_total', _("Fixed Amount on Total")),
@@ -268,10 +279,6 @@ class Order(BasePayment):
         """
         return self.success_url
 
-    # set to branding order_timeout if available
-    if get_active_branding() and get_active_branding().order_timeout:
-        timeout = get_active_branding().order_timeout
-
     def __str__(self):
         return _("Order {id} for session {session_id}").format(id=self.id, session_id=self.session_id)
 
@@ -296,6 +303,9 @@ class Order(BasePayment):
             # return existing order instead of creating a new one
             existing_order = Order.objects.get(session_id=self.session_id)
             return existing_order
+
+        if self.timeout is None:
+            self.timeout = get_order_timeout_default()
 
         if not self.created:
             self.created = timezone.now()

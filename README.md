@@ -125,7 +125,6 @@ Paypal gateway support can be added with the following variables:
 For SOFORT / KLARNA support add the following variables:
 (currently untested!)
 
-
 ```bash
   USE_SOFORT=True
   SOFORT_KLARNA_ID=your-sofort-klarna-id
@@ -139,7 +138,7 @@ For Klarna support one needs to install the following
   pip install xmltodict
 ```
 
-For ReCAPTCHA support add `YourMyRecaptchaKey` / `YourRecaptchaPrivateKey`. 
+For ReCAPTCHA support add `YourMyRecaptchaKey` / `YourRecaptchaPrivateKey`.
 
 If you want to use a postgres database set `USE_POSTGRES` to `True` and add the following variables:
 

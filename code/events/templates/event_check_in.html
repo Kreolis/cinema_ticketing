@@ -10,6 +10,14 @@
 {% block content %}
     <h1 class="mt-4">{% translate "Event Check-In" %} - {{ event.name }}</h1>
 
+    <div class="mt-4 mb-4">
+        <a href="{% url 'event_details' event.id %}" class="btn btn-primary">{% translate "Go to Event Details" %}</a>
+        {% if is_ticket_manager %}
+            <a href="{% url 'event_door_selling' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Door Selling" %}</a>
+            <a href="{% url 'event_statistics' event.id %}" class="btn btn-secondary">{% translate "Go to Statistics" %}</a>
+        {% endif %}
+    </div>
+
     {% if event_active %}
         <!-- Camera toggle button -->
         <button id="cam-toggle-btn" class="btn btn-primary mt-3" onclick="toggleCamera()">{% translate "Start Camera" %}</button>
@@ -30,6 +38,13 @@
 
         <script>
             let scanningEnabled = true;
+
+            function formatActivated(value) {
+                if (typeof value === 'string') {
+                    return value.toLowerCase() === 'true' ? "{% translate 'True' %}" : "{% translate 'False' %}";
+                }
+                return value ? "{% translate 'True' %}" : "{% translate 'False' %}";
+            }
 
             function onScanSuccess(decodedText, decodedResult) {
                 if (!scanningEnabled) return;
@@ -63,7 +78,7 @@
 
                         // Update the activation status in the table
                         const activatedCell = document.getElementById(`activated-cell-${ticketId}`);
-                        activatedCell.textContent = data.activated;
+                        activatedCell.textContent = formatActivated(data.activated);
 
                         // Play success sound if defined
                         {% if branding and branding.success_sound %}
@@ -110,7 +125,9 @@
                     }).catch(err => {
                         console.error("{% translate 'Error starting QR scanner' %}:", err);
                         if (err.name === 'NotAllowedError' || err.name === 'NotFoundError') {
-                            alert("{% translate 'Please grant camera permissions to scan QR codes.' %}");
+                            {% translate 'Please grant camera permissions to scan QR codes.' as camera_permissions_message %}
+                            const cameraPermissionsMessage = "{{ camera_permissions_message|escapejs }}";
+                            alert(cameraPermissionsMessage);
                         }
                     });
                 }
@@ -134,7 +151,7 @@
 
                         // Update the activation status in the table
                         const activatedCell = document.getElementById(`activated-cell-${ticketId}`);
-                        activatedCell.textContent = data.activated;
+                        activatedCell.textContent = formatActivated(data.activated);
 
                         flashRow(ticketId);
                     }
@@ -164,16 +181,17 @@
         <!-- Tickets table -->
         <h2 class="mt-4">{% translate "Event Tickets" %}</h2>
         <div class="table-responsive">
-            <table id="tickets-table" class="table table-striped mt-3">
+            <table id="tickets-table" class="table table-striped mt-3" style="width:100%">
                 <thead>
                     <tr>
                         <th>{% translate "Action" %}</th>
-                        <th>{% translate "Has been activated" %}</th>
+                        <th class="d-none">{% translate "Activated" %}</th>
                         {% if event.display_seat_number %}
                             <th>{% translate "Seat Number" %}</th>
                         {% endif %}
                         <th>{% translate "Email" %}</th>
-                        <th>{% translate "Name" %}</th>
+                        <th>{% translate "First Name" %}</th>
+                        <th>{% translate "Last Name" %}</th>
                         <th>{% translate "Ticket ID" %}</th>
                         <th>{% translate "Sold as" %}</th>
                     </tr>
@@ -186,14 +204,15 @@
                                     {% if ticket.activated %}{% translate 'Deactivate' %}{% else %}{% translate 'Activate' %}{% endif %}
                                 </button>
                             </td>
-                            <td id="activated-cell-{{ ticket.id }}">{{ ticket.activated }}</td>
+                            <td id="activated-cell-{{ ticket.id }}" class="d-none">{% if ticket.activated %}{% translate 'True' %}{% else %}{% translate 'False' %}{% endif %}</td>
                             {% if event.display_seat_number %}
                                 <td>{{ ticket.seat }}</td>
                             {% endif %}
                             <td>{{ ticket.email }}</td>
-                            <td>{{ ticket.first_name }} {{ ticket.last_name }}</td>
+                            <td>{{ ticket.first_name }}</td>
+                            <td>{{ ticket.last_name }}</td>
                             <td>{{ ticket.id }}</td>
-                            <td>{{ ticket.sold_as }}</td>
+                            <td>{{ ticket.get_sold_as_display }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -202,7 +221,16 @@
 
         <script>
             $(document).ready(function() {
-                $('#tickets-table').DataTable();
+                $('#tickets-table').DataTable({
+                    autoWidth: false,
+                    columnDefs: [
+                        {
+                            targets: [1],
+                            visible: false,
+                            searchable: false
+                        }
+                    ]
+                });
             });
         </script>
 

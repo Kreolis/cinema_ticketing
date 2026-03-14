@@ -3,10 +3,14 @@ from .views import (
     contact_form,
     privacy_policy,
     terms_of_service,
+    login,
+    logout
 )
 
 urlpatterns = [
     path('privacy-policy', privacy_policy, name='privacy_policy'),
     path('terms-of-service', terms_of_service, name='terms_of_service'),
-    path('contact', contact_form, name='contact_form'),  # Front page URL
+    path('contact', contact_form, name='contact_form'),
+    path('login/', login, name='login'),
+    path('logout/', logout, name='logout')
 ]
