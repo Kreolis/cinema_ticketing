@@ -312,7 +312,7 @@ def event_door_selling(request, event_id):
                     quantity = form.cleaned_data.get(f'quantity_{price_class.id}', 0)
                     if quantity > 0:
                         for _ in range(quantity):
-                            if presale_end_time < datetime.now(timezone.utc):
+                            if event.presale_end_time_in_timezone < datetime.now(timezone.utc):
                                 # Presale has ended
                                 
                                 if event.allow_door_selling:
