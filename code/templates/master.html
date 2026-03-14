@@ -241,20 +241,13 @@ function handleSessionTimeout() {
   }
   timeoutHandled = true;
 
-  if (!logoutLink) {
-    return;
-  }
-
   if (window.bootstrap && document.getElementById('sessionTimeoutModal')) {
     timeoutModal = timeoutModal || new bootstrap.Modal(document.getElementById('sessionTimeoutModal'));
     timeoutModal.show();
-    setTimeout(() => {
-      window.location.href = logoutLink.href;
-    }, 1200);
     return;
   }
 
-  alert('{% translate "Your session has expired. You will be logged out now." %}');
+  alert('{% translate "Your session may have expired. Please save your work and reload or log out." %}');
   window.location.href = logoutLink.href;
 }
 

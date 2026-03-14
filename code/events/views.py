@@ -20,7 +20,7 @@ from accounting.models import get_order_create_defaults
 
 
 from .models import Event, Ticket, SoldAsStatus, Location
-from .models import get_user_active_locations, is_admin_user, is_user_in_ticket_managers_group_or_admin, is_user_in_ticket_managers_or_checkers_group_or_admin
+from .models import get_user_active_locations, is_admin_user, is_ticket_checker_user, is_ticket_manager_user, is_user_in_ticket_managers_group_or_admin, is_user_in_ticket_managers_or_checkers_group_or_admin
 from branding.models import get_active_branding
 from .forms import TicketSelectionForm
 
@@ -35,7 +35,7 @@ def event_list(request):
     # restrict the events shown to ticket managers to only those that are in their active locations if they have any
     if is_special_staff_user:
         active_locations = get_user_active_locations(request.user)
-        if active_locations is not None and active_locations.exists():
+        if active_locations is not None:
             events = events.filter(location__in=active_locations)
 
     location_options = Location.objects.filter(event__in=events).distinct().order_by('name')
@@ -67,12 +67,14 @@ def event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
     branding = get_active_branding()
+    is_ticket_manager = is_ticket_manager_user(request.user) or is_admin_user(request.user)
+    is_ticket_checker = is_ticket_checker_user(request.user) and not is_ticket_manager
 
     # Check ticket manager access early, before any POST processing
     is_special_staff_user = is_user_in_ticket_managers_or_checkers_group_or_admin(request.user)
     if is_special_staff_user:
         active_locations = get_user_active_locations(request.user)
-        if active_locations is not None and active_locations.exists() and event.location not in active_locations:
+        if active_locations is not None and event.location not in active_locations:
             return redirect('event_list')
 
     # select all price classes for the event apart from secret ones
@@ -127,6 +129,8 @@ def event_detail(request, event_id):
         'price_classes': price_classes,
         'form': form,
         'is_special_staff_user': is_special_staff_user,
+        'is_ticket_manager': is_ticket_manager,
+        'is_ticket_checker': is_ticket_checker,
         'presale_end_time': presale_end_time,
         'presale_start_time': event.presale_start_time_in_timezone,
         'currency': settings.DEFAULT_CURRENCY,
@@ -141,8 +145,10 @@ def update_ticket_email(request, ticket_id):
             ticket.email = new_email
             ticket.save()
             return JsonResponse({"status": "success", "message": "Email updated to " + ticket.email, "updated_email": ticket.email})
-    return JsonResponse({"status": "error", "message": "Invalid request"})
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
 
+@login_required
+@user_passes_test(is_user_in_ticket_managers_group_or_admin)
 def update_ticket_name(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
     if request.method == 'POST':
@@ -161,7 +167,7 @@ def update_ticket_name(request, ticket_id):
                 "updated_first_name": ticket.first_name,
                 "updated_last_name": ticket.last_name
             })
-    return JsonResponse({"status": "error", "message": "Invalid request"})
+    return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
 
 def delete_ticket(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
@@ -207,12 +213,16 @@ def event_check_in(request, event_id):
     # filter out waiting tickets = not sold yet, SoldAsStatus.PRESALE_ONLINE_WAITING and SoldAsStatus.WAITING
     tickets = Ticket.objects.filter(event=event).exclude(sold_as__in=[SoldAsStatus.PRESALE_ONLINE_WAITING, SoldAsStatus.WAITING])
     branding = get_active_branding()
+    is_ticket_manager = is_ticket_manager_user(request.user) or is_admin_user(request.user)
+    is_ticket_checker = is_ticket_checker_user(request.user) and not is_ticket_manager
 
     return render(request, 'event_check_in.html', {
         'event': event,
         'event_active': event.check_active(),
         'tickets': tickets,
         'branding': branding,
+        'is_ticket_manager': is_ticket_manager,
+        'is_ticket_checker': is_ticket_checker,
         'currency': settings.DEFAULT_CURRENCY
     })
 
@@ -304,6 +314,8 @@ def event_door_selling(request, event_id):
     return render(request, 'event_door_selling.html', {
         'event': event,
         'event_active': event.check_active(),
+        'is_ticket_manager': True,
+        'is_ticket_checker': False,
         'presale_end_time': presale_end_time,
         'presale_start_time': event.presale_start_time_in_timezone,
         'price_classes': price_classes,
@@ -423,7 +435,7 @@ def _get_statistics_location_scope(user, selected_location_id=None):
 
     if is_user_in_ticket_managers_group_or_admin(user) and not is_admin_user(user):
         active_locations = get_user_active_locations(user)
-        if active_locations is not None and active_locations.exists():
+        if active_locations is not None:
             location_options = active_locations.order_by('name')
             locations = active_locations
         else:

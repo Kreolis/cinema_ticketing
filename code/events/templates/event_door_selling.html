@@ -204,6 +204,36 @@
                 });
             }
 
+            function appendMessage(message, level) {
+                $('#message-container')
+                    .append('<div class="alert alert-' + level + '">' + message + '</div>')
+                    .children()
+                    .last()
+                    .fadeIn()
+                    .delay(1500)
+                    .fadeOut();
+            }
+
+            function getErrorMessage(xhr, fallbackMessage) {
+                const responseText = xhr && typeof xhr.responseText === 'string' ? xhr.responseText : '';
+                if (responseText) {
+                    try {
+                        const response = JSON.parse(responseText);
+                        if (response && response.message) {
+                            return response.message;
+                        }
+                    } catch (e) {
+                        // Ignore parse failures for non-JSON responses such as HTML error pages.
+                    }
+                }
+
+                if (xhr && xhr.status === 403) {
+                    return '{% translate "You do not have permission to perform this action." %}';
+                }
+
+                return fallbackMessage;
+            }
+
             // Handle ticket email update via AJAX
             $('#tickets-table').on('submit', '.update-email-form', function(event) {
                 event.preventDefault();
@@ -213,13 +243,17 @@
                     type: form.attr('method'),
                     data: form.serialize(),
                     success: function(response) {
+                        if (response.status !== 'success') {
+                            appendMessage(response.message || '{% translate "An error occurred while updating the email." %}', 'danger');
+                            return;
+                        }
+
                         // Update the email in the table
                         form.find('input[name="email"]').val(response.updated_email);
-                        $('#message-container').append('<div class="alert alert-success">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                        appendMessage(response.message, 'success');
                     },
                     error: function(xhr, errmsg, err) {
-                        var response = JSON.parse(xhr.responseText);
-                        $('#message-container').append('<div class="alert alert-danger">' + errmsg + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                        appendMessage(getErrorMessage(xhr, errmsg || '{% translate "An error occurred while updating the email." %}'), 'danger');
                     }
                 });
             });
@@ -233,14 +267,18 @@
                     type: form.attr('method'),
                     data: form.serialize(),
                     success: function(response) {
+                        if (response.status !== 'success') {
+                            appendMessage(response.message || '{% translate "An error occurred while updating the name." %}', 'danger');
+                            return;
+                        }
+
                         var row = form.closest('tr');
                         row.find('input[name="first_name"]').val(response.updated_first_name || '');
                         row.find('input[name="last_name"]').val(response.updated_last_name || '');
-                        $('#message-container').append('<div class="alert alert-success">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                        appendMessage(response.message, 'success');
                     },
                     error: function(xhr, errmsg, err) {
-                        var response = JSON.parse(xhr.responseText);
-                        $('#message-container').append('<div class="alert alert-danger">' + errmsg + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                        appendMessage(getErrorMessage(xhr, errmsg || '{% translate "An error occurred while updating the name." %}'), 'danger');
                     }
                 });
             });
@@ -256,11 +294,15 @@
                         csrfmiddlewaretoken: '{{ csrf_token }}'
                     },
                     success: function(response) {
-                        $('#message-container').append('<div class="alert alert-success">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                        if (response.status !== 'success') {
+                            appendMessage(response.message || '{% translate "An error occurred while sending the ticket email." %}', 'danger');
+                            return;
+                        }
+
+                        appendMessage(response.message, 'success');
                     },
                     error: function(xhr, status, error) {
-                        var response = JSON.parse(xhr.responseText);
-                        $('#message-container').append('<div class="alert alert-danger">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                        appendMessage(getErrorMessage(xhr, error || '{% translate "An error occurred while sending the ticket email." %}'), 'danger');
                     }
                 });
             });

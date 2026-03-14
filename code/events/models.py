@@ -1034,19 +1034,9 @@ class TicketChecker(models.Model):
             # Update user's group and is_staff status
             if user:
                 if self.is_active:
-                    if not user.is_staff:
-                        user.is_staff = True
-                        user.save(update_fields=['is_staff'])
                     user.groups.add(ticket_checkers_group)  # Add to group if active
                 else:
                     user.groups.remove(ticket_checkers_group)  # Remove from group if not active
-                    if (
-                        user.is_staff
-                        and not user.is_superuser
-                        and not user.groups.filter(name__in=['admin', 'Admins']).exists()
-                    ):
-                        user.is_staff = False
-                        user.save(update_fields=['is_staff'])
 
             # Save the ticket checker instance only after user operations succeed
             super().save(*args, **kwargs)
@@ -1065,13 +1055,6 @@ class TicketChecker(models.Model):
             user = self.user or User.objects.get(email=self.email)
             if ticket_checkers_group:
                 user.groups.remove(ticket_checkers_group)  # Remove from group when ticket checker is deleted
-            if (
-                user.is_staff
-                and not user.is_superuser
-                and not user.groups.filter(name__in=['admin', 'Admins']).exists()
-            ):
-                user.is_staff = False
-                user.save(update_fields=['is_staff'])
         except User.DoesNotExist:
             pass  # If no user exists with this email, do nothing
 

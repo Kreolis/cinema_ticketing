@@ -12,8 +12,10 @@
 
     <div class="mt-4 mb-4">
         <a href="{% url 'event_details' event.id %}" class="btn btn-primary">{% translate "Go to Event Details" %}</a>
-        <a href="{% url 'event_door_selling' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Door Selling" %}</a>
-        <a href="{% url 'event_statistics' event.id %}" class="btn btn-secondary">{% translate "Go to Statistics" %}</a>
+        {% if is_ticket_manager %}
+            <a href="{% url 'event_door_selling' event.id %}" class="btn btn-primary">{% translate "Go to Ticket Door Selling" %}</a>
+            <a href="{% url 'event_statistics' event.id %}" class="btn btn-secondary">{% translate "Go to Statistics" %}</a>
+        {% endif %}
     </div>
 
     {% if event_active %}
