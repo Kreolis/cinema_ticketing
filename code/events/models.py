@@ -4,8 +4,9 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils.translation import gettext_lazy as _
 import django.utils.timezone
-from pytz import common_timezones, timezone as pytz_timezone
+from pytz import common_timezones
 from django.utils import timezone as django_timezone
+from zoneinfo import ZoneInfo
 
 from datetime import datetime, timedelta, timezone
 
@@ -505,10 +506,10 @@ class Event(models.Model):
 
     @property
     def timezone(self):
-        """Return the pytz timezone object for this event."""
+        """Return the timezone object for this event."""
         if self.custom_event_timezone:
             try:
-                return pytz_timezone(self.custom_event_timezone)
+                return ZoneInfo(self.custom_event_timezone)
             except Exception as e:
                 logger.error(
                     f"Invalid custom_event_timezone '{self.custom_event_timezone}' "
@@ -518,13 +519,13 @@ class Event(models.Model):
         active_branding = get_active_branding()
         if active_branding and active_branding.default_event_timezone:
             try:
-                return pytz_timezone(active_branding.default_event_timezone)
+                return ZoneInfo(active_branding.default_event_timezone)
             except Exception as e:
                 logger.error(
                     f"Invalid default_event_timezone '{active_branding.default_event_timezone}' "
                     f"in branding settings: {e}"
                 )
-        return pytz_timezone('UTC')
+        return ZoneInfo('UTC')
 
     @property
     def start_time_in_timezone(self):

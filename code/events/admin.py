@@ -13,7 +13,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.dateparse import parse_datetime
 from datetime import datetime, timedelta
 from django.utils import timezone
-from pytz import timezone as pytz_timezone
+from zoneinfo import ZoneInfo
 
 import logging
 
@@ -299,7 +299,7 @@ class TicketAdmin(admin.ModelAdmin):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('name', 'start_time', 'location')
+    list_display = ('name', 'start_time_in_event_timezone', 'location')
     list_filter = ('location', 'start_time')
     search_fields = ('name', 'location__name')  # Updated search_fields
     
@@ -327,7 +327,7 @@ class EventAdmin(admin.ModelAdmin):
     def _get_event_timezone(self, event=None):
         if event and event.custom_event_timezone:
             try:
-                return pytz_timezone(event.custom_event_timezone)
+                return ZoneInfo(event.custom_event_timezone)
             except Exception as e:
                 logger.error(
                     f"Invalid custom_event_timezone '{event.custom_event_timezone}' "
@@ -337,7 +337,7 @@ class EventAdmin(admin.ModelAdmin):
         branding = get_active_branding()
         if branding and branding.default_event_timezone:
             try:
-                return pytz_timezone(branding.default_event_timezone)
+                return ZoneInfo(branding.default_event_timezone)
             except Exception as e:
                 logger.error(
                     f"Invalid default_event_timezone '{branding.default_event_timezone}' "
@@ -361,6 +361,13 @@ class EventAdmin(admin.ModelAdmin):
         if active_locations is None:
             return queryset
         return queryset.filter(location__in=active_locations)
+
+    @admin.display(description='start time', ordering='start_time')
+    def start_time_in_event_timezone(self, obj):
+        start_time = obj.start_time_in_timezone
+        if not start_time:
+            return "-"
+        return start_time.strftime('%Y-%m-%d %H:%M %Z')
 
     def has_change_permission(self, request, obj=None):
         """Allow superusers and users in 'admin' group to change."""
@@ -439,7 +446,7 @@ class EventAdmin(admin.ModelAdmin):
                     custom_tz_name = (event_data.get("custom_event_timezone") or "").strip()
                     if custom_tz_name:
                         try:
-                            import_timezone = pytz_timezone(custom_tz_name)
+                            import_timezone = ZoneInfo(custom_tz_name)
                         except Exception as tz_err:
                             warn_msg = (
                                 f"Row '{event_data.get('name', '?')}': invalid timezone "
@@ -581,13 +588,13 @@ class EventAdmin(admin.ModelAdmin):
             events = Event.objects.all()
             for event in events:
                 writer.writerow([
-                    event.name, self._serialize_csv_datetime(event.start_time), event.duration, event.location.name, event.location.total_seats, price_classes,
+                    event.name, self._serialize_csv_datetime(event.start_time_in_timezone), event.duration, event.location.name, event.location.total_seats, price_classes,
                     event.program_link, event.is_active, event.custom_seats,
                     event.custom_ticket_background.name if event.custom_ticket_background else '',
                     serialize_override(event.custom_display_seat_number),
                     event.custom_event_background.name if event.custom_event_background else '',
                     serialize_override(event.custom_allow_presale),
-                    self._serialize_csv_datetime(event.custom_presale_start),
+                    self._serialize_csv_datetime(event.presale_start_time_in_timezone),
                     serialize_override(event.custom_presale_ends_before),
                     serialize_override(event.custom_allow_door_selling),
                     event.custom_event_timezone or ''
