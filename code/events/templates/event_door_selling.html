@@ -48,7 +48,7 @@
                 {% endfor %}
 
                 {% if form.email or form.first_name or form.last_name %}
-                    <div id="buyer-details-fields">
+                    <div id="buyer-details-fields" class="mt-3">
                         {% if form.email %}
                             {% bootstrap_field form.email %}
                         {% endif %}
@@ -94,7 +94,8 @@
                         <th>{% translate "Seat Number" %}</th>
                         <th>{% translate "Price" %}</th>
                         <th>{% translate "Price Class" %}</th>
-                        <th>{% translate "Name" %}</th>
+                        <th>{% translate "First Name" %}</th>
+                        <th>{% translate "Last Name" %}</th>
                         <th>{% translate "Email" %}</th>
                         <th>{% translate "Action" %}</th>
                     </tr>
@@ -105,7 +106,20 @@
                             <td>{{ ticket.seat }}</td>
                             <td>{{ ticket.price_class.price }} {{ currency }}</td>
                             <td>{{ ticket.price_class.name }}</td>
-                            <td>{{ ticket.first_name }} {{ ticket.last_name }}</td>
+                            <td>
+                                <form action="{% url 'update_ticket_name' ticket.id %}" method="post" class="update-name-form" style="display:inline-flex;">
+                                    {% csrf_token %}
+                                    <input type="text" name="first_name" value="{{ ticket.first_name|default:'' }}" class="form-control form-control-sm" required style="margin-right: 5px;">
+                                    {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
+                                </form>
+                            </td>
+                            <td>
+                                <form action="{% url 'update_ticket_name' ticket.id %}" method="post" class="update-name-form" style="display:inline-flex;">
+                                    {% csrf_token %}
+                                    <input type="text" name="last_name" value="{{ ticket.last_name|default:'' }}" class="form-control form-control-sm" required style="margin-right: 5px;">
+                                    {% bootstrap_button _("Update") button_type="submit" button_class="btn btn-primary btn-sm" %}
+                                </form>
+                            </td>
                             <td>
                                 <form action="{% url 'update_ticket_email' ticket.id %}" method="post" class="update-email-form" style="display:inline-flex;">
                                     {% csrf_token %}
@@ -201,6 +215,27 @@
                     success: function(response) {
                         // Update the email in the table
                         form.find('input[name="email"]').val(response.updated_email);
+                        $('#message-container').append('<div class="alert alert-success">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                    },
+                    error: function(xhr, errmsg, err) {
+                        var response = JSON.parse(xhr.responseText);
+                        $('#message-container').append('<div class="alert alert-danger">' + errmsg + '</div>').children().last().fadeIn().delay(1500).fadeOut();
+                    }
+                });
+            });
+
+            // Handle ticket first and last name update via AJAX
+            $('#tickets-table').on('submit', '.update-name-form', function(event) {
+                event.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: form.serialize(),
+                    success: function(response) {
+                        var row = form.closest('tr');
+                        row.find('input[name="first_name"]').val(response.updated_first_name || '');
+                        row.find('input[name="last_name"]').val(response.updated_last_name || '');
                         $('#message-container').append('<div class="alert alert-success">' + response.message + '</div>').children().last().fadeIn().delay(1500).fadeOut();
                     },
                     error: function(xhr, errmsg, err) {

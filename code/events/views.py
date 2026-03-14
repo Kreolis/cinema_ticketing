@@ -161,6 +161,26 @@ def update_ticket_email(request, ticket_id):
             return JsonResponse({"status": "success", "message": "Email updated to " + ticket.email, "updated_email": ticket.email})
     return JsonResponse({"status": "error", "message": "Invalid request"})
 
+def update_ticket_name(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    if request.method == 'POST':
+        new_first_name = request.POST.get('first_name')
+        new_last_name = request.POST.get('last_name')
+        if new_first_name is not None or new_last_name is not None:
+            if new_first_name is not None:
+                ticket.first_name = new_first_name
+            if new_last_name is not None:
+                ticket.last_name = new_last_name
+            ticket.save()
+            full_name = f"{ticket.first_name or ''} {ticket.last_name or ''}".strip()
+            return JsonResponse({
+                "status": "success",
+                "message": "Name updated to " + full_name,
+                "updated_first_name": ticket.first_name,
+                "updated_last_name": ticket.last_name
+            })
+    return JsonResponse({"status": "error", "message": "Invalid request"})
+
 def delete_ticket(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
     order = get_object_or_404(get_payment_model(), session_id=request.session.session_key)

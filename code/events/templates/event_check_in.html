@@ -177,16 +177,17 @@
         <!-- Tickets table -->
         <h2 class="mt-4">{% translate "Event Tickets" %}</h2>
         <div class="table-responsive">
-            <table id="tickets-table" class="table table-striped mt-3">
+            <table id="tickets-table" class="table table-striped mt-3" style="width:100%">
                 <thead>
                     <tr>
                         <th>{% translate "Action" %}</th>
-                        <th style="display:none">{% translate "Activated" %}</th>
+                        <th class="d-none">{% translate "Activated" %}</th>
                         {% if event.display_seat_number %}
                             <th>{% translate "Seat Number" %}</th>
                         {% endif %}
                         <th>{% translate "Email" %}</th>
-                        <th>{% translate "Name" %}</th>
+                        <th>{% translate "First Name" %}</th>
+                        <th>{% translate "Last Name" %}</th>
                         <th>{% translate "Ticket ID" %}</th>
                         <th>{% translate "Sold as" %}</th>
                     </tr>
@@ -199,12 +200,13 @@
                                     {% if ticket.activated %}{% translate 'Deactivate' %}{% else %}{% translate 'Activate' %}{% endif %}
                                 </button>
                             </td>
-                            <td id="activated-cell-{{ ticket.id }}" style="display:none">{% if ticket.activated %}{% translate 'True' %}{% else %}{% translate 'False' %}{% endif %}</td>
+                            <td id="activated-cell-{{ ticket.id }}" class="d-none">{% if ticket.activated %}{% translate 'True' %}{% else %}{% translate 'False' %}{% endif %}</td>
                             {% if event.display_seat_number %}
                                 <td>{{ ticket.seat }}</td>
                             {% endif %}
                             <td>{{ ticket.email }}</td>
-                            <td>{{ ticket.first_name }} {{ ticket.last_name }}</td>
+                            <td>{{ ticket.first_name }}</td>
+                            <td>{{ ticket.last_name }}</td>
                             <td>{{ ticket.id }}</td>
                             <td>{{ ticket.get_sold_as_display }}</td>
                         </tr>
@@ -215,7 +217,16 @@
 
         <script>
             $(document).ready(function() {
-                $('#tickets-table').DataTable();
+                $('#tickets-table').DataTable({
+                    autoWidth: false,
+                    columnDefs: [
+                        {
+                            targets: [1],
+                            visible: false,
+                            searchable: false
+                        }
+                    ]
+                });
             });
         </script>
 

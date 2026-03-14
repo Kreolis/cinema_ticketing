@@ -41,11 +41,11 @@ class SoldAsStatus:
     DOOR = "door"
 
     CHOICES = [
-        (WAITING, _("Ticket not yet sold")),
-        (PRESALE_ONLINE, _("Ticket was sold in online presale")),
-        (PRESALE_ONLINE_WAITING, _("Ticket was sold in online presale, but not yet confirmed")),
-        (PRESALE_DOOR, _("Ticket was sold in door presale")),
-        (DOOR, _("Ticket was sold at the door")),
+        (WAITING, _("waiting for user payment confirmation")),
+        (PRESALE_ONLINE, _("Online Presale")),
+        (PRESALE_ONLINE_WAITING, _("Online Presale, but waiting for payment confirmation")),
+        (PRESALE_DOOR, _("Door Presale")),
+        (DOOR, _("Door")),
     ]
 
 class Location(models.Model):
