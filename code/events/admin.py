@@ -346,6 +346,15 @@ class EventAdmin(admin.ModelAdmin):
 
         return timezone.get_default_timezone()
 
+    def add_view(self, request, form_url='', extra_context=None):
+        with timezone.override(self._get_event_timezone()):
+            return super().add_view(request, form_url=form_url, extra_context=extra_context)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        event = Event.objects.filter(pk=object_id).first()
+        with timezone.override(self._get_event_timezone(event)):
+            return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
+
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         active_locations = get_user_active_locations(request.user)
