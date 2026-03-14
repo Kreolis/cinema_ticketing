@@ -580,7 +580,7 @@ def generate_global_statistics_pdf(locations=None):
     # created at
     created_at = django_timezone.localtime(django_timezone.now(), timezone=report_timezone)
     pdf.set_font(font, size=10)
-    pdf.cell(19.0, 0.6, text=_("Created at:") + f" {created_at.strftime('%d.%m.%Y %H:%M %Z')}", border=0, align='L')
+    pdf.cell(19.0, 0.6, text=_("Created at:") + f" {created_at.strftime('%d.%m.%Y %Z %H:%M')}", border=0, align='L')
     pdf.ln(0.6)
 
     # add global statistics
@@ -645,7 +645,7 @@ def generate_global_statistics_pdf(locations=None):
         pdf.ln(0.8)
         pdf.set_font(font, size=12, style='B')
         pdf.cell(4.0, 0.6, text=_("Start:"), border=0, align='L')
-        pdf.cell(5.0, 0.6, text=f"{event.start_time_in_timezone.strftime('%H:%M %d.%m.%Y %Z')}", border=0, align='L')
+        pdf.cell(5.0, 0.6, text=f"{event.start_time_in_timezone.strftime('%H:%M %Z %d.%m.%Y')}", border=0, align='L')
         pdf.ln(0.8)
         pdf.cell(4.0, 0.6, text=_("Venue:"), border=0, align='L')
         pdf.cell(10.0, 0.6, text=f"{event.location.name}", border=0, align='L')

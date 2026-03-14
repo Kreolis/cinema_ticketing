@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-14 18:59+0200\n"
-"PO-Revision-Date: 2026-03-14 17:00+0000\n"
+"POT-Creation-Date: 2026-03-14 21:22+0200\n"
+"PO-Revision-Date: 2026-03-14 19:23+0000\n"
 "Last-Translator:   <>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -108,9 +108,9 @@ msgid "Enter the state or province for the billing address."
 msgstr "Enter the state or province for the billing address."
 
 #: accounting/forms.py:56 accounting/forms.py:121
-#: accounting/templates/cart.html:50
-#: accounting/templates/order_payment_overview.html:31
-#: accounting/templates/ticket_list.html:33 events/forms.py:32
+#: accounting/templates/cart.html:51
+#: accounting/templates/order_payment_overview.html:32
+#: accounting/templates/ticket_list.html:34 events/forms.py:32
 #: events/templates/event_check_in.html:192
 #: events/templates/event_door_selling.html:99
 msgid "Email"
@@ -139,8 +139,8 @@ msgstr ""
 "for contact purposes regarding billing issues."
 
 #: accounting/forms.py:72 accounting/models.py:56 accounting/models.py:94
-#: accounting/templates/order_payment_overview.html:97
-#: accounting/templates/ticket_list.html:119
+#: accounting/templates/order_payment_overview.html:98
+#: accounting/templates/ticket_list.html:120
 msgid "Payment Method"
 msgstr "Payment Method"
 
@@ -336,7 +336,7 @@ msgid "Unit Price"
 msgstr "Unit Price"
 
 #: accounting/models.py:525 accounting/models.py:563
-#: accounting/templates/cart.html:91 events/models.py:772
+#: accounting/templates/cart.html:92 events/models.py:772
 #: events/templates/all_event_statistics.html:54
 #: events/templates/all_event_statistics.html:157
 #: events/templates/all_event_statistics.html:204
@@ -549,131 +549,129 @@ msgstr ""
 " Cannot refund or cancel order: order is not in CONFIRMED or PREAUTH status."
 " Current status: {status} "
 
-#: accounting/templates/cart.html:9
+#: accounting/templates/cart.html:10
 msgid "Order Overview"
 msgstr "Order Overview"
 
-#: accounting/templates/cart.html:12
+#: accounting/templates/cart.html:13
 msgid "Your Order"
 msgstr "Your Order"
 
-#: accounting/templates/cart.html:21 accounting/templates/cart.html:97
+#: accounting/templates/cart.html:22 accounting/templates/cart.html:98
 #: accounting/templates/order_information_form.html:18
 #: accounting/templates/order_information_form.html:29
-#: accounting/templates/order_payment_overview.html:22
-#: accounting/templates/order_payment_overview.html:139
+#: accounting/templates/order_payment_overview.html:23
+#: accounting/templates/order_payment_overview.html:140
 #: accounting/templates/payment_form.html:17
 #: accounting/templates/payment_form.html:28
 msgid "Your order is valid for another"
 msgstr "Your order is valid for another"
 
-#: accounting/templates/cart.html:21 accounting/templates/cart.html:97
+#: accounting/templates/cart.html:22 accounting/templates/cart.html:98
 #: accounting/templates/order_information_form.html:18
 #: accounting/templates/order_information_form.html:29
-#: accounting/templates/order_payment_overview.html:22
-#: accounting/templates/order_payment_overview.html:139
+#: accounting/templates/order_payment_overview.html:23
+#: accounting/templates/order_payment_overview.html:140
 #: accounting/templates/payment_form.html:17
 #: accounting/templates/payment_form.html:28
 msgid "minutes"
 msgstr "minutes"
 
-#: accounting/templates/cart.html:24
+#: accounting/templates/cart.html:25
 msgid "Update all Ticket Emails"
 msgstr "Update all Ticket Emails"
 
-#: accounting/templates/cart.html:35
+#: accounting/templates/cart.html:36
 msgid "Update Emails"
 msgstr "Update Emails"
 
-#: accounting/templates/cart.html:41 accounting/templates/ticket_list.html:21
+#: accounting/templates/cart.html:42 accounting/templates/ticket_list.html:22
 #: events/templates/event_door_selling.html:37
 msgid "Tickets"
 msgstr "Tickets"
 
-#: accounting/templates/cart.html:46
-#: accounting/templates/order_payment_overview.html:27
-#: accounting/templates/ticket_list.html:29
-msgid "Event Name"
-msgstr "Event Name"
-
 #: accounting/templates/cart.html:47
 #: accounting/templates/order_payment_overview.html:28
 #: accounting/templates/ticket_list.html:30
+msgid "Event Name"
+msgstr "Event Name"
+
+#: accounting/templates/cart.html:48
+#: accounting/templates/order_payment_overview.html:29
+#: accounting/templates/ticket_list.html:31
 #: events/templates/all_event_statistics.html:145
 #: events/templates/event_details.html:21 events/templates/event_list.html:60
 #: events/templates/event_statistics.html:35
 msgid "Start Time"
 msgstr "Start Time"
 
-#: accounting/templates/cart.html:48
-#: accounting/templates/order_payment_overview.html:29
-#: accounting/templates/ticket_list.html:31
-#: events/templates/all_event_statistics.html:46
-#: events/templates/all_event_statistics.html:146
-#: events/templates/event_details.html:22 events/templates/event_list.html:19
-#: events/templates/event_list.html:61
-#: events/templates/event_statistics.html:36
-msgid "Location"
-msgstr "Location"
-
 #: accounting/templates/cart.html:49
 #: accounting/templates/order_payment_overview.html:30
 #: accounting/templates/ticket_list.html:32
+#: events/templates/event_details.html:22 events/templates/event_list.html:19
+#: events/templates/event_list.html:61
+#| msgid "Venue:"
+msgid "Venue"
+msgstr "Venue"
+
+#: accounting/templates/cart.html:50
+#: accounting/templates/order_payment_overview.html:31
+#: accounting/templates/ticket_list.html:33
 #: events/templates/event_check_in.html:190
 #: events/templates/event_door_selling.html:94
 msgid "Seat Number"
 msgstr "Seat Number"
 
-#: accounting/templates/cart.html:51
-#: accounting/templates/order_payment_overview.html:32
-#: accounting/templates/ticket_list.html:34
+#: accounting/templates/cart.html:52
+#: accounting/templates/order_payment_overview.html:33
+#: accounting/templates/ticket_list.html:35
 #: events/templates/event_door_selling.html:95 events/views.py:687
 msgid "Price"
 msgstr "Price"
 
-#: accounting/templates/cart.html:52
-#: accounting/templates/order_payment_overview.html:33
-#: accounting/templates/ticket_list.html:35
+#: accounting/templates/cart.html:53
+#: accounting/templates/order_payment_overview.html:34
+#: accounting/templates/ticket_list.html:36
 #: events/templates/event_door_selling.html:96
 msgid "Price Class"
 msgstr "Price Class"
 
-#: accounting/templates/cart.html:53
+#: accounting/templates/cart.html:54
 #: accounting/templates/manage_orders.html:53
 #: accounting/templates/manage_orders.html:102
 #: accounting/templates/manage_orders.html:145
-#: accounting/templates/ticket_list.html:37
+#: accounting/templates/ticket_list.html:38
 msgid "Actions"
 msgstr "Actions"
 
-#: accounting/templates/cart.html:65
-#: accounting/templates/order_payment_overview.html:45
-#: accounting/templates/ticket_list.html:50
+#: accounting/templates/cart.html:66
+#: accounting/templates/order_payment_overview.html:46
+#: accounting/templates/ticket_list.html:51
 msgid "Free seating"
 msgstr "Free seating"
 
-#: accounting/templates/cart.html:71 accounting/templates/ticket_list.html:56
+#: accounting/templates/cart.html:72 accounting/templates/ticket_list.html:57
 #: events/templates/event_door_selling.html:113
 #: events/templates/event_door_selling.html:120
 #: events/templates/event_door_selling.html:127
 msgid "Update"
 msgstr "Update"
 
-#: accounting/templates/cart.html:79
+#: accounting/templates/cart.html:80
 msgid "Delete"
 msgstr "Delete"
 
-#: accounting/templates/cart.html:102
+#: accounting/templates/cart.html:103
 msgid "Proceed to Order Information"
 msgstr "Proceed to Order Information"
 
-#: accounting/templates/cart.html:104
+#: accounting/templates/cart.html:105
 msgid "Continue ticket selection"
 msgstr "Continue ticket selection"
 
-#: accounting/templates/cart.html:107
+#: accounting/templates/cart.html:108
 #: accounting/templates/order_information_form.html:37
-#: accounting/templates/order_payment_overview.html:150
+#: accounting/templates/order_payment_overview.html:151
 #: accounting/templates/payment_form.html:37
 msgid "Your order has expired."
 msgstr "Your order has expired."
@@ -804,95 +802,95 @@ msgstr "Proceed to Checkout"
 msgid "Go back to cart"
 msgstr "Go back to cart"
 
-#: accounting/templates/order_payment_overview.html:9
-#: accounting/templates/order_payment_overview.html:12
+#: accounting/templates/order_payment_overview.html:10
+#: accounting/templates/order_payment_overview.html:13
 msgid "Order and Payment Overview"
 msgstr "Order and Payment Overview"
 
-#: accounting/templates/order_payment_overview.html:21
-#: accounting/templates/ticket_list.html:9
-#: accounting/templates/ticket_list.html:12
+#: accounting/templates/order_payment_overview.html:22
+#: accounting/templates/ticket_list.html:10
+#: accounting/templates/ticket_list.html:13
 msgid "Order Details"
 msgstr "Order Details"
 
-#: accounting/templates/order_payment_overview.html:61
-#: accounting/templates/order_payment_overview.html:75
-#: accounting/templates/ticket_list.html:82
-#: accounting/templates/ticket_list.html:96
+#: accounting/templates/order_payment_overview.html:62
+#: accounting/templates/order_payment_overview.html:76
+#: accounting/templates/ticket_list.html:83
+#: accounting/templates/ticket_list.html:97
 msgid "Service Fees"
 msgstr "Service Fees"
 
-#: accounting/templates/order_payment_overview.html:76
-#: accounting/templates/ticket_list.html:97
+#: accounting/templates/order_payment_overview.html:77
+#: accounting/templates/ticket_list.html:98
 msgid "No service fees applied"
 msgstr "No service fees applied"
 
-#: accounting/templates/order_payment_overview.html:79
-#: accounting/templates/ticket_list.html:100
+#: accounting/templates/order_payment_overview.html:80
+#: accounting/templates/ticket_list.html:101
 msgid "Total Price"
 msgstr "Total Price"
 
-#: accounting/templates/order_payment_overview.html:85
-#: accounting/templates/ticket_list.html:111
+#: accounting/templates/order_payment_overview.html:86
+#: accounting/templates/ticket_list.html:112
 msgid "Payment Details"
 msgstr "Payment Details"
 
-#: accounting/templates/order_payment_overview.html:89
-#: accounting/templates/ticket_list.html:115
+#: accounting/templates/order_payment_overview.html:90
+#: accounting/templates/ticket_list.html:116
 msgid "Creation Date"
 msgstr "Creation Date"
 
-#: accounting/templates/order_payment_overview.html:93
-#: accounting/templates/ticket_list.html:123
+#: accounting/templates/order_payment_overview.html:94
+#: accounting/templates/ticket_list.html:124
 msgid "Payment Amount"
 msgstr "Payment Amount"
 
-#: accounting/templates/order_payment_overview.html:101
-#: accounting/templates/ticket_list.html:127
+#: accounting/templates/order_payment_overview.html:102
+#: accounting/templates/ticket_list.html:128
 msgid "Billing First Name"
 msgstr "Billing First Name"
 
-#: accounting/templates/order_payment_overview.html:105
-#: accounting/templates/ticket_list.html:131
+#: accounting/templates/order_payment_overview.html:106
+#: accounting/templates/ticket_list.html:132
 msgid "Billing Last Name"
 msgstr "Billing Last Name"
 
-#: accounting/templates/order_payment_overview.html:109
-#: accounting/templates/ticket_list.html:135
+#: accounting/templates/order_payment_overview.html:110
+#: accounting/templates/ticket_list.html:136
 msgid "Billing Address Line 1"
 msgstr "Billing Address Line 1"
 
-#: accounting/templates/order_payment_overview.html:113
-#: accounting/templates/ticket_list.html:139
+#: accounting/templates/order_payment_overview.html:114
+#: accounting/templates/ticket_list.html:140
 msgid "Billing Address Line 2"
 msgstr "Billing Address Line 2"
 
-#: accounting/templates/order_payment_overview.html:117
-#: accounting/templates/ticket_list.html:143
+#: accounting/templates/order_payment_overview.html:118
+#: accounting/templates/ticket_list.html:144
 msgid "Billing City"
 msgstr "Billing City"
 
-#: accounting/templates/order_payment_overview.html:121
-#: accounting/templates/ticket_list.html:147
+#: accounting/templates/order_payment_overview.html:122
+#: accounting/templates/ticket_list.html:148
 msgid "Billing Postcode"
 msgstr "Billing Postcode"
 
-#: accounting/templates/order_payment_overview.html:125
-#: accounting/templates/ticket_list.html:151
+#: accounting/templates/order_payment_overview.html:126
+#: accounting/templates/ticket_list.html:152
 msgid "Billing Country"
 msgstr "Billing Country"
 
-#: accounting/templates/order_payment_overview.html:129
-#: accounting/templates/ticket_list.html:155
+#: accounting/templates/order_payment_overview.html:130
+#: accounting/templates/ticket_list.html:156
 msgid "Billing Country Area"
 msgstr "Billing Country Area"
 
-#: accounting/templates/order_payment_overview.html:133
-#: accounting/templates/ticket_list.html:159
+#: accounting/templates/order_payment_overview.html:134
+#: accounting/templates/ticket_list.html:160
 msgid "Billing Email"
 msgstr "Billing Email"
 
-#: accounting/templates/order_payment_overview.html:145
+#: accounting/templates/order_payment_overview.html:146
 msgid "Confirm order with payment obligation"
 msgstr "Confirm order with payment obligation"
 
@@ -910,17 +908,17 @@ msgstr "Your payment has failed. Please try again."
 msgid "Payment Form"
 msgstr "Payment Form"
 
-#: accounting/templates/ticket_list.html:64
+#: accounting/templates/ticket_list.html:65
 #: events/templates/event_door_selling.html:132
 msgid "Show Ticket"
 msgstr "Show Ticket"
 
-#: accounting/templates/ticket_list.html:67
+#: accounting/templates/ticket_list.html:68
 #: events/templates/event_door_selling.html:135
 msgid "Send ticket to Email"
 msgstr "Send ticket to Email"
 
-#: accounting/templates/ticket_list.html:107
+#: accounting/templates/ticket_list.html:108
 msgid ""
 "This order is not confirmed yet. See payment instructions below or in your "
 "invoice."
@@ -928,7 +926,7 @@ msgstr ""
 "This order is not confirmed yet. See payment instructions below or in your "
 "invoice."
 
-#: accounting/templates/ticket_list.html:166
+#: accounting/templates/ticket_list.html:167
 msgid "Show Invoice"
 msgstr "Show Invoice"
 
@@ -1595,17 +1593,22 @@ msgid "Duration of the event (e.g., 2 hours would be '02:00:00')."
 msgstr "Duration of the event (e.g., 2 hours would be '02:00:00')."
 
 #: events/models.py:348
-msgid "location"
-msgstr "location"
+#| msgid "Venue:"
+msgid "venue"
+msgstr "venue"
 
 #: events/models.py:350
+#| msgid ""
+#| "Location where the event takes place. The location defines the total number "
+#| "of seats available for the event and can have a default color for the event "
+#| "card view."
 msgid ""
-"Location where the event takes place. The location defines the total number "
-"of seats available for the event and can have a default color for the event "
+"Venue where the event takes place. The venue defines the total number of "
+"seats available for the event and can have a default color for the event "
 "card view."
 msgstr ""
-"Location where the event takes place. The location defines the total number "
-"of seats available for the event and can have a default color for the event "
+"Venue where the event takes place. The venue defines the total number of "
+"seats available for the event and can have a default color for the event "
 "card view."
 
 #: events/models.py:357
@@ -1873,26 +1876,37 @@ msgid "Print Global Statistics"
 msgstr "Print Global Statistics"
 
 #: events/templates/all_event_statistics.html:17
+#| msgid ""
+#| "Use the filters below to view statistics for specific locations. This will "
+#| "affect statistics shown in pdf also."
 msgid ""
-"Use the filters below to view statistics for specific locations. This will "
+"Use the filters below to view statistics for specific venues. This will "
 "affect statistics shown in pdf also."
 msgstr ""
-"Use the filters below to view statistics for specific locations. This will "
+"Use the filters below to view statistics for specific venues. This will "
 "affect statistics shown in pdf also."
 
 #: events/templates/all_event_statistics.html:21
-msgid "Event Location"
-msgstr "Event Location"
+#| msgid "Event Name"
+msgid "Event Venue"
+msgstr "Event Venue"
 
 #: events/templates/all_event_statistics.html:23
 #: events/templates/event_list.html:21
-msgid "All Locations"
-msgstr "All Locations"
+#| msgid "Venue:"
+msgid "All Venues"
+msgstr "All Venues"
 
 #: events/templates/all_event_statistics.html:30
 #: events/templates/event_list.html:37
 msgid "Filter"
 msgstr "Filter"
+
+#: events/templates/all_event_statistics.html:46
+#: events/templates/all_event_statistics.html:146
+#: events/templates/event_statistics.html:36
+msgid "Location"
+msgstr "Location"
 
 #: events/templates/all_event_statistics.html:49
 #: events/templates/all_event_statistics.html:176
@@ -2152,25 +2166,21 @@ msgid "Presale is inactive - Door ONLY"
 msgstr "Presale is inactive - Door ONLY"
 
 #: events/templates/event_door_selling.html:237
-#| msgid "You do not have permission to access this page."
 msgid "You do not have permission to perform this action."
 msgstr "You do not have permission to perform this action."
 
 #: events/templates/event_door_selling.html:253
 #: events/templates/event_door_selling.html:262
-#| msgid "An error occurred while queueing the email."
 msgid "An error occurred while updating the email."
 msgstr "An error occurred while updating the email."
 
 #: events/templates/event_door_selling.html:277
 #: events/templates/event_door_selling.html:287
-#| msgid "An error occurred while queueing the email."
 msgid "An error occurred while updating the name."
 msgstr "An error occurred while updating the name."
 
 #: events/templates/event_door_selling.html:304
 #: events/templates/event_door_selling.html:311
-#| msgid "An error occurred while queueing the email."
 msgid "An error occurred while sending the ticket email."
 msgstr "An error occurred while sending the ticket email."
 
@@ -2420,7 +2430,6 @@ msgid "All rights reserved."
 msgstr "All rights reserved."
 
 #: templates/master.html:172
-#| msgid "Permission Denied"
 msgid "Session expired"
 msgstr "Session expired"
 
@@ -2983,6 +2992,15 @@ msgid ""
 msgstr ""
 "If you have any questions about these Terms of Use, please contact us using "
 "the contact form available on this website."
+
+#~ msgid "location"
+#~ msgstr "location"
+
+#~ msgid "Event Location"
+#~ msgstr "Event Location"
+
+#~ msgid "All Locations"
+#~ msgstr "All Locations"
 
 #~ msgid "Ticket not yet sold"
 #~ msgstr "Ticket not yet sold"

@@ -18,8 +18,8 @@
         <div class="col-md-6" style="padding: 1.5rem 1.5rem">
             <h1 class="mt-4">{{ event.name }}</h1>
             
-            <p><strong>{% translate "Start Time" %}:</strong> {% localtime off %}{{ event.start_time_in_timezone|date:"H:i d.m.Y (e)" }}{% endlocaltime %}</p>
-            <p><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
+            <p><strong>{% translate "Start Time" %}:</strong> {% localtime off %}{{ event.start_time_in_timezone|date:"H:i (e) d.m.Y" }}{% endlocaltime %}</p>
+            <p><strong>{% translate "Venue" %}:</strong> {{ event.location.name }}</p>
             <p><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
             {% if event.program_link %}
                 <p><a href="{{ event.program_link }}" target="_blank" rel="noopener noreferrer">{% translate "View program" %}</a></p>
@@ -36,12 +36,12 @@
         <div id="status_message" style="padding: 1.5rem 0rem"></div>
         {% if event.allow_presale %}
             <div id="presale_text" style="display: none;">
-                <p>{% translate "Presale starts at " %} <strong>{% localtime off %}{{ presale_start_time|date:"H:i d.m.Y (e)" }}{% endlocaltime %}</strong> {% translate "Presale ends at " %} <strong>{% localtime off %}{{ presale_end_time|date:"H:i d.m.Y (e)" }}{% endlocaltime %}</strong></p>
+                <p>{% translate "Presale starts at " %} <strong>{% localtime off %}{{ presale_start_time|date:"H:i (e) d.m.Y" }}{% endlocaltime %}</strong> {% translate "Presale ends at " %} <strong>{% localtime off %}{{ presale_end_time|date:"H:i (e) d.m.Y" }}{% endlocaltime %}</strong></p>
             </div>
         {% endif %}
         {% if event.allow_door_selling %}
         <div id="door_selling_text" style="display: none;">
-            <p>{% translate "Tickets are sold at the door. Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} <strong>{% localtime off %}{{ event.start_time_in_timezone|date:"H:i d.m.Y (e)" }}{% endlocaltime %}</strong></p>
+            <p>{% translate "Tickets are sold at the door. Tickets at the door will be available for" %} <strong>{{ event.presale_ends_before }}h </strong> {% translate "before the event starts at " %} <strong>{% localtime off %}{{ event.start_time_in_timezone|date:"H:i (e) d.m.Y" }}{% endlocaltime %}</strong></p>
         </div>
         {% endif %}
 

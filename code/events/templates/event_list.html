@@ -16,9 +16,9 @@
 
     <form method="get" class="row g-3 mb-3 align-items-end">
         <div class="col-md-4">
-            <label for="location" class="form-label">{% translate "Location" %}</label>
+            <label for="location" class="form-label">{% translate "Venue" %}</label>
             <select id="location" name="location" class="form-select">
-                <option value="">{% translate "All Locations" %}</option>
+                <option value="">{% translate "All Venues" %}</option>
                 {% for location in location_options %}
                     <option value="{{ location.id }}" {% if selected_location_id == location.id|stringformat:"s" %}selected{% endif %}>{{ location.name }}</option>
                 {% endfor %}
@@ -57,8 +57,8 @@
                             ">
                             <div style="padding: 1.5rem 1.5rem;">
                                 <h2 class="card-title">{{ event.name }}</h2>
-                                <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {% localtime off %}{{ event.start_time_in_timezone|date:"H:i d.m.Y (e)" }}{% endlocaltime %}</p>
-                                <p class="card-text"><strong>{% translate "Location" %}:</strong> {{ event.location.name }}</p>
+                                <p class="card-text"><strong>{% translate "Start Time" %}:</strong> {% localtime off %}{{ event.start_time_in_timezone|date:"H:i (e) d.m.Y" }}{% endlocaltime %}</p>
+                                <p class="card-text"><strong>{% translate "Venue" %}:</strong> {{ event.location.name }}</p>
                                 <p class="card-text"><strong>{% translate "Duration" %}:</strong> {{ event.duration }}</p>
                                 <p class="card-text"><strong>{% translate "Price Classes" %}:</strong>
                                     {% for price_class in event.price_classes.all %}

@@ -185,9 +185,9 @@ class Ticket(models.Model):
             pdf.ln(1.25)  # Move to the next line
 
             pdf.cell(4.0, 0.6, text=_("Start:"), border=borders, align='L')
-            pdf.cell(5.0, 0.6, text=f"{self.event.start_time_in_timezone.strftime('%H:%M %d.%m.%Y %Z')}", border=borders, align='L')
+            pdf.cell(5.0, 0.6, text=f"{self.event.start_time_in_timezone.strftime('%H:%M %Z %d.%m.%Y')}", border=borders, align='L')
 
-            pdf.cell(2.5, 0.6, text=_("Duration:"), border=borders, align='R')
+            pdf.cell(3.0, 0.6, text=_("Duration:"), border=borders, align='R')
             pdf.cell(2.5, 0.6, text=f"{self.event.duration_minutes} min", border=borders, align='L')
 
             pdf.ln(0.75)  # Move to the next line
@@ -345,9 +345,9 @@ class Event(models.Model):
 
     location = models.ForeignKey(
         Location, 
-        verbose_name=_("location"), 
+        verbose_name=_("venue"), 
         on_delete=models.CASCADE,
-        help_text=_("Location where the event takes place. The location defines the total number of seats available for the event and can have a default color for the event card view.")
+        help_text=_("Venue where the event takes place. The venue defines the total number of seats available for the event and can have a default color for the event card view.")
     )
 
     price_classes = models.ManyToManyField(
@@ -795,7 +795,7 @@ class Event(models.Model):
         pdf.ln(1.0)
         pdf.set_font(font, size=12, style='B')
         pdf.cell(4.0, 0.6, text=_("Start:"), border=0, align='L')
-        pdf.cell(5.0, 0.6, text=f"{self.start_time_in_timezone.strftime('%H:%M %d.%m.%Y %Z')}", border=0, align='L')
+        pdf.cell(5.0, 0.6, text=f"{self.start_time_in_timezone.strftime('%H:%M %Z %d.%m.%Y')}", border=0, align='L')
         pdf.ln(0.8)
         pdf.cell(4.0, 0.6, text=_("Venue:"), border=0, align='L')
         pdf.cell(10.0, 0.6, text=f"{self.location.name}", border=0, align='L')
@@ -804,7 +804,7 @@ class Event(models.Model):
         # created at
         pdf.set_font(font, size=10)
         created_at = django_timezone.localtime(django_timezone.now(), timezone=self.timezone)
-        pdf.cell(19.0, 0.6, text=_("Created at:") + f" {created_at.strftime('%d.%m.%Y %H:%M %Z')}", border=0, align='L')
+        pdf.cell(19.0, 0.6, text=_("Created at:") + f" {created_at.strftime('%d.%m.%Y %Z %H:%M')}", border=0, align='L')
         pdf.ln(0.6)
 
         # Fetch statistics
