@@ -715,7 +715,8 @@ class Event(models.Model):
         }
         price_class_stats = {}
 
-        for price_class in price_classes:
+        # sort price classes by price ascending for better display in statistics
+        for price_class in price_classes.order_by('price'):
             waiting_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.WAITING).count()
             presale_online_waiting_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_ONLINE_WAITING).count()
             presale_online_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_ONLINE).count()
