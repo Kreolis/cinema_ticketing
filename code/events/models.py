@@ -4,8 +4,9 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils.translation import gettext_lazy as _
 import django.utils.timezone
-from pytz import common_timezones, timezone as pytz_timezone
+from pytz import common_timezones
 from django.utils import timezone as django_timezone
+from zoneinfo import ZoneInfo
 
 from datetime import datetime, timedelta, timezone
 
@@ -505,10 +506,10 @@ class Event(models.Model):
 
     @property
     def timezone(self):
-        """Return the pytz timezone object for this event."""
+        """Return the timezone object for this event."""
         if self.custom_event_timezone:
             try:
-                return pytz_timezone(self.custom_event_timezone)
+                return ZoneInfo(self.custom_event_timezone)
             except Exception as e:
                 logger.error(
                     f"Invalid custom_event_timezone '{self.custom_event_timezone}' "
@@ -518,13 +519,13 @@ class Event(models.Model):
         active_branding = get_active_branding()
         if active_branding and active_branding.default_event_timezone:
             try:
-                return pytz_timezone(active_branding.default_event_timezone)
+                return ZoneInfo(active_branding.default_event_timezone)
             except Exception as e:
                 logger.error(
                     f"Invalid default_event_timezone '{active_branding.default_event_timezone}' "
                     f"in branding settings: {e}"
                 )
-        return pytz_timezone('UTC')
+        return ZoneInfo('UTC')
 
     @property
     def start_time_in_timezone(self):
@@ -714,7 +715,8 @@ class Event(models.Model):
         }
         price_class_stats = {}
 
-        for price_class in price_classes:
+        # sort price classes by price ascending for better display in statistics
+        for price_class in price_classes.order_by('price', 'name', 'id'):
             waiting_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.WAITING).count()
             presale_online_waiting_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_ONLINE_WAITING).count()
             presale_online_count = tickets.filter(price_class=price_class, sold_as=SoldAsStatus.PRESALE_ONLINE).count()
