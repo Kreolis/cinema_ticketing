@@ -119,9 +119,11 @@ class EventAdminDownloadTemplateCsvTests(TestCase):
             'Imported Event,2026-03-20 18:00:00,2:00,Missing Venue,,,http://example.com,True,,,,,,,,\n'
         )
 
-        response = self.event_admin.import_csv(self._build_import_request(csv_content))
+        with self.assertLogs('events.admin', level='ERROR') as captured_logs:
+            response = self.event_admin.import_csv(self._build_import_request(csv_content))
 
         self.assertEqual(response.status_code, 200)
+        self.assertIn('Provide location_total_seats in the CSV or create the location first.', captured_logs.output[0])
         self.assertContains(response, 'Provide location_total_seats in the CSV or create the location first.')
         self.assertFalse(Event.objects.filter(name='Imported Event').exists())
         self.assertFalse(Location.objects.filter(name='Missing Venue').exists())

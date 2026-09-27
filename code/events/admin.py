@@ -11,6 +11,7 @@ from django import forms
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.utils.dateparse import parse_datetime
+from django.utils.translation import gettext_lazy as _
 from datetime import datetime, timedelta
 from django.utils import timezone
 from zoneinfo import ZoneInfo
@@ -362,7 +363,7 @@ class EventAdmin(admin.ModelAdmin):
             return queryset
         return queryset.filter(location__in=active_locations)
 
-    @admin.display(description='start time', ordering='start_time')
+    @admin.display(description=_('start time'), ordering='start_time')
     def start_time_in_event_timezone(self, obj):
         start_time = obj.start_time_in_timezone
         if not start_time:
