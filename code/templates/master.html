@@ -213,10 +213,13 @@
   const root = document.documentElement;
   const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
   const modes = ['auto', 'light', 'dark'];
+  {% translate "Theme: follow system" as theme_auto_label %}
+  {% translate "Theme: light" as theme_light_label %}
+  {% translate "Theme: dark" as theme_dark_label %}
   const labels = {
-    auto: '{% translate "Theme: follow system" %}',
-    light: '{% translate "Theme: light" %}',
-    dark: '{% translate "Theme: dark" %}'
+    auto: '{{ theme_auto_label|escapejs }}',
+    light: '{{ theme_light_label|escapejs }}',
+    dark: '{{ theme_dark_label|escapejs }}'
   };
 
   function apply(mode) {
