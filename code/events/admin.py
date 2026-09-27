@@ -594,7 +594,7 @@ class EventAdmin(admin.ModelAdmin):
                     serialize_override(event.custom_display_seat_number),
                     event.custom_event_background.name if event.custom_event_background else '',
                     serialize_override(event.custom_allow_presale),
-                    self._serialize_csv_datetime(event.presale_start_time_in_timezone),
+                    self._serialize_csv_datetime(event._convert_to_event_timezone(event.custom_presale_start)),
                     serialize_override(event.custom_presale_ends_before),
                     serialize_override(event.custom_allow_door_selling),
                     event.custom_event_timezone or ''

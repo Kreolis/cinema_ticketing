@@ -168,7 +168,7 @@ class EventTimezoneConversionTests(TestCase):
 
         self.assertEqual(converted.hour, 10)
         self.assertEqual(converted.minute, 30)
-        self.assertEqual(converted.tzinfo.zone, 'Europe/Helsinki')
+        self.assertEqual(str(converted.tzinfo), 'Europe/Helsinki')
 
     def test_naive_datetime_uses_custom_event_timezone_when_set(self):
         event = Event.objects.create(
@@ -183,7 +183,7 @@ class EventTimezoneConversionTests(TestCase):
 
         self.assertEqual(converted.hour, 10)
         self.assertEqual(converted.minute, 30)
-        self.assertEqual(converted.tzinfo.zone, 'America/New_York')
+        self.assertEqual(str(converted.tzinfo), 'America/New_York')
 
 
 class UpdateTicketNameAuthorizationTests(TestCase):
