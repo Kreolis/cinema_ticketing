@@ -3,6 +3,7 @@ from django.conf import settings
 
 from django.core.mail import EmailMessage
 from django.utils.translation import gettext_lazy as _
+from django.utils.functional import cached_property
 import django.utils.timezone
 from pytz import common_timezones
 from django.utils import timezone as django_timezone
@@ -466,7 +467,7 @@ class Event(models.Model):
         """
         return int(self.duration.total_seconds() / 60)
 
-    @property
+    @cached_property
     def presale_end_time(self):
         """
         Returns time when presale ends. 
